@@ -18,6 +18,8 @@ class TableViewport extends SingleChildRenderObjectWidget {
     required this.verticalOffset,
     required this.horizontalOffset,
     required this.columns,
+    required double? minScrollableWidth,
+    required double minScrollableWidthRatio,
     required this.rowCount,
     required this.rowHeight,
     required TableRowBuilder rowBuilder,
@@ -33,6 +35,8 @@ class TableViewport extends SingleChildRenderObjectWidget {
             verticalOffset: verticalOffset,
             horizontalOffset: horizontalOffset,
             columns: columns,
+            minScrollableWidth: minScrollableWidth,
+            minScrollableWidthRatio: minScrollableWidthRatio,
             rowCount: rowCount,
             rowHeight: rowHeight,
             rowBuilder: rowBuilder,
@@ -115,6 +119,8 @@ Widget _emptyHeaderDecorator(Widget headerWidget) => headerWidget;
 class _TableViewportContent extends StatelessWidget {
   final ViewportOffset verticalOffset, horizontalOffset;
   final List<TableColumn> columns;
+  final double? minScrollableWidth;
+  final double minScrollableWidthRatio;
   final int rowCount;
   final double rowHeight;
   final TableRowBuilder rowBuilder;
@@ -131,6 +137,8 @@ class _TableViewportContent extends StatelessWidget {
     required this.verticalOffset,
     required this.horizontalOffset,
     required this.columns,
+    required this.minScrollableWidth,
+    required this.minScrollableWidthRatio,
     required this.rowCount,
     required this.rowHeight,
     required this.rowBuilder,
@@ -150,6 +158,45 @@ class _TableViewportContent extends StatelessWidget {
           builder: (context, constraints) {
             final width = constraints.maxWidth;
             final height = constraints.maxHeight;
+
+            late final int freezePriority;
+            {
+              final minScrollableWidth = max(
+                16.0,
+                this.minScrollableWidth ?? minScrollableWidthRatio * width,
+              );
+
+              final priorities = columns
+                  .map((e) => e.freezePriority)
+                  .where((element) => element != 0)
+                  .toSet()
+                  .toList(growable: false)
+                ..sort();
+
+              int priority = 0;
+              final iterator = priorities.iterator;
+              while (true) {
+                if (width -
+                        columns
+                            .where((element) => element.frozenAt(priority))
+                            .fold<double>(
+                                .0,
+                                (previousValue, element) =>
+                                    previousValue + element.width) >
+                    minScrollableWidth) {
+                  break;
+                }
+
+                if (iterator.moveNext()) {
+                  priority = iterator.current;
+                } else {
+                  break;
+                }
+              }
+
+              freezePriority = priority;
+            }
+
             return ListenableBuilder(
               listenable: horizontalOffset,
               builder: (context) {
@@ -173,13 +220,16 @@ class _TableViewportContent extends StatelessWidget {
                     i < columns.length;
                     i++) {
                   final column = columns[i];
-                  if (column.fixed && centerOffset.isNegative) {
+                  if (column.frozenAt(freezePriority) &&
+                      centerOffset.isNegative) {
                     columnsLeft.add(i);
                     columnOffsetsLeft.add(leftOffset);
                     leftOffset += column.width;
                   } else if (leftOffset +
                           centerOffset +
-                          (column.fixed ? column.width : 0) <=
+                          (column.frozenAt(freezePriority)
+                              ? column.width
+                              : 0) <=
                       width) {
                     if (centerOffset >= -column.width) {
                       columnsCenter.add(i);
@@ -191,7 +241,7 @@ class _TableViewportContent extends StatelessWidget {
                         j + columnsRight.length > i - 2;
                         j--) {
                       final column = columns[j];
-                      if (column.fixed) {
+                      if (column.frozenAt(freezePriority)) {
                         columnsRight.add(j);
                         rightOffset -= column.width;
                         columnOffsetsRight.add(rightOffset);

@@ -25,11 +25,15 @@ class TableView extends StatefulWidget {
   final double? footerHeight;
   final TableCellBuilder? footerBuilder;
   final TableFooterDecorator? footerDecorator;
+  final double? minScrollableWidth;
+  final double minScrollableWidthRatio;
 
   const TableView({
     super.key,
     this.controller,
     required this.columns,
+    this.minScrollableWidth,
+    this.minScrollableWidthRatio = .6180339887498547,
     required this.rowCount,
     this.rowHeight = _defaultItemHeight,
     required this.rowBuilder,
@@ -87,6 +91,8 @@ class _TableViewState extends State<TableView> {
                   verticalOffset: verticalOffset,
                   horizontalOffset: horizontalOffset,
                   columns: widget.columns,
+                  minScrollableWidth: widget.minScrollableWidth,
+                  minScrollableWidthRatio: widget.minScrollableWidthRatio,
                   rowCount: widget.rowCount,
                   rowHeight: widget.rowHeight,
                   rowBuilder: widget.rowBuilder,
