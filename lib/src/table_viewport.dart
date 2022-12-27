@@ -321,17 +321,3 @@ class _TableViewportContent extends StatelessWidget {
           },
         );
 }
-
-@immutable
-class _Cell {
-  final int row, column;
-
-  const _Cell(this.row, this.column);
-
-  @override
-  bool operator ==(Object other) =>
-      other is _Cell && row == other.row && column == other.column;
-
-  @override
-  int get hashCode => row << 8 | column;
-}
