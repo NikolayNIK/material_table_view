@@ -240,6 +240,7 @@ class _TableViewportContent extends StatelessWidget {
                         clipBehavior: Clip.none,
                         children: [
                           Positioned(
+                            key: const ValueKey<int>(-1),
                             left: leftWidth,
                             width: centerWidth,
                             height: rowHeight,
