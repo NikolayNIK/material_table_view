@@ -8,14 +8,19 @@ const _defaultItemHeight = 56.0;
 typedef TableCellBuilder = Widget Function(BuildContext context, int column);
 typedef TableRowBuilder = TableCellBuilder Function(int row);
 
+typedef TableRowDecorator = Widget Function(Widget rowWidget, int rowIndex);
+typedef TableHeaderDecorator = Widget Function(Widget headerWidget);
+
 class TableView extends StatefulWidget {
   final int rowCount;
   final double rowHeight;
   final List<TableColumn> columns;
   final TableViewController? controller;
   final TableRowBuilder rowBuilder;
+  final TableRowDecorator? rowDecorator;
   final TableCellBuilder? headerBuilder;
   final double? headerHeight;
+  final TableHeaderDecorator? headerDecorator;
 
   const TableView({
     super.key,
@@ -24,8 +29,10 @@ class TableView extends StatefulWidget {
     required this.rowCount,
     this.rowHeight = _defaultItemHeight,
     required this.rowBuilder,
+    this.rowDecorator,
     this.headerBuilder,
     this.headerHeight,
+    this.headerDecorator,
   }) : assert((headerBuilder == null) == (headerHeight == null));
 
   @override
@@ -76,8 +83,10 @@ class _TableViewState extends State<TableView> {
                   rowCount: widget.rowCount,
                   rowHeight: widget.rowHeight,
                   rowBuilder: widget.rowBuilder,
+                  rowDecorator: widget.rowDecorator,
                   headerBuilder: widget.headerBuilder,
                   headerHeight: widget.headerHeight,
+                  headerDecorator: widget.headerDecorator,
                 ),
               ),
             ),

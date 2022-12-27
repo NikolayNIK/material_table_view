@@ -21,8 +21,10 @@ class TableViewport extends SingleChildRenderObjectWidget {
     required this.rowCount,
     required this.rowHeight,
     required TableRowBuilder rowBuilder,
+    required TableRowDecorator? rowDecorator,
     required TableCellBuilder? headerBuilder,
     required double? headerHeight,
+    required TableHeaderDecorator? headerDecorator,
   }) : super(
           child: _TableViewportContent(
             verticalOffset: verticalOffset,
@@ -31,8 +33,10 @@ class TableViewport extends SingleChildRenderObjectWidget {
             rowCount: rowCount,
             rowHeight: rowHeight,
             rowBuilder: rowBuilder,
+            rowDecorator: rowDecorator ?? _emptyRowDecorator,
             headerBuilder: headerBuilder,
             headerHeight: headerHeight,
+            headerDecorator: headerDecorator ?? _emptyHeaderDecorator,
           ),
         );
 
@@ -97,6 +101,10 @@ class RenderTableView extends RenderProxyBox {
   }
 }
 
+Widget _emptyRowDecorator(Widget rowWidget, int _) => rowWidget;
+
+Widget _emptyHeaderDecorator(Widget headerWidget) => headerWidget;
+
 /// TODO replace crude Widget implementation to a RenderBox one
 class _TableViewportContent extends StatelessWidget {
   final ViewportOffset verticalOffset, horizontalOffset;
@@ -104,8 +112,10 @@ class _TableViewportContent extends StatelessWidget {
   final int rowCount;
   final double rowHeight;
   final TableRowBuilder rowBuilder;
+  final TableRowDecorator rowDecorator;
   final TableCellBuilder? headerBuilder;
   final double? headerHeight;
+  final TableHeaderDecorator headerDecorator;
 
   const _TableViewportContent({
     super.key,
@@ -115,8 +125,10 @@ class _TableViewportContent extends StatelessWidget {
     required this.rowCount,
     required this.rowHeight,
     required this.rowBuilder,
+    required this.rowDecorator,
     required this.headerBuilder,
     required this.headerHeight,
+    required this.headerDecorator,
   }) : assert((headerBuilder == null) == (headerHeight == null));
 
   @override
@@ -271,10 +283,8 @@ class _TableViewportContent extends StatelessWidget {
                               top: rowOffset,
                               width: width,
                               height: rowHeight,
-                              child: InkWell(
-                                onTap: () {},
-                                child: buildRow(rowBuilder(rowIndex)),
-                              ),
+                              child: rowDecorator(
+                                  buildRow(rowBuilder(rowIndex)), rowIndex),
                             ),
                         ],
                       );
@@ -297,7 +307,7 @@ class _TableViewportContent extends StatelessWidget {
                     SizedBox(
                       width: double.infinity,
                       height: headerHeight,
-                      child: buildRow(headerBuilder),
+                      child: headerDecorator(buildRow(headerBuilder)),
                     ),
                     const Divider(
                       height: 2.0,
