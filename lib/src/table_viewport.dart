@@ -25,6 +25,9 @@ class TableViewport extends SingleChildRenderObjectWidget {
     required TableCellBuilder? headerBuilder,
     required double? headerHeight,
     required TableHeaderDecorator? headerDecorator,
+    required double? footerHeight,
+    required TableCellBuilder? footerBuilder,
+    required TableFooterDecorator? footerDecorator,
   }) : super(
           child: _TableViewportContent(
             verticalOffset: verticalOffset,
@@ -37,6 +40,9 @@ class TableViewport extends SingleChildRenderObjectWidget {
             headerBuilder: headerBuilder,
             headerHeight: headerHeight,
             headerDecorator: headerDecorator ?? _emptyHeaderDecorator,
+            footerHeight: footerHeight,
+            footerBuilder: footerBuilder,
+            footerDecorator: footerDecorator ?? _emptyHeaderDecorator,
           ),
         );
 
@@ -116,6 +122,9 @@ class _TableViewportContent extends StatelessWidget {
   final TableCellBuilder? headerBuilder;
   final double? headerHeight;
   final TableHeaderDecorator headerDecorator;
+  final double? footerHeight;
+  final TableCellBuilder? footerBuilder;
+  final TableFooterDecorator footerDecorator;
 
   const _TableViewportContent({
     super.key,
@@ -129,6 +138,9 @@ class _TableViewportContent extends StatelessWidget {
     required this.headerBuilder,
     required this.headerHeight,
     required this.headerDecorator,
+    required this.footerHeight,
+    required this.footerBuilder,
+    required this.footerDecorator,
   }) : assert((headerBuilder == null) == (headerHeight == null));
 
   @override
@@ -293,7 +305,8 @@ class _TableViewportContent extends StatelessWidget {
                 );
 
                 final headerBuilder = this.headerBuilder;
-                if (headerBuilder == null) {
+                final footerBuilder = this.footerBuilder;
+                if (headerBuilder == null && footerBuilder == null) {
                   return SizedBox(
                     width: double.infinity,
                     height: double.infinity,
@@ -304,16 +317,29 @@ class _TableViewportContent extends StatelessWidget {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    SizedBox(
-                      width: double.infinity,
-                      height: headerHeight,
-                      child: headerDecorator(buildRow(headerBuilder)),
-                    ),
-                    const Divider(
-                      height: 2.0,
-                      thickness: 2.0,
-                    ), // TODO height
+                    if (headerBuilder != null) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        height: headerHeight,
+                        child: headerDecorator(buildRow(headerBuilder)),
+                      ),
+                      const Divider(
+                        height: 2.0,
+                        thickness: 2.0,
+                      ), // TODO height
+                    ],
                     Expanded(child: body),
+                    if (footerBuilder != null) ...[
+                      const Divider(
+                        height: 2.0,
+                        thickness: 2.0,
+                      ), // TODO height
+                      SizedBox(
+                        width: double.infinity,
+                        height: footerHeight,
+                        child: footerDecorator(buildRow(footerBuilder)),
+                      ),
+                    ],
                   ],
                 );
               },

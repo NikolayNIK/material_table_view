@@ -10,6 +10,7 @@ typedef TableRowBuilder = TableCellBuilder Function(int row);
 
 typedef TableRowDecorator = Widget Function(Widget rowWidget, int rowIndex);
 typedef TableHeaderDecorator = Widget Function(Widget headerWidget);
+typedef TableFooterDecorator = TableHeaderDecorator;
 
 class TableView extends StatefulWidget {
   final int rowCount;
@@ -21,6 +22,9 @@ class TableView extends StatefulWidget {
   final TableCellBuilder? headerBuilder;
   final double? headerHeight;
   final TableHeaderDecorator? headerDecorator;
+  final double? footerHeight;
+  final TableCellBuilder? footerBuilder;
+  final TableFooterDecorator? footerDecorator;
 
   const TableView({
     super.key,
@@ -33,6 +37,9 @@ class TableView extends StatefulWidget {
     this.headerBuilder,
     this.headerHeight,
     this.headerDecorator,
+    this.footerHeight,
+    this.footerBuilder,
+    this.footerDecorator,
   }) : assert((headerBuilder == null) == (headerHeight == null));
 
   @override
@@ -87,6 +94,9 @@ class _TableViewState extends State<TableView> {
                   headerBuilder: widget.headerBuilder,
                   headerHeight: widget.headerHeight,
                   headerDecorator: widget.headerDecorator,
+                  footerHeight: widget.footerHeight,
+                  footerBuilder: widget.footerBuilder,
+                  footerDecorator: widget.footerDecorator,
                 ),
               ),
             ),
