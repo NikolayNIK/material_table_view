@@ -40,7 +40,7 @@ class TableView extends StatefulWidget {
     this.footerHeight,
     this.footerBuilder,
     this.footerDecorator,
-  }) : assert((headerBuilder == null) == (headerHeight == null));
+  });
 
   @override
   State<TableView> createState() => _TableViewState();

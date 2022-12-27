@@ -38,9 +38,9 @@ class TableViewport extends SingleChildRenderObjectWidget {
             rowBuilder: rowBuilder,
             rowDecorator: rowDecorator ?? _emptyRowDecorator,
             headerBuilder: headerBuilder,
-            headerHeight: headerHeight,
+            headerHeight: headerHeight ?? rowHeight,
             headerDecorator: headerDecorator ?? _emptyHeaderDecorator,
-            footerHeight: footerHeight,
+            footerHeight: footerHeight ?? rowHeight,
             footerBuilder: footerBuilder,
             footerDecorator: footerDecorator ?? _emptyHeaderDecorator,
           ),
@@ -141,7 +141,7 @@ class _TableViewportContent extends StatelessWidget {
     required this.footerHeight,
     required this.footerBuilder,
     required this.footerDecorator,
-  }) : assert((headerBuilder == null) == (headerHeight == null));
+  });
 
   @override
   Widget build(BuildContext context) => columns.isEmpty
