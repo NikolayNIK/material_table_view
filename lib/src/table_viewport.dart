@@ -239,12 +239,6 @@ class _TableViewportContent extends StatelessWidget {
                         fit: StackFit.expand,
                         clipBehavior: Clip.none,
                         children: [
-                          if (columnsFixed.isNotEmpty)
-                            ...columnMapper(
-                              columnsFixed,
-                              columnOffsetsFixed,
-                              cellBuilder,
-                            ),
                           Positioned(
                             left: leftWidth,
                             width: centerWidth,
@@ -261,6 +255,12 @@ class _TableViewportContent extends StatelessWidget {
                               ),
                             ),
                           ),
+                          if (columnsFixed.isNotEmpty)
+                            ...columnMapper(
+                              columnsFixed,
+                              columnOffsetsFixed,
+                              cellBuilder,
+                            ),
                         ],
                       ),
                     );
