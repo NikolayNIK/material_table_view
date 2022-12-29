@@ -126,9 +126,9 @@ class _TableViewportContent extends StatelessWidget {
   final TableRowBuilder rowBuilder;
   final TableRowDecorator rowDecorator;
   final TableCellBuilder? headerBuilder;
-  final double? headerHeight;
+  final double headerHeight;
   final TableHeaderDecorator headerDecorator;
-  final double? footerHeight;
+  final double footerHeight;
   final TableCellBuilder? footerBuilder;
   final TableFooterDecorator footerDecorator;
 
@@ -283,7 +283,22 @@ class _TableViewportContent extends StatelessWidget {
                       );
                     });
 
-                Widget buildRow(TableCellBuilder cellBuilder) =>
+                const clipWiggleOffset = 16.0;
+                const clipWiggleOuterOffset = 9.0;
+                const clipWiggleInnerOffset =
+                    clipWiggleOffset - clipWiggleOuterOffset;
+                _RowPathClipper clipperFor(double height) =>
+                    _RowPathClipper(Path()
+                      ..moveTo(clipWiggleInnerOffset, 0)
+                      ..lineTo(centerWidth - clipWiggleInnerOffset, 0)
+                      ..lineTo(centerWidth + clipWiggleOuterOffset, height / 2)
+                      ..lineTo(centerWidth - clipWiggleInnerOffset, height)
+                      ..lineTo(clipWiggleInnerOffset, height)
+                      ..lineTo(-clipWiggleOuterOffset, height / 2)
+                      ..close());
+
+                Widget buildRow(TableCellBuilder cellBuilder,
+                        _RowPathClipper clipper) =>
                     RepaintBoundary(
                       child: Stack(
                         fit: StackFit.expand,
@@ -294,7 +309,8 @@ class _TableViewportContent extends StatelessWidget {
                             left: leftWidth,
                             width: centerWidth,
                             height: rowHeight,
-                            child: ClipRect(
+                            child: ClipPath(
+                              clipper: clipper,
                               child: Stack(
                                 fit: StackFit.expand,
                                 clipBehavior: Clip.none,
@@ -315,6 +331,8 @@ class _TableViewportContent extends StatelessWidget {
                         ],
                       ),
                     );
+
+                final rowClipper = clipperFor(rowHeight);
 
                 final body = Material(
                   clipBehavior: Clip.hardEdge,
@@ -347,7 +365,8 @@ class _TableViewportContent extends StatelessWidget {
                               width: width,
                               height: rowHeight,
                               child: rowDecorator(
-                                  buildRow(rowBuilder(rowIndex)), rowIndex),
+                                  buildRow(rowBuilder(rowIndex), rowClipper),
+                                  rowIndex),
                             ),
                         ],
                       );
@@ -372,7 +391,11 @@ class _TableViewportContent extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         height: headerHeight,
-                        child: headerDecorator(buildRow(headerBuilder)),
+                        child: headerDecorator(buildRow(
+                            headerBuilder,
+                            headerHeight == rowHeight
+                                ? rowClipper
+                                : clipperFor(headerHeight))),
                       ),
                       const Divider(
                         height: 2.0,
@@ -388,7 +411,11 @@ class _TableViewportContent extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         height: footerHeight,
-                        child: footerDecorator(buildRow(footerBuilder)),
+                        child: footerDecorator(buildRow(
+                            footerBuilder,
+                            footerHeight == rowHeight
+                                ? rowClipper
+                                : clipperFor(footerHeight))),
                       ),
                     ],
                   ],
@@ -397,4 +424,16 @@ class _TableViewportContent extends StatelessWidget {
             );
           },
         );
+}
+
+class _RowPathClipper extends CustomClipper<Path> {
+  final Path path;
+
+  _RowPathClipper(this.path);
+
+  @override
+  Path getClip(Size size) => path;
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
