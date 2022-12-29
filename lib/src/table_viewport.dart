@@ -248,6 +248,13 @@ class _TableViewportContent extends StatelessWidget {
                       }
                     }
 
+                    final maxVisibleOffset =
+                        width - columnsRight.fold<double>(.0, foldColumnsWidth);
+                    while (columnOffsetsCenter.last > maxVisibleOffset) {
+                      columnsCenter.removeLast();
+                      columnOffsetsCenter.removeLast();
+                    }
+
                     break;
                   }
                 }
