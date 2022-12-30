@@ -293,15 +293,38 @@ class _TableViewportContent extends StatelessWidget {
                 const clipWiggleOuterOffset = 8.0;
                 const clipWiggleInnerOffset =
                     clipWiggleOffset - clipWiggleOuterOffset;
-                _RowPathClipper clipperFor(double height) =>
-                    _RowPathClipper(Path()
-                      ..moveTo(clipWiggleInnerOffset, 0)
-                      ..lineTo(centerWidth - clipWiggleInnerOffset, 0)
+
+                final wiggleLeft = columnsLeft.isNotEmpty;
+                final wiggleRight = columnsRight.isNotEmpty;
+                final clipperHash =
+                    (wiggleLeft ? 1 : 0) | (wiggleRight ? 2 : 0);
+                _RowPathClipper clipperFor(double height) {
+                  final path = Path();
+                  if (wiggleRight) {
+                    path
+                      ..moveTo(centerWidth - clipWiggleInnerOffset, 0)
                       ..lineTo(centerWidth + clipWiggleOuterOffset, height / 2)
-                      ..lineTo(centerWidth - clipWiggleInnerOffset, height)
+                      ..lineTo(centerWidth - clipWiggleInnerOffset, height);
+                  } else {
+                    path
+                      ..moveTo(centerWidth, 0)
+                      ..lineTo(centerWidth, height);
+                  }
+
+                  if (wiggleLeft) {
+                    path
                       ..lineTo(clipWiggleInnerOffset, height)
                       ..lineTo(-clipWiggleOuterOffset, height / 2)
-                      ..close());
+                      ..lineTo(clipWiggleInnerOffset, 0);
+                  } else {
+                    path
+                      ..lineTo(0, height)
+                      ..lineTo(0, 0);
+                  }
+
+                  path.close();
+                  return _RowPathClipper(path, clipperHash);
+                }
 
                 Widget buildRow(TableCellBuilder cellBuilder,
                         _RowPathClipper clipper) =>
@@ -554,14 +577,15 @@ class _TableViewportContent extends StatelessWidget {
 
 class _RowPathClipper extends CustomClipper<Path> {
   final Path path;
+  final int hash;
 
-  _RowPathClipper(this.path);
+  _RowPathClipper(this.path, this.hash);
 
   @override
   Path getClip(Size size) => path;
 
   @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
+  bool shouldReclip(covariant _RowPathClipper old) => old.hash != hash;
 }
 
 class _WigglyBorderPainter extends CustomPainter {
