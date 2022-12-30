@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:material_table_view/material_table_view.dart';
+import 'package:material_table_view/src/iterator_extensions.dart';
 import 'package:material_table_view/src/listenable_builder.dart';
 import 'package:material_table_view/src/table_view.dart';
 
@@ -290,7 +290,7 @@ class _TableViewportContent extends StatelessWidget {
                     });
 
                 const clipWiggleOffset = 16.0;
-                const clipWiggleOuterOffset = 9.0;
+                const clipWiggleOuterOffset = 8.0;
                 const clipWiggleInnerOffset =
                     clipWiggleOffset - clipWiggleOuterOffset;
                 _RowPathClipper clipperFor(double height) =>
@@ -305,40 +305,112 @@ class _TableViewportContent extends StatelessWidget {
 
                 Widget buildRow(TableCellBuilder cellBuilder,
                         _RowPathClipper clipper) =>
-                    RepaintBoundary(
-                      child: Stack(
-                        fit: StackFit.expand,
-                        clipBehavior: Clip.none,
-                        children: [
-                          Positioned(
-                            key: const ValueKey<int>(-1),
-                            left: leftWidth,
-                            width: centerWidth,
-                            height: rowHeight,
-                            child: ClipPath(
-                              clipper: clipper,
-                              child: Stack(
-                                fit: StackFit.expand,
-                                clipBehavior: Clip.none,
-                                children: columnMapper(
-                                  columnsCenter,
-                                  columnOffsetsCenter,
-                                  cellBuilder,
-                                ).toList(growable: false),
-                              ),
+                    Stack(
+                      fit: StackFit.expand,
+                      clipBehavior: Clip.none,
+                      children: [
+                        Positioned(
+                          key: const ValueKey<int>(-1),
+                          left: leftWidth,
+                          width: centerWidth,
+                          height: rowHeight,
+                          child: ClipPath(
+                            clipper: clipper,
+                            child: Stack(
+                              fit: StackFit.expand,
+                              clipBehavior: Clip.none,
+                              children: columnMapper(
+                                columnsCenter,
+                                columnOffsetsCenter,
+                                cellBuilder,
+                              ).toList(growable: false),
                             ),
                           ),
-                          if (columnsFixed.isNotEmpty)
-                            ...columnMapper(
-                              columnsFixed,
-                              columnOffsetsFixed,
-                              cellBuilder,
-                            ),
-                        ],
-                      ),
+                        ),
+                        if (columnsFixed.isNotEmpty)
+                          ...columnMapper(
+                            columnsFixed,
+                            columnOffsetsFixed,
+                            cellBuilder,
+                          ),
+                      ],
                     );
 
                 final rowClipper = clipperFor(rowHeight);
+
+                final dividerThickness =
+                    Theme.of(context).dividerTheme.thickness ?? 2.0;
+
+                final Color leftDividerColor, rightDividerColor;
+                {
+                  final dividerColor = Theme.of(context).dividerTheme.color ??
+                      Theme.of(context).dividerColor;
+
+                  double leftLineOpacity = .0;
+                  if (columnsLeft.isNotEmpty) {
+                    final toFreeze = Iterable.generate(columnsCenter.length)
+                        .where((i) =>
+                            columns[columnsCenter[i]].frozenAt(freezePriority))
+                        .maybeFirst;
+
+                    if (toFreeze == null) {
+                      leftLineOpacity = columnsLeft.isEmpty ? .0 : 1.0;
+                    } else {
+                      leftLineOpacity = max(
+                          0.0, min(1.0, columnOffsetsCenter[toFreeze] / 32.0));
+                    }
+
+                    if (columnsLeft.isNotEmpty &&
+                        columnsCenter.isNotEmpty &&
+                        columnsLeft.last + 1 == columnsCenter.first) {
+                      leftLineOpacity = min(leftLineOpacity,
+                          max(.0, min(1.0, -columnOffsetsCenter.first / 32.0)));
+                    }
+                  }
+
+                  leftDividerColor = dividerColor
+                      .withOpacity(dividerColor.opacity * leftLineOpacity);
+
+                  double rightLineOpacity = .0;
+                  if (columnsRight.isNotEmpty) {
+                    final toFreeze = Iterable.generate(columnsCenter.length,
+                            (index) => columnsCenter.length - index - 1)
+                        .where((i) =>
+                            columns[columnsCenter[i]].frozenAt(freezePriority))
+                        .maybeFirst;
+
+                    if (toFreeze == null) {
+                      rightLineOpacity = 1.0;
+                    } else {
+                      rightLineOpacity = max(
+                          .0,
+                          min(
+                              1.0,
+                              (centerWidth -
+                                      columnOffsetsCenter[toFreeze] -
+                                      columns[columnsCenter[toFreeze]].width) /
+                                  32.0));
+                    }
+
+                    if (columnsRight.isNotEmpty &&
+                        columnsCenter.isNotEmpty &&
+                        columnsRight.last - 1 == columnsCenter.last) {
+                      rightLineOpacity = min(
+                          rightLineOpacity,
+                          max(
+                              .0,
+                              min(
+                                  1.0,
+                                  (-centerWidth +
+                                          columnOffsetsCenter.last +
+                                          columns[columnsCenter.last].width) /
+                                      32.0)));
+                    }
+                  }
+
+                  rightDividerColor = dividerColor
+                      .withOpacity(dividerColor.opacity * rightLineOpacity);
+                }
 
                 final body = Material(
                   clipBehavior: Clip.hardEdge,
@@ -352,29 +424,47 @@ class _TableViewportContent extends StatelessWidget {
                       final endRowIndex =
                           min(rowCount, startRowIndex + height / rowHeight);
 
-                      return Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          // TODO why am i doing that loop like that
-                          for (var rowIndex = startRowIndex,
-                                  rowOffset =
-                                      -(verticalOffsetPixels % rowHeight);
-                              rowIndex < endRowIndex;
-                              () {
-                            rowIndex++;
-                            rowOffset += rowHeight;
-                          }())
-                            Positioned(
-                              key: ValueKey<int>(rowIndex),
-                              left: 0,
-                              top: rowOffset,
-                              width: width,
-                              height: rowHeight,
-                              child: rowDecorator(
-                                  buildRow(rowBuilder(rowIndex), rowClipper),
-                                  rowIndex),
-                            ),
-                        ],
+                      return ClipRect(
+                        child: CustomPaint(
+                          foregroundPainter: _WigglyBorderPainter(
+                              leftLineColor: leftDividerColor,
+                              rightLineColor: rightDividerColor,
+                              leftLineX: leftWidth,
+                              rightLineX: rightWidth,
+                              lineWidth: dividerThickness,
+                              patternHeight: rowHeight,
+                              verticalOffset: verticalOffsetPixels,
+                              horizontalInnerOffset: clipWiggleInnerOffset,
+                              horizontalOuterOffset: clipWiggleOuterOffset),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            clipBehavior: Clip.none,
+                            children: [
+                              // TODO why am i doing that loop like that
+                              for (var rowIndex = startRowIndex,
+                                      rowOffset =
+                                          -(verticalOffsetPixels % rowHeight);
+                                  rowIndex < endRowIndex;
+                                  () {
+                                rowIndex++;
+                                rowOffset += rowHeight;
+                              }())
+                                Positioned(
+                                  key: ValueKey<int>(rowIndex),
+                                  left: 0,
+                                  top: rowOffset,
+                                  width: width,
+                                  height: rowHeight,
+                                  child: RepaintBoundary(
+                                    child: rowDecorator(
+                                        buildRow(
+                                            rowBuilder(rowIndex), rowClipper),
+                                        rowIndex),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -397,11 +487,25 @@ class _TableViewportContent extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         height: headerHeight,
-                        child: headerDecorator(buildRow(
-                            headerBuilder,
-                            headerHeight == rowHeight
-                                ? rowClipper
-                                : clipperFor(headerHeight))),
+                        child: ClipRect(
+                          child: CustomPaint(
+                            foregroundPainter: _WigglyBorderPainter(
+                                leftLineColor: leftDividerColor,
+                                rightLineColor: rightDividerColor,
+                                leftLineX: leftWidth,
+                                rightLineX: rightWidth,
+                                lineWidth: dividerThickness,
+                                patternHeight: headerHeight,
+                                verticalOffset: 0,
+                                horizontalInnerOffset: clipWiggleInnerOffset,
+                                horizontalOuterOffset: clipWiggleOuterOffset),
+                            child: headerDecorator(buildRow(
+                                headerBuilder,
+                                headerHeight == rowHeight
+                                    ? rowClipper
+                                    : clipperFor(headerHeight))),
+                          ),
+                        ),
                       ),
                       const Divider(
                         height: 2.0,
@@ -417,11 +521,27 @@ class _TableViewportContent extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         height: footerHeight,
-                        child: footerDecorator(buildRow(
-                            footerBuilder,
-                            footerHeight == rowHeight
-                                ? rowClipper
-                                : clipperFor(footerHeight))),
+                        child: RepaintBoundary(
+                          child: ClipRect(
+                            child: CustomPaint(
+                              foregroundPainter: _WigglyBorderPainter(
+                                  leftLineColor: leftDividerColor,
+                                  rightLineColor: rightDividerColor,
+                                  leftLineX: leftWidth,
+                                  rightLineX: rightWidth,
+                                  lineWidth: dividerThickness,
+                                  patternHeight: footerHeight,
+                                  verticalOffset: 0,
+                                  horizontalInnerOffset: clipWiggleInnerOffset,
+                                  horizontalOuterOffset: clipWiggleOuterOffset),
+                              child: footerDecorator(buildRow(
+                                  footerBuilder,
+                                  footerHeight == rowHeight
+                                      ? rowClipper
+                                      : clipperFor(footerHeight))),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ],
@@ -442,4 +562,82 @@ class _RowPathClipper extends CustomClipper<Path> {
 
   @override
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
+}
+
+class _WigglyBorderPainter extends CustomPainter {
+  final Color leftLineColor, rightLineColor;
+  final double leftLineX, rightLineX;
+  final double lineWidth;
+  final double patternHeight;
+  final double verticalOffset;
+  final double horizontalInnerOffset, horizontalOuterOffset;
+
+  _WigglyBorderPainter({
+    required this.leftLineColor,
+    required this.rightLineColor,
+    required this.leftLineX,
+    required this.rightLineX,
+    required this.lineWidth,
+    required this.patternHeight,
+    required this.verticalOffset,
+    required this.horizontalInnerOffset,
+    required this.horizontalOuterOffset,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (leftLineColor.alpha == 0 && rightLineColor.alpha == 0) return;
+
+    final path = Path();
+    {
+      final halfPatternHeight = patternHeight / 2;
+      double verticalOffset = -(this.verticalOffset % patternHeight);
+      path.moveTo(horizontalInnerOffset, verticalOffset);
+
+      final end = size.height + this.verticalOffset;
+      while (verticalOffset < end) {
+        path
+          ..lineTo(-horizontalOuterOffset, verticalOffset += halfPatternHeight)
+          ..lineTo(horizontalInnerOffset, verticalOffset += halfPatternHeight);
+      }
+
+      path.relativeLineTo(0, size.height + lineWidth);
+    }
+
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = lineWidth;
+
+    if (leftLineColor.alpha != 0) {
+      paint.color = leftLineColor;
+      canvas
+        ..save()
+        ..translate(leftLineX, 0)
+        ..drawPath(path, paint)
+        ..restore();
+    }
+
+    if (rightLineColor.alpha != 0) {
+      paint.color = rightLineColor;
+      canvas
+        ..save()
+        ..scale(-1.0, 1.0)
+        ..translate(rightLineX - size.width, 0)
+        // ..translate(size.width, 0)
+        ..drawPath(path, paint)
+        ..restore();
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _WigglyBorderPainter old) =>
+      verticalOffset != old.verticalOffset ||
+      leftLineColor != old.leftLineColor ||
+      rightLineColor != old.rightLineColor ||
+      leftLineX != old.leftLineX ||
+      rightLineX != old.rightLineX ||
+      lineWidth != old.lineWidth ||
+      patternHeight != old.patternHeight ||
+      horizontalInnerOffset != old.horizontalInnerOffset ||
+      horizontalOuterOffset != old.horizontalOuterOffset;
 }
