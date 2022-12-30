@@ -13,24 +13,25 @@ class TableViewport extends SingleChildRenderObjectWidget {
   final int rowCount;
   final double rowHeight;
 
-  TableViewport({
-    super.key,
-    required this.verticalOffset,
-    required this.horizontalOffset,
-    required this.columns,
-    required double? minScrollableWidth,
-    required double minScrollableWidthRatio,
-    required this.rowCount,
-    required this.rowHeight,
-    required TableRowBuilder rowBuilder,
-    required TableRowDecorator? rowDecorator,
-    required TableCellBuilder? headerBuilder,
-    required double? headerHeight,
-    required TableHeaderDecorator? headerDecorator,
-    required double? footerHeight,
-    required TableCellBuilder? footerBuilder,
-    required TableFooterDecorator? footerDecorator,
-  }) : super(
+  TableViewport(
+      {super.key,
+      required this.verticalOffset,
+      required this.horizontalOffset,
+      required this.columns,
+      required double? minScrollableWidth,
+      required double minScrollableWidthRatio,
+      required this.rowCount,
+      required this.rowHeight,
+      required TableRowBuilder rowBuilder,
+      required TableRowDecorator? rowDecorator,
+      required TableCellBuilder? headerBuilder,
+      required double? headerHeight,
+      required TableHeaderDecorator? headerDecorator,
+      required double? footerHeight,
+      required TableCellBuilder? footerBuilder,
+      required TableFooterDecorator? footerDecorator,
+      required double dividerRevealOffset})
+      : super(
           child: _TableViewportContent(
             verticalOffset: verticalOffset,
             horizontalOffset: horizontalOffset,
@@ -47,6 +48,7 @@ class TableViewport extends SingleChildRenderObjectWidget {
             footerHeight: footerHeight ?? rowHeight,
             footerBuilder: footerBuilder,
             footerDecorator: footerDecorator ?? _emptyHeaderDecorator,
+            dividerRevealOffset: dividerRevealOffset,
           ),
         );
 
@@ -131,6 +133,7 @@ class _TableViewportContent extends StatelessWidget {
   final double footerHeight;
   final TableCellBuilder? footerBuilder;
   final TableFooterDecorator footerDecorator;
+  final double dividerRevealOffset;
 
   const _TableViewportContent({
     super.key,
@@ -149,6 +152,7 @@ class _TableViewportContent extends StatelessWidget {
     required this.footerHeight,
     required this.footerBuilder,
     required this.footerDecorator,
+    required this.dividerRevealOffset,
   });
 
   @override
@@ -371,23 +375,37 @@ class _TableViewportContent extends StatelessWidget {
 
                   double leftLineOpacity = .0;
                   if (columnsLeft.isNotEmpty) {
-                    final toFreeze = Iterable.generate(columnsCenter.length)
-                        .where((i) =>
-                            columns[columnsCenter[i]].frozenAt(freezePriority))
-                        .maybeFirst;
-
-                    if (toFreeze == null) {
-                      leftLineOpacity = columnsLeft.isEmpty ? .0 : 1.0;
+                    if (dividerRevealOffset == .0) {
+                      leftLineOpacity = 1.0;
                     } else {
-                      leftLineOpacity = max(
-                          0.0, min(1.0, columnOffsetsCenter[toFreeze] / 32.0));
-                    }
+                      final toFreeze = Iterable.generate(columnsCenter.length)
+                          .where((i) => columns[columnsCenter[i]]
+                              .frozenAt(freezePriority))
+                          .maybeFirst;
 
-                    if (columnsLeft.isNotEmpty &&
-                        columnsCenter.isNotEmpty &&
-                        columnsLeft.last + 1 == columnsCenter.first) {
-                      leftLineOpacity = min(leftLineOpacity,
-                          max(.0, min(1.0, -columnOffsetsCenter.first / 32.0)));
+                      if (toFreeze == null) {
+                        leftLineOpacity = columnsLeft.isEmpty ? .0 : 1.0;
+                      } else {
+                        leftLineOpacity = max(
+                            0.0,
+                            min(
+                                1.0,
+                                columnOffsetsCenter[toFreeze] /
+                                    dividerRevealOffset));
+                      }
+
+                      if (columnsLeft.isNotEmpty &&
+                          columnsCenter.isNotEmpty &&
+                          columnsLeft.last + 1 == columnsCenter.first) {
+                        leftLineOpacity = min(
+                            leftLineOpacity,
+                            max(
+                                .0,
+                                min(
+                                    1.0,
+                                    -columnOffsetsCenter.first /
+                                        dividerRevealOffset)));
+                      }
                     }
                   }
 
@@ -396,38 +414,43 @@ class _TableViewportContent extends StatelessWidget {
 
                   double rightLineOpacity = .0;
                   if (columnsRight.isNotEmpty) {
-                    final toFreeze = Iterable.generate(columnsCenter.length,
-                            (index) => columnsCenter.length - index - 1)
-                        .where((i) =>
-                            columns[columnsCenter[i]].frozenAt(freezePriority))
-                        .maybeFirst;
-
-                    if (toFreeze == null) {
+                    if (dividerRevealOffset == 0) {
                       rightLineOpacity = 1.0;
                     } else {
-                      rightLineOpacity = max(
-                          .0,
-                          min(
-                              1.0,
-                              (centerWidth -
-                                      columnOffsetsCenter[toFreeze] -
-                                      columns[columnsCenter[toFreeze]].width) /
-                                  32.0));
-                    }
+                      final toFreeze = Iterable.generate(columnsCenter.length,
+                              (index) => columnsCenter.length - index - 1)
+                          .where((i) => columns[columnsCenter[i]]
+                              .frozenAt(freezePriority))
+                          .maybeFirst;
 
-                    if (columnsRight.isNotEmpty &&
-                        columnsCenter.isNotEmpty &&
-                        columnsRight.last - 1 == columnsCenter.last) {
-                      rightLineOpacity = min(
-                          rightLineOpacity,
-                          max(
-                              .0,
-                              min(
-                                  1.0,
-                                  (-centerWidth +
-                                          columnOffsetsCenter.last +
-                                          columns[columnsCenter.last].width) /
-                                      32.0)));
+                      if (toFreeze == null) {
+                        rightLineOpacity = 1.0;
+                      } else {
+                        rightLineOpacity = max(
+                            .0,
+                            min(
+                                1.0,
+                                (centerWidth -
+                                        columnOffsetsCenter[toFreeze] -
+                                        columns[columnsCenter[toFreeze]]
+                                            .width) /
+                                    dividerRevealOffset));
+                      }
+
+                      if (columnsRight.isNotEmpty &&
+                          columnsCenter.isNotEmpty &&
+                          columnsRight.last - 1 == columnsCenter.last) {
+                        rightLineOpacity = min(
+                            rightLineOpacity,
+                            max(
+                                .0,
+                                min(
+                                    1.0,
+                                    (-centerWidth +
+                                            columnOffsetsCenter.last +
+                                            columns[columnsCenter.last].width) /
+                                        dividerRevealOffset)));
+                      }
                     }
                   }
 

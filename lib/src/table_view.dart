@@ -4,6 +4,7 @@ import 'package:material_table_view/src/table_view_controller.dart';
 import 'package:material_table_view/src/table_viewport.dart';
 
 const _defaultItemHeight = 56.0;
+const _defaultDividerRevealOffset = 32.0;
 
 typedef TableCellBuilder = Widget Function(BuildContext context, int column);
 typedef TableRowBuilder = TableCellBuilder Function(int row);
@@ -27,6 +28,7 @@ class TableView extends StatefulWidget {
   final TableFooterDecorator? footerDecorator;
   final double? minScrollableWidth;
   final double minScrollableWidthRatio;
+  final double dividerRevealOffset;
 
   const TableView({
     super.key,
@@ -44,6 +46,7 @@ class TableView extends StatefulWidget {
     this.footerHeight,
     this.footerBuilder,
     this.footerDecorator,
+    this.dividerRevealOffset = _defaultDividerRevealOffset,
   });
 
   @override
@@ -103,6 +106,7 @@ class _TableViewState extends State<TableView> {
                   footerHeight: widget.footerHeight,
                   footerBuilder: widget.footerBuilder,
                   footerDecorator: widget.footerDecorator,
+                  dividerRevealOffset: widget.dividerRevealOffset,
                 ),
               ),
             ),
