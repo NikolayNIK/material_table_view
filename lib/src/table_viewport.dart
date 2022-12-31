@@ -375,78 +375,83 @@ class TableViewport extends StatelessWidget {
 
                       final body = Material(
                         clipBehavior: Clip.hardEdge,
-                        child: Scrollbar(
-                          controller: controller.verticalScrollController,
-                          thumbVisibility: true,
-                          trackVisibility: true,
-                          child: Scrollable(
+                        child: NotificationListener<OverscrollNotification>(
+                          // Suppress OverscrollNotification events that escape from the inner scrollable
+                          onNotification: (notification) => true,
+                          child: Scrollbar(
                             controller: controller.verticalScrollController,
-                            axisDirection: AxisDirection.down,
-                            viewportBuilder: (context, verticalOffset) =>
-                                ScrollDimensionsApplicator(
-                              position:
-                                  controller.verticalScrollController.position,
-                              axis: Axis.vertical,
-                              scrollExtent: rowCount * rowHeight,
-                              child: ClipRect(
-                                child: ListenableBuilder(
-                                  listenable: verticalOffset,
-                                  builder: (context) {
-                                    final verticalOffsetPixels =
-                                        verticalOffset.pixels;
+                            thumbVisibility: true,
+                            trackVisibility: true,
+                            child: Scrollable(
+                              controller: controller.verticalScrollController,
+                              axisDirection: AxisDirection.down,
+                              viewportBuilder: (context, verticalOffset) =>
+                                  ScrollDimensionsApplicator(
+                                position: controller
+                                    .verticalScrollController.position,
+                                axis: Axis.vertical,
+                                scrollExtent: rowCount * rowHeight,
+                                child: ClipRect(
+                                  child: ListenableBuilder(
+                                    listenable: verticalOffset,
+                                    builder: (context) {
+                                      final verticalOffsetPixels =
+                                          verticalOffset.pixels;
 
-                                    final startRowIndex = max(
-                                        0,
-                                        (verticalOffsetPixels / rowHeight)
-                                            .floor());
-                                    final endRowIndex = min(rowCount,
-                                        startRowIndex + height / rowHeight);
+                                      final startRowIndex = max(
+                                          0,
+                                          (verticalOffsetPixels / rowHeight)
+                                              .floor());
+                                      final endRowIndex = min(rowCount,
+                                          startRowIndex + height / rowHeight);
 
-                                    return CustomPaint(
-                                      foregroundPainter: _WigglyBorderPainter(
-                                          leftLineColor: leftDividerColor,
-                                          rightLineColor: rightDividerColor,
-                                          leftLineX: leftWidth,
-                                          rightLineX: rightWidth,
-                                          lineWidth: dividerThickness,
-                                          patternHeight: rowHeight,
-                                          verticalOffset: verticalOffsetPixels,
-                                          horizontalInnerOffset:
-                                              clipWiggleInnerOffset,
-                                          horizontalOuterOffset:
-                                              clipWiggleOuterOffset),
-                                      child: Stack(
-                                        fit: StackFit.expand,
-                                        clipBehavior: Clip.none,
-                                        children: [
-                                          // TODO why am i doing that loop like that
-                                          for (var rowIndex = startRowIndex,
-                                                  rowOffset =
-                                                      -(verticalOffsetPixels %
-                                                          rowHeight);
-                                              rowIndex < endRowIndex;
-                                              () {
-                                            rowIndex++;
-                                            rowOffset += rowHeight;
-                                          }())
-                                            Positioned(
-                                              key: ValueKey<int>(rowIndex),
-                                              left: 0,
-                                              top: rowOffset,
-                                              width: width,
-                                              height: rowHeight,
-                                              child: RepaintBoundary(
-                                                child: rowDecorator(
-                                                    buildRow(
-                                                        rowBuilder(rowIndex),
-                                                        rowClipper),
-                                                    rowIndex),
+                                      return CustomPaint(
+                                        foregroundPainter: _WigglyBorderPainter(
+                                            leftLineColor: leftDividerColor,
+                                            rightLineColor: rightDividerColor,
+                                            leftLineX: leftWidth,
+                                            rightLineX: rightWidth,
+                                            lineWidth: dividerThickness,
+                                            patternHeight: rowHeight,
+                                            verticalOffset:
+                                                verticalOffsetPixels,
+                                            horizontalInnerOffset:
+                                                clipWiggleInnerOffset,
+                                            horizontalOuterOffset:
+                                                clipWiggleOuterOffset),
+                                        child: Stack(
+                                          fit: StackFit.expand,
+                                          clipBehavior: Clip.none,
+                                          children: [
+                                            // TODO why am i doing that loop like that
+                                            for (var rowIndex = startRowIndex,
+                                                    rowOffset =
+                                                        -(verticalOffsetPixels %
+                                                            rowHeight);
+                                                rowIndex < endRowIndex;
+                                                () {
+                                              rowIndex++;
+                                              rowOffset += rowHeight;
+                                            }())
+                                              Positioned(
+                                                key: ValueKey<int>(rowIndex),
+                                                left: 0,
+                                                top: rowOffset,
+                                                width: width,
+                                                height: rowHeight,
+                                                child: RepaintBoundary(
+                                                  child: rowDecorator(
+                                                      buildRow(
+                                                          rowBuilder(rowIndex),
+                                                          rowClipper),
+                                                      rowIndex),
+                                                ),
                                               ),
-                                            ),
-                                        ],
-                                      ),
-                                    );
-                                  },
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
                             ),
