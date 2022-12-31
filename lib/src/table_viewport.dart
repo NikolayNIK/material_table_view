@@ -388,21 +388,21 @@ class TableViewport extends StatelessWidget {
                                   controller.verticalScrollController.position,
                               axis: Axis.vertical,
                               scrollExtent: rowCount * rowHeight,
-                              child: ListenableBuilder(
-                                listenable: verticalOffset,
-                                builder: (context) {
-                                  final verticalOffsetPixels =
-                                      verticalOffset.pixels;
+                              child: ClipRect(
+                                child: ListenableBuilder(
+                                  listenable: verticalOffset,
+                                  builder: (context) {
+                                    final verticalOffsetPixels =
+                                        verticalOffset.pixels;
 
-                                  final startRowIndex = max(
-                                      0,
-                                      (verticalOffsetPixels / rowHeight)
-                                          .floor());
-                                  final endRowIndex = min(rowCount,
-                                      startRowIndex + height / rowHeight);
+                                    final startRowIndex = max(
+                                        0,
+                                        (verticalOffsetPixels / rowHeight)
+                                            .floor());
+                                    final endRowIndex = min(rowCount,
+                                        startRowIndex + height / rowHeight);
 
-                                  return ClipRect(
-                                    child: CustomPaint(
+                                    return CustomPaint(
                                       foregroundPainter: _WigglyBorderPainter(
                                           leftLineColor: leftDividerColor,
                                           rightLineColor: rightDividerColor,
@@ -445,9 +445,9 @@ class TableViewport extends StatelessWidget {
                                             ),
                                         ],
                                       ),
-                                    ),
-                                  );
-                                },
+                                    );
+                                  },
+                                ),
                               ),
                             ),
                           ),
