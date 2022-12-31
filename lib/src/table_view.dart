@@ -74,43 +74,28 @@ class _TableViewState extends State<TableView> {
   Widget build(BuildContext context) => SizedBox(
         width: double.infinity,
         height: double.infinity,
-        child: Scrollbar(
-          controller: _controller.verticalScrollController,
-          scrollbarOrientation: ScrollbarOrientation.right,
-          thumbVisibility: true,
-          trackVisibility: true,
-          child: Scrollbar(
-            controller: _controller.horizontalScrollController,
-            scrollbarOrientation: ScrollbarOrientation.bottom,
-            thumbVisibility: true,
-            trackVisibility: true,
-            child: Scrollable(
-              axisDirection: AxisDirection.down,
-              controller: _controller.verticalScrollController,
-              viewportBuilder: (context, verticalOffset) => Scrollable(
-                axisDirection: AxisDirection.right,
-                controller: _controller.horizontalScrollController,
-                viewportBuilder: (context, horizontalOffset) => TableViewport(
-                  verticalOffset: verticalOffset,
-                  horizontalOffset: horizontalOffset,
-                  columns: widget.columns,
-                  minScrollableWidth: widget.minScrollableWidth,
-                  minScrollableWidthRatio: widget.minScrollableWidthRatio,
-                  rowCount: widget.rowCount,
-                  rowHeight: widget.rowHeight,
-                  rowBuilder: widget.rowBuilder,
-                  rowDecorator: widget.rowDecorator,
-                  headerBuilder: widget.headerBuilder,
-                  headerHeight: widget.headerHeight,
-                  headerDecorator: widget.headerDecorator,
-                  footerHeight: widget.footerHeight,
-                  footerBuilder: widget.footerBuilder,
-                  footerDecorator: widget.footerDecorator,
-                  dividerRevealOffset: widget.dividerRevealOffset,
-                ),
-              ),
-            ),
-          ),
+        child: TableViewport(
+          controller: _controller,
+          columns: widget.columns,
+          minScrollableWidth: widget.minScrollableWidth,
+          minScrollableWidthRatio: widget.minScrollableWidthRatio,
+          rowCount: widget.rowCount,
+          rowHeight: widget.rowHeight,
+          rowBuilder: widget.rowBuilder,
+          rowDecorator: widget.rowDecorator ?? _emptyRowDecorator,
+          headerBuilder: widget.headerBuilder,
+          headerHeight: widget.headerHeight ?? widget.rowHeight,
+          headerDecorator: widget.headerDecorator ?? _emptyHeaderDecorator,
+          footerHeight: widget.footerHeight ?? widget.rowHeight,
+          footerBuilder: widget.footerBuilder,
+          footerDecorator: widget.footerDecorator ?? _emptyFooterDecorator,
+          dividerRevealOffset: widget.dividerRevealOffset,
         ),
       );
 }
+
+Widget _emptyRowDecorator(Widget rowWidget, int _) => rowWidget;
+
+Widget _emptyHeaderDecorator(Widget headerWidget) => headerWidget;
+
+TableFooterDecorator _emptyFooterDecorator = _emptyHeaderDecorator;
