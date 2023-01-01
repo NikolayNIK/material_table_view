@@ -380,6 +380,7 @@ class TableViewport extends StatelessWidget {
                           onNotification: (notification) => true,
                           child: Scrollbar(
                             controller: controller.verticalScrollController,
+                            interactive: true,
                             thumbVisibility: true,
                             trackVisibility: true,
                             child: Scrollable(
