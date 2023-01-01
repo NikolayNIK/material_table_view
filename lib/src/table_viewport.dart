@@ -588,7 +588,7 @@ class _WigglyBorderPainter extends CustomPainter {
       double verticalOffset = -(this.verticalOffset % patternHeight);
       path.moveTo(horizontalInnerOffset, verticalOffset);
 
-      final end = size.height + this.verticalOffset;
+      final end = size.height + halfPatternHeight;
       while (verticalOffset < end) {
         path
           ..lineTo(-horizontalOuterOffset, verticalOffset += halfPatternHeight)
