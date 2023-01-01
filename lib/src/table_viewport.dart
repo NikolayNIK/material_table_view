@@ -202,10 +202,10 @@ class TableViewport extends StatelessWidget {
                             );
                           });
 
-                      const clipWiggleOffset = 16.0;
-                      const clipWiggleOuterOffset = 8.0;
-                      const clipWiggleInnerOffset =
-                          clipWiggleOffset - clipWiggleOuterOffset;
+                      const wiggleRange = 16.0;
+                      const wiggleOuterOffset = 8.0;
+                      const wiggleInnerOffset =
+                          wiggleRange - wiggleOuterOffset;
 
                       final wiggleLeft = columnsLeft.isNotEmpty;
                       final wiggleRight = columnsRight.isNotEmpty;
@@ -215,11 +215,11 @@ class TableViewport extends StatelessWidget {
                         final path = Path();
                         if (wiggleRight) {
                           path
-                            ..moveTo(centerWidth - clipWiggleInnerOffset, 0)
+                            ..moveTo(centerWidth - wiggleInnerOffset, 0)
                             ..lineTo(
-                                centerWidth + clipWiggleOuterOffset, height / 2)
+                                centerWidth + wiggleOuterOffset, height / 2)
                             ..lineTo(
-                                centerWidth - clipWiggleInnerOffset, height);
+                                centerWidth - wiggleInnerOffset, height);
                         } else {
                           path
                             ..moveTo(centerWidth, 0)
@@ -228,9 +228,9 @@ class TableViewport extends StatelessWidget {
 
                         if (wiggleLeft) {
                           path
-                            ..lineTo(clipWiggleInnerOffset, height)
-                            ..lineTo(-clipWiggleOuterOffset, height / 2)
-                            ..lineTo(clipWiggleInnerOffset, 0);
+                            ..lineTo(wiggleInnerOffset, height)
+                            ..lineTo(-wiggleOuterOffset, height / 2)
+                            ..lineTo(wiggleInnerOffset, 0);
                         } else {
                           path
                             ..lineTo(0, height)
@@ -416,9 +416,9 @@ class TableViewport extends StatelessWidget {
                                             verticalOffset:
                                                 verticalOffsetPixels,
                                             horizontalInnerOffset:
-                                                clipWiggleInnerOffset,
+                                                wiggleInnerOffset,
                                             horizontalOuterOffset:
-                                                clipWiggleOuterOffset),
+                                                wiggleOuterOffset),
                                         child: Stack(
                                           fit: StackFit.expand,
                                           clipBehavior: Clip.none,
@@ -487,9 +487,9 @@ class TableViewport extends StatelessWidget {
                                       patternHeight: headerHeight,
                                       verticalOffset: 0,
                                       horizontalInnerOffset:
-                                          clipWiggleInnerOffset,
+                                          wiggleInnerOffset,
                                       horizontalOuterOffset:
-                                          clipWiggleOuterOffset),
+                                          wiggleOuterOffset),
                                   child: headerDecorator(buildRow(
                                       headerBuilder,
                                       headerHeight == rowHeight
@@ -524,9 +524,9 @@ class TableViewport extends StatelessWidget {
                                         patternHeight: footerHeight,
                                         verticalOffset: 0,
                                         horizontalInnerOffset:
-                                            clipWiggleInnerOffset,
+                                            wiggleInnerOffset,
                                         horizontalOuterOffset:
-                                            clipWiggleOuterOffset),
+                                            wiggleOuterOffset),
                                     child: footerDecorator(buildRow(
                                         footerBuilder,
                                         footerHeight == rowHeight
