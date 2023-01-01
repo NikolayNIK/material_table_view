@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
@@ -68,6 +70,9 @@ class RenderScrollDimensionsApplicator extends RenderProxyBox {
 
     final viewportDimension = _axis == Axis.vertical ? size.height : size.width;
     position.applyViewportDimension(viewportDimension);
-    position.applyContentDimensions(0, _scrollExtent - viewportDimension);
+    position.applyContentDimensions(
+      0,
+      max(.0, _scrollExtent - viewportDimension),
+    );
   }
 }
