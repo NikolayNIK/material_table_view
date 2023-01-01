@@ -204,8 +204,7 @@ class TableViewport extends StatelessWidget {
 
                       const wiggleRange = 16.0;
                       const wiggleOuterOffset = 8.0;
-                      const wiggleInnerOffset =
-                          wiggleRange - wiggleOuterOffset;
+                      const wiggleInnerOffset = wiggleRange - wiggleOuterOffset;
 
                       final wiggleLeft = columnsLeft.isNotEmpty;
                       final wiggleRight = columnsRight.isNotEmpty;
@@ -218,8 +217,7 @@ class TableViewport extends StatelessWidget {
                             ..moveTo(centerWidth - wiggleInnerOffset, 0)
                             ..lineTo(
                                 centerWidth + wiggleOuterOffset, height / 2)
-                            ..lineTo(
-                                centerWidth - wiggleInnerOffset, height);
+                            ..lineTo(centerWidth - wiggleInnerOffset, height);
                         } else {
                           path
                             ..moveTo(centerWidth, 0)
@@ -487,10 +485,8 @@ class TableViewport extends StatelessWidget {
                                       lineWidth: dividerThickness,
                                       patternHeight: headerHeight,
                                       verticalOffset: 0,
-                                      horizontalInnerOffset:
-                                          wiggleInnerOffset,
-                                      horizontalOuterOffset:
-                                          wiggleOuterOffset),
+                                      horizontalInnerOffset: wiggleInnerOffset,
+                                      horizontalOuterOffset: wiggleOuterOffset),
                                   child: headerDecorator(buildRow(
                                       headerBuilder,
                                       headerHeight == rowHeight
