@@ -8,6 +8,7 @@ import 'package:material_table_view/src/listenable_builder.dart';
 import 'package:material_table_view/src/table_view.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
 import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
+import 'package:material_table_view/src/wiggly_row_clipper.dart';
 
 /// TODO replace crude Widget implementation to a RenderBox one
 class TableViewport extends StatelessWidget {
@@ -221,42 +222,8 @@ class TableViewport extends StatelessWidget {
                           const wiggleInnerOffset =
                               wiggleRange - wiggleOuterOffset;
 
-                          final wiggleLeft = columnsLeft.isNotEmpty;
-                          final wiggleRight = columnsRight.isNotEmpty;
-                          final clipperHash =
-                              (wiggleLeft ? 1 : 0) | (wiggleRight ? 2 : 0);
-                          _RowPathClipper clipperFor(double height) {
-                            final path = Path();
-                            if (wiggleRight) {
-                              path
-                                ..moveTo(centerWidth - wiggleInnerOffset, 0)
-                                ..lineTo(
-                                    centerWidth + wiggleOuterOffset, height / 2)
-                                ..lineTo(
-                                    centerWidth - wiggleInnerOffset, height);
-                            } else {
-                              path
-                                ..moveTo(centerWidth, 0)
-                                ..lineTo(centerWidth, height);
-                            }
-
-                            if (wiggleLeft) {
-                              path
-                                ..lineTo(wiggleInnerOffset, height)
-                                ..lineTo(-wiggleOuterOffset, height / 2)
-                                ..lineTo(wiggleInnerOffset, 0);
-                            } else {
-                              path
-                                ..lineTo(0, height)
-                                ..lineTo(0, 0);
-                            }
-
-                            path.close();
-                            return _RowPathClipper(path, clipperHash);
-                          }
-
                           Widget buildRow(TableCellBuilder cellBuilder,
-                                  _RowPathClipper clipper) =>
+                                  CustomClipper<Path> clipper) =>
                               Stack(
                                 fit: StackFit.expand,
                                 clipBehavior: Clip.none,
@@ -288,7 +255,10 @@ class TableViewport extends StatelessWidget {
                                 ],
                               );
 
-                          final rowClipper = clipperFor(rowHeight);
+                          final rowClipper = WigglyRowClipper(
+                            wiggleInnerOffset: wiggleInnerOffset,
+                            wiggleOuterOffset: wiggleOuterOffset,
+                          );
 
                           final dividerThickness =
                               Theme.of(context).dividerTheme.thickness ?? 2.0;
@@ -525,7 +495,12 @@ class TableViewport extends StatelessWidget {
                                           headerBuilder,
                                           headerHeight == rowHeight
                                               ? rowClipper
-                                              : clipperFor(headerHeight))),
+                                              : WigglyRowClipper(
+                                                  wiggleInnerOffset:
+                                                      wiggleInnerOffset,
+                                                  wiggleOuterOffset:
+                                                      wiggleOuterOffset,
+                                                ))),
                                     ),
                                   ),
                                 ),
@@ -558,11 +533,19 @@ class TableViewport extends StatelessWidget {
                                                 wiggleInnerOffset,
                                             horizontalOuterOffset:
                                                 wiggleOuterOffset),
-                                        child: footerDecorator(buildRow(
+                                        child: footerDecorator(
+                                          buildRow(
                                             footerBuilder,
                                             footerHeight == rowHeight
                                                 ? rowClipper
-                                                : clipperFor(footerHeight))),
+                                                : WigglyRowClipper(
+                                                    wiggleInnerOffset:
+                                                        wiggleInnerOffset,
+                                                    wiggleOuterOffset:
+                                                        wiggleOuterOffset,
+                                                  ),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -579,19 +562,6 @@ class TableViewport extends StatelessWidget {
             );
           },
         );
-}
-
-class _RowPathClipper extends CustomClipper<Path> {
-  final Path path;
-  final int hash;
-
-  _RowPathClipper(this.path, this.hash);
-
-  @override
-  Path getClip(Size size) => path;
-
-  @override
-  bool shouldReclip(covariant _RowPathClipper old) => old.hash != hash;
 }
 
 class _WigglyBorderPainter extends CustomPainter {
