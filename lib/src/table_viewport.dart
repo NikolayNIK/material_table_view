@@ -389,7 +389,8 @@ class TableViewport extends StatelessWidget {
                                     position: controller
                                         .verticalScrollController.position,
                                     axis: Axis.vertical,
-                                    scrollExtent: rowCount * rowHeight + 8.0,
+                                    // TODO replace rather crude 10.0 constant meant to add padding for the horizontal scrollbar
+                                    scrollExtent: rowCount * rowHeight + 10.0,
                                     child: ClipRect(
                                       child: ListenableBuilder(
                                         listenable: verticalOffset,
