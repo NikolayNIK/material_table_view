@@ -43,7 +43,9 @@ class WigglyDividerPainter extends CustomPainter {
 
     final paint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = lineWidth;
+      ..strokeWidth = lineWidth
+      ..strokeJoin = StrokeJoin.miter
+      ..strokeCap = StrokeCap.square;
 
     if (leftLineColor.alpha != 0) {
       paint.color = leftLineColor;
