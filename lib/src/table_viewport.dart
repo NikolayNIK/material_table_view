@@ -218,11 +218,6 @@ class TableViewport extends StatelessWidget {
                                 );
                               });
 
-                          const wiggleRange = 16.0;
-                          const wiggleOuterOffset = 8.0;
-                          const wiggleInnerOffset =
-                              wiggleRange - wiggleOuterOffset;
-
                           Widget buildRow(TableCellBuilder cellBuilder,
                                   CustomClipper<Path> clipper) =>
                               Stack(
@@ -256,24 +251,21 @@ class TableViewport extends StatelessWidget {
                                 ],
                               );
 
-                          final rowClipper = WigglyRowClipper(
-                            wiggleInnerOffset: wiggleInnerOffset,
-                            wiggleOuterOffset: wiggleOuterOffset,
-                          );
-
                           final dividerThickness =
                               Theme.of(context).dividerTheme.thickness ?? 2.0;
 
                           final Color leftDividerColor, rightDividerColor;
+                          final double leftDividerWiggleOffset,
+                              rightDividerWiggleOffset;
                           {
                             final dividerColor =
                                 Theme.of(context).dividerTheme.color ??
                                     Theme.of(context).dividerColor;
 
-                            double leftLineOpacity = .0;
+                            double leftDividerAnimationValue = .0;
                             if (columnsLeft.isNotEmpty) {
                               if (dividerRevealOffset == .0) {
-                                leftLineOpacity = 1.0;
+                                leftDividerAnimationValue = 1.0;
                               } else {
                                 final toFreeze =
                                     Iterable.generate(columnsCenter.length)
@@ -282,10 +274,10 @@ class TableViewport extends StatelessWidget {
                                         .maybeFirst;
 
                                 if (toFreeze == null) {
-                                  leftLineOpacity =
+                                  leftDividerAnimationValue =
                                       columnsLeft.isEmpty ? .0 : 1.0;
                                 } else {
-                                  leftLineOpacity = max(
+                                  leftDividerAnimationValue = max(
                                       0.0,
                                       min(
                                           1.0,
@@ -297,8 +289,8 @@ class TableViewport extends StatelessWidget {
                                     columnsCenter.isNotEmpty &&
                                     columnsLeft.last + 1 ==
                                         columnsCenter.first) {
-                                  leftLineOpacity = min(
-                                      leftLineOpacity,
+                                  leftDividerAnimationValue = min(
+                                      leftDividerAnimationValue,
                                       max(
                                           .0,
                                           min(
@@ -310,12 +302,15 @@ class TableViewport extends StatelessWidget {
                             }
 
                             leftDividerColor = dividerColor.withOpacity(
-                                dividerColor.opacity * leftLineOpacity);
+                                dividerColor.opacity *
+                                    leftDividerAnimationValue);
+                            leftDividerWiggleOffset =
+                                16.0 * leftDividerAnimationValue;
 
-                            double rightLineOpacity = .0;
+                            double rightDividerAnimationValue = .0;
                             if (columnsRight.isNotEmpty) {
                               if (dividerRevealOffset == 0) {
-                                rightLineOpacity = 1.0;
+                                rightDividerAnimationValue = 1.0;
                               } else {
                                 final toFreeze = Iterable.generate(
                                         columnsCenter.length,
@@ -326,9 +321,9 @@ class TableViewport extends StatelessWidget {
                                     .maybeFirst;
 
                                 if (toFreeze == null) {
-                                  rightLineOpacity = 1.0;
+                                  rightDividerAnimationValue = 1.0;
                                 } else {
-                                  rightLineOpacity = max(
+                                  rightDividerAnimationValue = max(
                                       .0,
                                       min(
                                           1.0,
@@ -345,8 +340,8 @@ class TableViewport extends StatelessWidget {
                                     columnsCenter.isNotEmpty &&
                                     columnsRight.last - 1 ==
                                         columnsCenter.last) {
-                                  rightLineOpacity = min(
-                                      rightLineOpacity,
+                                  rightDividerAnimationValue = min(
+                                      rightDividerAnimationValue,
                                       max(
                                           .0,
                                           min(
@@ -362,8 +357,16 @@ class TableViewport extends StatelessWidget {
                             }
 
                             rightDividerColor = dividerColor.withOpacity(
-                                dividerColor.opacity * rightLineOpacity);
+                                dividerColor.opacity *
+                                    rightDividerAnimationValue);
+                            rightDividerWiggleOffset =
+                                16.0 * rightDividerAnimationValue;
                           }
+
+                          final rowClipper = WigglyRowClipper(
+                            wiggleLeftOffset: leftDividerWiggleOffset,
+                            wiggleRightOffset: rightDividerWiggleOffset,
+                          );
 
                           final body = Material(
                             clipBehavior: Clip.hardEdge,
@@ -414,10 +417,10 @@ class TableViewport extends StatelessWidget {
                                                     patternHeight: rowHeight,
                                                     verticalOffset:
                                                         verticalOffsetPixels,
-                                                    horizontalInnerOffset:
-                                                        wiggleInnerOffset,
-                                                    horizontalOuterOffset:
-                                                        wiggleOuterOffset),
+                                                    horizontalLeftOffset:
+                                                        leftDividerWiggleOffset,
+                                                    horizontalRightOffset:
+                                                        rightDividerWiggleOffset),
                                             child: Stack(
                                               fit: StackFit.expand,
                                               clipBehavior: Clip.none,
@@ -488,19 +491,19 @@ class TableViewport extends StatelessWidget {
                                           lineWidth: dividerThickness,
                                           patternHeight: headerHeight,
                                           verticalOffset: 0,
-                                          horizontalInnerOffset:
-                                              wiggleInnerOffset,
-                                          horizontalOuterOffset:
-                                              wiggleOuterOffset),
+                                          horizontalLeftOffset:
+                                              leftDividerWiggleOffset,
+                                          horizontalRightOffset:
+                                              rightDividerWiggleOffset),
                                       child: headerDecorator(buildRow(
                                           headerBuilder,
                                           headerHeight == rowHeight
                                               ? rowClipper
                                               : WigglyRowClipper(
-                                                  wiggleInnerOffset:
-                                                      wiggleInnerOffset,
-                                                  wiggleOuterOffset:
-                                                      wiggleOuterOffset,
+                                                  wiggleLeftOffset:
+                                                      leftDividerWiggleOffset,
+                                                  wiggleRightOffset:
+                                                      rightDividerWiggleOffset,
                                                 ))),
                                     ),
                                   ),
@@ -530,20 +533,20 @@ class TableViewport extends StatelessWidget {
                                             lineWidth: dividerThickness,
                                             patternHeight: footerHeight,
                                             verticalOffset: 0,
-                                            horizontalInnerOffset:
-                                                wiggleInnerOffset,
-                                            horizontalOuterOffset:
-                                                wiggleOuterOffset),
+                                            horizontalLeftOffset:
+                                                leftDividerWiggleOffset,
+                                            horizontalRightOffset:
+                                                rightDividerWiggleOffset),
                                         child: footerDecorator(
                                           buildRow(
                                             footerBuilder,
                                             footerHeight == rowHeight
                                                 ? rowClipper
                                                 : WigglyRowClipper(
-                                                    wiggleInnerOffset:
-                                                        wiggleInnerOffset,
-                                                    wiggleOuterOffset:
-                                                        wiggleOuterOffset,
+                                                    wiggleLeftOffset:
+                                                        leftDividerWiggleOffset,
+                                                    wiggleRightOffset:
+                                                        rightDividerWiggleOffset,
                                                   ),
                                           ),
                                         ),

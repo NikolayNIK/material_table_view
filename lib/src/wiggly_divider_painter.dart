@@ -6,7 +6,7 @@ class WigglyDividerPainter extends CustomPainter {
   final double lineWidth;
   final double patternHeight;
   final double verticalOffset;
-  final double horizontalInnerOffset, horizontalOuterOffset;
+  final double horizontalLeftOffset, horizontalRightOffset;
 
   WigglyDividerPainter({
     required this.leftLineColor,
@@ -16,28 +16,29 @@ class WigglyDividerPainter extends CustomPainter {
     required this.lineWidth,
     required this.patternHeight,
     required this.verticalOffset,
-    required this.horizontalInnerOffset,
-    required this.horizontalOuterOffset,
+    required this.horizontalLeftOffset,
+    required this.horizontalRightOffset,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     if (leftLineColor.alpha == 0 && rightLineColor.alpha == 0) return;
 
-    final path = Path();
-    {
+    Path wigglyPath(double horizontalOffset) {
+      final path = Path();
+
       final halfPatternHeight = patternHeight / 2;
       double verticalOffset = -(this.verticalOffset % patternHeight);
-      path.moveTo(horizontalInnerOffset, verticalOffset);
+      path.moveTo(horizontalOffset, verticalOffset);
 
       final end = size.height + halfPatternHeight;
       while (verticalOffset < end) {
         path
-          ..lineTo(-horizontalOuterOffset, verticalOffset += halfPatternHeight)
-          ..lineTo(horizontalInnerOffset, verticalOffset += halfPatternHeight);
+          ..lineTo(0, verticalOffset += halfPatternHeight)
+          ..lineTo(horizontalOffset, verticalOffset += halfPatternHeight);
       }
 
-      path.relativeLineTo(0, size.height + lineWidth);
+      return path;
     }
 
     final paint = Paint()
@@ -49,7 +50,7 @@ class WigglyDividerPainter extends CustomPainter {
       canvas
         ..save()
         ..translate(leftLineX, 0)
-        ..drawPath(path, paint)
+        ..drawPath(wigglyPath(horizontalLeftOffset), paint)
         ..restore();
     }
 
@@ -57,10 +58,8 @@ class WigglyDividerPainter extends CustomPainter {
       paint.color = rightLineColor;
       canvas
         ..save()
-        ..scale(-1.0, 1.0)
-        ..translate(rightLineX - size.width, 0)
-        // ..translate(size.width, 0)
-        ..drawPath(path, paint)
+        ..translate(size.width - rightLineX, 0)
+        ..drawPath(wigglyPath(-horizontalRightOffset), paint)
         ..restore();
     }
   }
@@ -74,6 +73,6 @@ class WigglyDividerPainter extends CustomPainter {
       rightLineX != oldDelegate.rightLineX ||
       lineWidth != oldDelegate.lineWidth ||
       patternHeight != oldDelegate.patternHeight ||
-      horizontalInnerOffset != oldDelegate.horizontalInnerOffset ||
-      horizontalOuterOffset != oldDelegate.horizontalOuterOffset;
+      horizontalLeftOffset != oldDelegate.horizontalLeftOffset ||
+      horizontalRightOffset != oldDelegate.horizontalRightOffset;
 }
