@@ -7,11 +7,12 @@ const _defaultItemHeight = 56.0;
 const _defaultDividerRevealOffset = 32.0;
 
 typedef TableCellBuilder = Widget Function(BuildContext context, int column);
-typedef TableRowBuilder = TableCellBuilder Function(int row);
+typedef TableRowBuilder = TableCellBuilder? Function(int row);
 
 typedef TableRowDecorator = Widget Function(Widget rowWidget, int rowIndex);
 typedef TableHeaderDecorator = Widget Function(Widget headerWidget);
 typedef TableFooterDecorator = TableHeaderDecorator;
+typedef TablePlaceholderContainerBuilder = TableHeaderDecorator;
 
 class TableView extends StatefulWidget {
   final int rowCount;
@@ -20,6 +21,8 @@ class TableView extends StatefulWidget {
   final TableViewController? controller;
   final TableRowBuilder rowBuilder;
   final TableRowDecorator? rowDecorator;
+  final TableCellBuilder? placeholderBuilder;
+  final TablePlaceholderContainerBuilder? placeholderContainerBuilder;
   final TableCellBuilder? headerBuilder;
   final double? headerHeight;
   final TableHeaderDecorator? headerDecorator;
@@ -40,6 +43,8 @@ class TableView extends StatefulWidget {
     this.rowHeight = _defaultItemHeight,
     required this.rowBuilder,
     this.rowDecorator,
+    this.placeholderBuilder,
+    this.placeholderContainerBuilder,
     this.headerBuilder,
     this.headerHeight,
     this.headerDecorator,
@@ -83,6 +88,8 @@ class _TableViewState extends State<TableView> {
           rowHeight: widget.rowHeight,
           rowBuilder: widget.rowBuilder,
           rowDecorator: widget.rowDecorator ?? _emptyRowDecorator,
+          placeholderBuilder: widget.placeholderBuilder,
+          placeholderContainerBuilder: widget.placeholderContainerBuilder,
           headerBuilder: widget.headerBuilder,
           headerHeight: widget.headerHeight ?? widget.rowHeight,
           headerDecorator: widget.headerDecorator ?? _emptyHeaderDecorator,

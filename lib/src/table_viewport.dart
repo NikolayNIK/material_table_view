@@ -20,6 +20,8 @@ class TableViewport extends StatelessWidget {
   final double rowHeight;
   final TableRowBuilder rowBuilder;
   final TableRowDecorator rowDecorator;
+  final TableCellBuilder? placeholderBuilder;
+  final TablePlaceholderContainerBuilder? placeholderContainerBuilder;
   final TableCellBuilder? headerBuilder;
   final double headerHeight;
   final TableHeaderDecorator headerDecorator;
@@ -38,6 +40,8 @@ class TableViewport extends StatelessWidget {
     required this.rowHeight,
     required this.rowBuilder,
     required this.rowDecorator,
+    required this.placeholderBuilder,
+    required this.placeholderContainerBuilder,
     required this.headerBuilder,
     required this.headerHeight,
     required this.headerDecorator,
@@ -410,6 +414,74 @@ class TableViewport extends StatelessWidget {
                                                 startRowIndex +
                                                     height / rowHeight);
 
+                                            final children = <Widget>[];
+                                            {
+                                              final placeholderChildren =
+                                                  <Widget>[];
+                                              late final placeholder = buildRow(
+                                                placeholderBuilder!,
+                                                rowClipper,
+                                              );
+
+                                              double rowOffset =
+                                                  -(verticalOffsetPixels %
+                                                          rowHeight) -
+                                                      (startRowIndex < 0
+                                                          ? startRowIndex *
+                                                              rowHeight
+                                                          : 0);
+                                              for (var rowIndex =
+                                                      max(0, startRowIndex);
+                                                  rowIndex < endRowIndex;
+                                                  rowIndex++) {
+                                                final cellBuilder =
+                                                    rowBuilder(rowIndex);
+
+                                                (cellBuilder == null
+                                                        ? placeholderChildren
+                                                        : children)
+                                                    .add(
+                                                  Positioned(
+                                                    key:
+                                                        ValueKey<int>(rowIndex),
+                                                    left: 0,
+                                                    top: rowOffset,
+                                                    width: width,
+                                                    height: rowHeight,
+                                                    child: cellBuilder == null
+                                                        ? placeholder
+                                                        : RepaintBoundary(
+                                                            child: rowDecorator(
+                                                                buildRow(
+                                                                    cellBuilder,
+                                                                    rowClipper),
+                                                                rowIndex),
+                                                          ),
+                                                  ),
+                                                );
+
+                                                rowOffset += rowHeight;
+                                              }
+
+                                              if (placeholderChildren
+                                                  .isNotEmpty) {
+                                                Widget widget = Stack(
+                                                  key: const ValueKey<int>(-1),
+                                                  fit: StackFit.expand,
+                                                  clipBehavior: Clip.none,
+                                                  children: placeholderChildren,
+                                                );
+
+                                                if (placeholderContainerBuilder !=
+                                                    null) {
+                                                  widget = placeholderContainerBuilder!(
+                                                      widget);
+                                                }
+
+                                                children.add(widget);
+                                              }
+                                            }
+
                                             return CustomPaint(
                                               foregroundPainter: WigglyDividerPainter(
                                                   leftLineColor:
@@ -431,38 +503,7 @@ class TableViewport extends StatelessWidget {
                                               child: Stack(
                                                 fit: StackFit.expand,
                                                 clipBehavior: Clip.none,
-                                                children: [
-                                                  // TODO why am i doing that loop like that
-                                                  for (var rowIndex = max(
-                                                              0, startRowIndex),
-                                                          rowOffset = -(verticalOffsetPixels %
-                                                                  rowHeight) -
-                                                              (startRowIndex < 0
-                                                                  ? startRowIndex *
-                                                                      rowHeight
-                                                                  : 0);
-                                                      rowIndex < endRowIndex;
-                                                      () {
-                                                    rowIndex++;
-                                                    rowOffset += rowHeight;
-                                                  }())
-                                                    Positioned(
-                                                      key: ValueKey<int>(
-                                                          rowIndex),
-                                                      left: 0,
-                                                      top: rowOffset,
-                                                      width: width,
-                                                      height: rowHeight,
-                                                      child: RepaintBoundary(
-                                                        child: rowDecorator(
-                                                            buildRow(
-                                                                rowBuilder(
-                                                                    rowIndex),
-                                                                rowClipper),
-                                                            rowIndex),
-                                                      ),
-                                                    ),
-                                                ],
+                                                children: children,
                                               ),
                                             );
                                           },
