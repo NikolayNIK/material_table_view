@@ -11,12 +11,12 @@ class WigglyRowClipper extends CustomClipper<Path> {
 
   @override
   Path getClip(Size size) => _path ??= Path()
-    ..moveTo(size.width - wiggleRightOffset, 0)
-    ..lineTo(size.width, size.height / 2)
-    ..lineTo(size.width - wiggleRightOffset, size.height)
-    ..lineTo(wiggleLeftOffset, size.height)
-    ..lineTo(0, size.height / 2)
-    ..lineTo(wiggleLeftOffset, 0);
+    ..moveTo(size.width, 0)
+    ..lineTo(size.width - wiggleRightOffset, size.height / 2)
+    ..lineTo(size.width, size.height)
+    ..lineTo(0, size.height)
+    ..lineTo(wiggleLeftOffset, size.height / 2)
+    ..lineTo(0, 0);
 
   @override
   bool shouldReclip(covariant WigglyRowClipper oldClipper) =>

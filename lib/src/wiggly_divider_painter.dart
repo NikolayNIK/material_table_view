@@ -29,13 +29,13 @@ class WigglyDividerPainter extends CustomPainter {
 
       final halfPatternHeight = patternHeight / 2;
       double verticalOffset = -(this.verticalOffset % patternHeight);
-      path.moveTo(horizontalOffset, verticalOffset);
+      path.moveTo(0, verticalOffset);
 
       final end = size.height + halfPatternHeight;
       while (verticalOffset < end) {
         path
-          ..lineTo(0, verticalOffset += halfPatternHeight)
-          ..lineTo(horizontalOffset, verticalOffset += halfPatternHeight);
+          ..lineTo(horizontalOffset, verticalOffset += halfPatternHeight)
+          ..lineTo(0, verticalOffset += halfPatternHeight);
       }
 
       return path;
