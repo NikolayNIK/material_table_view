@@ -303,7 +303,7 @@ class TableViewport extends StatelessWidget {
 
                             leftDividerColor = dividerColor.withOpacity(
                                 dividerColor.opacity *
-                                    Curves.easeInOut
+                                    Curves.easeIn
                                         .transform(leftDividerAnimationValue));
                             leftDividerWiggleOffset = 16.0 *
                                 Curves.fastOutSlowIn
@@ -360,7 +360,7 @@ class TableViewport extends StatelessWidget {
 
                             rightDividerColor = dividerColor.withOpacity(
                                 dividerColor.opacity *
-                                    Curves.easeInOut
+                                    Curves.easeIn
                                         .transform(rightDividerAnimationValue));
                             rightDividerWiggleOffset = 16.0 *
                                 Curves.fastOutSlowIn
