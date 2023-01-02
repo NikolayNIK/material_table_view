@@ -399,10 +399,9 @@ class TableViewport extends StatelessWidget {
                                           final verticalOffsetPixels =
                                               verticalOffset.pixels;
 
-                                          final startRowIndex = max(
-                                              0,
+                                          final startRowIndex =
                                               (verticalOffsetPixels / rowHeight)
-                                                  .floor());
+                                                  .floor();
                                           final endRowIndex = min(
                                               rowCount,
                                               startRowIndex +
@@ -432,11 +431,16 @@ class TableViewport extends StatelessWidget {
                                               clipBehavior: Clip.none,
                                               children: [
                                                 // TODO why am i doing that loop like that
-                                                for (var rowIndex =
-                                                            startRowIndex,
+                                                for (var rowIndex = max(
+                                                            0, startRowIndex),
                                                         rowOffset =
                                                             -(verticalOffsetPixels %
-                                                                rowHeight);
+                                                                    rowHeight) -
+                                                                (startRowIndex <
+                                                                        0
+                                                                    ? startRowIndex *
+                                                                        rowHeight
+                                                                    : 0);
                                                     rowIndex < endRowIndex;
                                                     () {
                                                   rowIndex++;
