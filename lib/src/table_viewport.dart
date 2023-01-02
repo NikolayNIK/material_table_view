@@ -303,9 +303,11 @@ class TableViewport extends StatelessWidget {
 
                             leftDividerColor = dividerColor.withOpacity(
                                 dividerColor.opacity *
-                                    leftDividerAnimationValue);
-                            leftDividerWiggleOffset =
-                                16.0 * leftDividerAnimationValue;
+                                    Curves.easeInOut
+                                        .transform(leftDividerAnimationValue));
+                            leftDividerWiggleOffset = 16.0 *
+                                Curves.fastOutSlowIn
+                                    .transform(leftDividerAnimationValue);
 
                             double rightDividerAnimationValue = .0;
                             if (columnsRight.isNotEmpty) {
@@ -358,9 +360,11 @@ class TableViewport extends StatelessWidget {
 
                             rightDividerColor = dividerColor.withOpacity(
                                 dividerColor.opacity *
-                                    rightDividerAnimationValue);
-                            rightDividerWiggleOffset =
-                                16.0 * rightDividerAnimationValue;
+                                    Curves.easeInOut
+                                        .transform(rightDividerAnimationValue));
+                            rightDividerWiggleOffset = 16.0 *
+                                Curves.fastOutSlowIn
+                                    .transform(rightDividerAnimationValue);
                           }
 
                           final rowClipper = WigglyRowClipper(
