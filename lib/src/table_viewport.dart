@@ -168,23 +168,22 @@ class TableViewport extends StatelessWidget {
                               }
                               centerOffset += column.width;
                             } else {
-                              for (int j = columns.length - 1;
-                                  j + columnsRight.length > i - 2;
-                                  j--) {
+                              for (int j = columns.length - 1; j > i - 2; j--) {
                                 final column = columns[j];
                                 if (column.frozenAt(freezePriority)) {
                                   columnsRight.add(j);
                                   rightOffset -= column.width;
                                   columnOffsetsRight.add(rightOffset);
-                                }
-                              }
 
-                              final maxVisibleOffset =
-                                  width - leftOffset + rightOffset;
-                              while (
-                                  columnOffsetsCenter.last > maxVisibleOffset) {
-                                columnsCenter.removeLast();
-                                columnOffsetsCenter.removeLast();
+                                  final maxVisibleOffset =
+                                      width - leftOffset + rightOffset;
+                                  while (columnOffsetsCenter.last >
+                                      maxVisibleOffset) {
+                                    columnsCenter.removeLast();
+                                    columnOffsetsCenter.removeLast();
+                                    i--;
+                                  }
+                                }
                               }
 
                               break;
