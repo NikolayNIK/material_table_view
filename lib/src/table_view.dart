@@ -11,8 +11,9 @@ typedef TableRowBuilder = TableCellBuilder? Function(int row);
 
 typedef TableRowDecorator = Widget Function(Widget rowWidget, int rowIndex);
 typedef TableHeaderDecorator = Widget Function(Widget headerWidget);
-typedef TableFooterDecorator = TableHeaderDecorator;
-typedef TablePlaceholderContainerBuilder = TableHeaderDecorator;
+typedef TableFooterDecorator = Widget Function(Widget footerWidget);
+typedef TablePlaceholderContainerBuilder = Widget Function(
+    Widget placeholderContainer);
 
 class TableView extends StatefulWidget {
   final int rowCount;
