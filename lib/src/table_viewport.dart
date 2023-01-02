@@ -56,6 +56,11 @@ class TableViewport extends StatelessWidget {
             final width = constraints.maxWidth;
             final height = constraints.maxHeight;
 
+            final dividerThickness =
+                Theme.of(context).dividerTheme.thickness ?? 2.0;
+            final dividerColor = Theme.of(context).dividerTheme.color ??
+                Theme.of(context).dividerColor;
+
             late final int freezePriority;
             {
               final minScrollableWidth = max(
@@ -251,17 +256,10 @@ class TableViewport extends StatelessWidget {
                                 ],
                               );
 
-                          final dividerThickness =
-                              Theme.of(context).dividerTheme.thickness ?? 2.0;
-
                           final Color leftDividerColor, rightDividerColor;
                           final double leftDividerWiggleOffset,
                               rightDividerWiggleOffset;
                           {
-                            final dividerColor =
-                                Theme.of(context).dividerTheme.color ??
-                                    Theme.of(context).dividerColor;
-
                             double leftDividerAnimationValue = .0;
                             if (columnsLeft.isNotEmpty) {
                               if (dividerRevealOffset == .0) {
@@ -512,17 +510,19 @@ class TableViewport extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                const Divider(
-                                  height: 2.0,
-                                  thickness: 2.0,
-                                ), // TODO height
+                                Divider(
+                                  color: dividerColor,
+                                  height: dividerThickness,
+                                  thickness: dividerThickness,
+                                ),
                               ],
                               Expanded(child: body),
                               if (footerBuilder != null) ...[
-                                const Divider(
-                                  height: 2.0,
-                                  thickness: 2.0,
-                                ), // TODO height
+                                Divider(
+                                  color: dividerColor,
+                                  height: dividerThickness,
+                                  thickness: dividerThickness,
+                                ),
                                 SizedBox(
                                   width: double.infinity,
                                   height: footerHeight,
