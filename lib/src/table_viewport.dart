@@ -125,7 +125,8 @@ class TableViewport extends StatelessWidget {
                         ScrollDimensionsApplicator(
                       position: controller.horizontalScrollController.position,
                       axis: Axis.horizontal,
-                      scrollExtent: columnsWidth,
+                      // TODO replace rather crude 10.0 constant meant to add padding for the horizontal scrollbar
+                      scrollExtent: columnsWidth + 10.0,
                       child: ListenableBuilder(
                         listenable: horizontalOffset,
                         builder: (context) {
