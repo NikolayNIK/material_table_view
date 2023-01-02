@@ -1,13 +1,12 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:material_table_view/material_table_view.dart';
 import 'package:material_table_view/src/iterator_extensions.dart';
 import 'package:material_table_view/src/listenable_builder.dart';
+import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/table_view.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
-import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/wiggly_divider_painter.dart';
 import 'package:material_table_view/src/wiggly_row_clipper.dart';
 
@@ -58,7 +57,7 @@ class TableViewport extends StatelessWidget {
 
             final dividerThickness =
                 Theme.of(context).dividerTheme.thickness ?? 2.0;
-             final halfDividerThickness = dividerThickness / 2.0;
+            final halfDividerThickness = dividerThickness / 2.0;
             final dividerColor = Theme.of(context).dividerTheme.color ??
                 Theme.of(context).dividerColor;
 
