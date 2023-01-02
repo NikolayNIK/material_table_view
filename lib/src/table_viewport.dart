@@ -58,6 +58,7 @@ class TableViewport extends StatelessWidget {
 
             final dividerThickness =
                 Theme.of(context).dividerTheme.thickness ?? 2.0;
+             final halfDividerThickness = dividerThickness / 2.0;
             final dividerColor = Theme.of(context).dividerTheme.color ??
                 Theme.of(context).dividerColor;
 
@@ -414,8 +415,10 @@ class TableViewport extends StatelessWidget {
                                                         leftDividerColor,
                                                     rightLineColor:
                                                         rightDividerColor,
-                                                    leftLineX: leftWidth,
-                                                    rightLineX: rightWidth,
+                                                    leftLineX: leftWidth -
+                                                        halfDividerThickness,
+                                                    rightLineX: rightWidth -
+                                                        halfDividerThickness,
                                                     lineWidth: dividerThickness,
                                                     patternHeight: rowHeight,
                                                     verticalOffset:
@@ -489,8 +492,10 @@ class TableViewport extends StatelessWidget {
                                       foregroundPainter: WigglyDividerPainter(
                                           leftLineColor: leftDividerColor,
                                           rightLineColor: rightDividerColor,
-                                          leftLineX: leftWidth,
-                                          rightLineX: rightWidth,
+                                          leftLineX:
+                                              leftWidth - halfDividerThickness,
+                                          rightLineX:
+                                              rightWidth - halfDividerThickness,
                                           lineWidth: dividerThickness,
                                           patternHeight: headerHeight,
                                           verticalOffset: 0,
@@ -533,8 +538,10 @@ class TableViewport extends StatelessWidget {
                                         foregroundPainter: WigglyDividerPainter(
                                             leftLineColor: leftDividerColor,
                                             rightLineColor: rightDividerColor,
-                                            leftLineX: leftWidth,
-                                            rightLineX: rightWidth,
+                                            leftLineX: leftWidth -
+                                                halfDividerThickness,
+                                            rightLineX: rightWidth -
+                                                halfDividerThickness,
                                             lineWidth: dividerThickness,
                                             patternHeight: footerHeight,
                                             verticalOffset: 0,
