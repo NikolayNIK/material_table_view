@@ -8,6 +8,7 @@ import 'package:material_table_view/src/listenable_builder.dart';
 import 'package:material_table_view/src/table_view.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
 import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
+import 'package:material_table_view/src/wiggly_divider_painter.dart';
 import 'package:material_table_view/src/wiggly_row_clipper.dart';
 
 /// TODO replace crude Widget implementation to a RenderBox one
@@ -402,7 +403,7 @@ class TableViewport extends StatelessWidget {
 
                                           return CustomPaint(
                                             foregroundPainter:
-                                                _WigglyBorderPainter(
+                                                WigglyDividerPainter(
                                                     leftLineColor:
                                                         leftDividerColor,
                                                     rightLineColor:
@@ -479,7 +480,7 @@ class TableViewport extends StatelessWidget {
                                   height: headerHeight,
                                   child: ClipRect(
                                     child: CustomPaint(
-                                      foregroundPainter: _WigglyBorderPainter(
+                                      foregroundPainter: WigglyDividerPainter(
                                           leftLineColor: leftDividerColor,
                                           rightLineColor: rightDividerColor,
                                           leftLineX: leftWidth,
@@ -521,7 +522,7 @@ class TableViewport extends StatelessWidget {
                                   child: RepaintBoundary(
                                     child: ClipRect(
                                       child: CustomPaint(
-                                        foregroundPainter: _WigglyBorderPainter(
+                                        foregroundPainter: WigglyDividerPainter(
                                             leftLineColor: leftDividerColor,
                                             rightLineColor: rightDividerColor,
                                             leftLineX: leftWidth,
@@ -562,82 +563,4 @@ class TableViewport extends StatelessWidget {
             );
           },
         );
-}
-
-class _WigglyBorderPainter extends CustomPainter {
-  final Color leftLineColor, rightLineColor;
-  final double leftLineX, rightLineX;
-  final double lineWidth;
-  final double patternHeight;
-  final double verticalOffset;
-  final double horizontalInnerOffset, horizontalOuterOffset;
-
-  _WigglyBorderPainter({
-    required this.leftLineColor,
-    required this.rightLineColor,
-    required this.leftLineX,
-    required this.rightLineX,
-    required this.lineWidth,
-    required this.patternHeight,
-    required this.verticalOffset,
-    required this.horizontalInnerOffset,
-    required this.horizontalOuterOffset,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (leftLineColor.alpha == 0 && rightLineColor.alpha == 0) return;
-
-    final path = Path();
-    {
-      final halfPatternHeight = patternHeight / 2;
-      double verticalOffset = -(this.verticalOffset % patternHeight);
-      path.moveTo(horizontalInnerOffset, verticalOffset);
-
-      final end = size.height + halfPatternHeight;
-      while (verticalOffset < end) {
-        path
-          ..lineTo(-horizontalOuterOffset, verticalOffset += halfPatternHeight)
-          ..lineTo(horizontalInnerOffset, verticalOffset += halfPatternHeight);
-      }
-
-      path.relativeLineTo(0, size.height + lineWidth);
-    }
-
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = lineWidth;
-
-    if (leftLineColor.alpha != 0) {
-      paint.color = leftLineColor;
-      canvas
-        ..save()
-        ..translate(leftLineX, 0)
-        ..drawPath(path, paint)
-        ..restore();
-    }
-
-    if (rightLineColor.alpha != 0) {
-      paint.color = rightLineColor;
-      canvas
-        ..save()
-        ..scale(-1.0, 1.0)
-        ..translate(rightLineX - size.width, 0)
-        // ..translate(size.width, 0)
-        ..drawPath(path, paint)
-        ..restore();
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _WigglyBorderPainter old) =>
-      verticalOffset != old.verticalOffset ||
-      leftLineColor != old.leftLineColor ||
-      rightLineColor != old.rightLineColor ||
-      leftLineX != old.leftLineX ||
-      rightLineX != old.rightLineX ||
-      lineWidth != old.lineWidth ||
-      patternHeight != old.patternHeight ||
-      horizontalInnerOffset != old.horizontalInnerOffset ||
-      horizontalOuterOffset != old.horizontalOuterOffset;
 }
