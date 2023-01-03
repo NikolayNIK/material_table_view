@@ -21,6 +21,7 @@ class TableViewport extends StatelessWidget {
   final TableRowBuilder rowBuilder;
   final TableRowDecorator rowDecorator;
   final TableCellBuilder? placeholderBuilder;
+  final TablePlaceholderDecorator placeholderDecorator;
   final TablePlaceholderContainerBuilder? placeholderContainerBuilder;
   final TableCellBuilder? headerBuilder;
   final double headerHeight;
@@ -42,6 +43,7 @@ class TableViewport extends StatelessWidget {
     required this.rowBuilder,
     required this.rowDecorator,
     required this.placeholderBuilder,
+    required this.placeholderDecorator,
     required this.placeholderContainerBuilder,
     required this.headerBuilder,
     required this.headerHeight,
@@ -471,7 +473,9 @@ class TableViewport extends StatelessWidget {
                                                     width: width,
                                                     height: rowHeight,
                                                     child: cellBuilder == null
-                                                        ? placeholder
+                                                        ? placeholderDecorator(
+                                                            placeholder,
+                                                            rowIndex)
                                                         : RepaintBoundary(
                                                             child: rowDecorator(
                                                                 buildRow(

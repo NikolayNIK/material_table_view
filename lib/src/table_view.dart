@@ -10,6 +10,8 @@ typedef TableCellBuilder = Widget Function(BuildContext context, int column);
 typedef TableRowBuilder = TableCellBuilder? Function(int row);
 
 typedef TableRowDecorator = Widget Function(Widget rowWidget, int rowIndex);
+typedef TablePlaceholderDecorator = Widget Function(
+    Widget placeholderWidget, int rowIndex);
 typedef TableHeaderDecorator = Widget Function(Widget headerWidget);
 typedef TableFooterDecorator = Widget Function(Widget footerWidget);
 typedef TablePlaceholderContainerBuilder = Widget Function(
@@ -23,6 +25,7 @@ class TableView extends StatefulWidget {
   final TableRowBuilder rowBuilder;
   final TableRowDecorator? rowDecorator;
   final TableCellBuilder? placeholderBuilder;
+  final TablePlaceholderDecorator? placeholderDecorator;
   final TablePlaceholderContainerBuilder? placeholderContainerBuilder;
   final TableCellBuilder? headerBuilder;
   final double? headerHeight;
@@ -45,6 +48,7 @@ class TableView extends StatefulWidget {
     required this.rowBuilder,
     this.rowDecorator,
     this.placeholderBuilder,
+    this.placeholderDecorator,
     this.placeholderContainerBuilder,
     this.headerBuilder,
     this.headerHeight,
@@ -90,6 +94,8 @@ class _TableViewState extends State<TableView> {
           rowBuilder: widget.rowBuilder,
           rowDecorator: widget.rowDecorator ?? _emptyRowDecorator,
           placeholderBuilder: widget.placeholderBuilder,
+          placeholderDecorator:
+              widget.placeholderDecorator ?? _emptyRowDecorator,
           placeholderContainerBuilder: widget.placeholderContainerBuilder,
           headerBuilder: widget.headerBuilder,
           headerHeight: widget.headerHeight ?? widget.rowHeight,
