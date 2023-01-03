@@ -128,6 +128,7 @@ class TableViewport extends StatelessWidget {
                   transformHitTests: false,
                   child: Scrollable(
                     controller: controller.horizontalScrollController,
+                    clipBehavior: Clip.none,
                     axisDirection: AxisDirection.right,
                     viewportBuilder: (context, horizontalOffset) =>
                         ScrollDimensionsApplicator(
@@ -412,6 +413,7 @@ class TableViewport extends StatelessWidget {
                                 child: Scrollable(
                                   controller:
                                       controller.verticalScrollController,
+                                  clipBehavior: Clip.none,
                                   axisDirection: AxisDirection.down,
                                   viewportBuilder: (context, verticalOffset) =>
                                       ScrollDimensionsApplicator(
