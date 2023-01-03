@@ -476,13 +476,13 @@ class TableViewport extends StatelessWidget {
                                                         ? placeholderDecorator(
                                                             placeholder,
                                                             rowIndex)
-                                                        : RepaintBoundary(
-                                                            child: rowDecorator(
-                                                                buildRow(
-                                                                    cellBuilder,
-                                                                    rowClipper),
-                                                                rowIndex),
-                                                          ),
+                                                        : rowDecorator(
+                                                            RepaintBoundary(
+                                                              child: buildRow(
+                                                                  cellBuilder,
+                                                                  rowClipper),
+                                                            ),
+                                                            rowIndex),
                                                   ),
                                                 );
 
