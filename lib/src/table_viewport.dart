@@ -29,6 +29,7 @@ class TableViewport extends StatelessWidget {
   final TableCellBuilder? footerBuilder;
   final TableFooterDecorator footerDecorator;
   final double dividerRevealOffset;
+  final EdgeInsets scrollPadding;
 
   const TableViewport({
     super.key,
@@ -49,6 +50,7 @@ class TableViewport extends StatelessWidget {
     required this.footerBuilder,
     required this.footerDecorator,
     required this.dividerRevealOffset,
+    this.scrollPadding = const EdgeInsets.only(right: 14.0, bottom: 10.0),
   });
 
   @override
@@ -129,8 +131,7 @@ class TableViewport extends StatelessWidget {
                         ScrollDimensionsApplicator(
                       position: controller.horizontalScrollController.position,
                       axis: Axis.horizontal,
-                      // TODO replace rather crude 14.0 constant meant to add padding for the horizontal scrollbar
-                      scrollExtent: columnsWidth + 14.0,
+                      scrollExtent: columnsWidth + scrollPadding.horizontal,
                       child: ListenableBuilder(
                         listenable: horizontalOffset,
                         builder: (context) {
@@ -150,9 +151,9 @@ class TableViewport extends StatelessWidget {
                               columnOffsetsRight = <double>[];
 
                           for (var i = 0,
-                                  leftOffset = .0,
+                                  leftOffset = scrollPadding.left,
                                   centerOffset = -horizontalOffsetPixels,
-                                  rightOffset = .0;
+                                  rightOffset = -scrollPadding.right;
                               i < columns.length;
                               i++) {
                             final column = columns[i];
@@ -164,7 +165,7 @@ class TableViewport extends StatelessWidget {
                             } else if (leftOffset +
                                     centerOffset +
                                     (column.frozenAt(freezePriority)
-                                        ? column.width
+                                        ? column.width + scrollPadding.right
                                         : 0) <=
                                 width) {
                               if (centerOffset >= -column.width) {
@@ -195,11 +196,25 @@ class TableViewport extends StatelessWidget {
                             }
                           }
 
-                          final leftWidth =
-                              columnsLeft.fold<double>(.0, foldColumnsWidth);
-                          final rightWidth =
-                              columnsRight.fold<double>(.0, foldColumnsWidth);
+                          final leftWidth = columnsLeft.isEmpty
+                              ? .0
+                              : columnsLeft.fold<double>(.0, foldColumnsWidth) +
+                                  scrollPadding.left;
+                          final rightWidth = columnsRight.isEmpty
+                              ? .0
+                              : columnsRight.fold<double>(
+                                      .0, foldColumnsWidth) +
+                                  scrollPadding.right;
                           final centerWidth = width - leftWidth - rightWidth;
+
+                          if (columnsLeft.isEmpty) {
+                            for (var i = 0;
+                                i < columnOffsetsCenter.length;
+                                i++) {
+                              columnOffsetsCenter[i] =
+                                  columnOffsetsCenter[i] + scrollPadding.left;
+                            }
+                          }
 
                           final columnsFixed = columnsLeft
                               .followedBy(columnsRight)
@@ -395,15 +410,16 @@ class TableViewport extends StatelessWidget {
                                     position: controller
                                         .verticalScrollController.position,
                                     axis: Axis.vertical,
-                                    // TODO replace rather crude 10.0 constant meant to add padding for the horizontal scrollbar
-                                    scrollExtent: rowCount * rowHeight + 10.0,
+                                    scrollExtent: rowCount * rowHeight +
+                                        scrollPadding.vertical,
                                     child: RepaintBoundary(
                                       child: ClipRect(
                                         child: ListenableBuilder(
                                           listenable: verticalOffset,
                                           builder: (context) {
                                             final verticalOffsetPixels =
-                                                verticalOffset.pixels;
+                                                verticalOffset.pixels -
+                                                    scrollPadding.top;
 
                                             final startRowIndex =
                                                 (verticalOffsetPixels /
