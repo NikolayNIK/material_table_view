@@ -32,6 +32,7 @@ class TableView extends StatefulWidget {
     this.footerBuilder,
     this.footerDecorator,
     this.dividerRevealOffset = _defaultDividerRevealOffset,
+    this.scrollPadding,
   });
 
   /// Count of fixed-height rows displayed in a table.
@@ -126,6 +127,11 @@ class TableView extends StatefulWidget {
   /// scrollable columns to fully appear.
   final double dividerRevealOffset;
 
+  /// Padding for the scrollable part of the table.
+  /// Primarily used to leave space for the scrollbars.
+  /// If null, predefined insets will be used based on a target platform.
+  final EdgeInsets? scrollPadding;
+
   @override
   State<TableView> createState() => _TableViewState();
 }
@@ -171,8 +177,22 @@ class _TableViewState extends State<TableView> {
           footerBuilder: widget.footerBuilder,
           footerDecorator: widget.footerDecorator ?? _emptyFooterDecorator,
           dividerRevealOffset: widget.dividerRevealOffset,
+          scrollPadding:
+              widget.scrollPadding ?? _determineScrollPadding(context),
         ),
       );
+
+  EdgeInsets _determineScrollPadding(BuildContext context) {
+    // TODO determining paddings for the scrollbars based on a target platform seems stupid
+    switch (Theme.of(context).platform) {
+      case TargetPlatform.android:
+        return const EdgeInsets.only(right: 4.0, bottom: 4.0);
+      case TargetPlatform.iOS:
+        return const EdgeInsets.only(right: 6.0, bottom: 6.0);
+      default:
+        return const EdgeInsets.only(right: 14.0, bottom: 10.0);
+    }
+  }
 }
 
 Widget _emptyRowDecorator(Widget rowWidget, int _) => rowWidget;

@@ -52,7 +52,7 @@ class TableViewport extends StatelessWidget {
     required this.footerBuilder,
     required this.footerDecorator,
     required this.dividerRevealOffset,
-    this.scrollPadding = const EdgeInsets.only(right: 14.0, bottom: 10.0),
+    required this.scrollPadding,
   });
 
   @override
