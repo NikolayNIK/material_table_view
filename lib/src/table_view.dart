@@ -1,21 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:material_table_view/src/table_column.dart';
+import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
 import 'package:material_table_view/src/table_viewport.dart';
 
 const _defaultItemHeight = 56.0;
 const _defaultDividerRevealOffset = 32.0;
-
-typedef TableCellBuilder = Widget Function(BuildContext context, int column);
-typedef TableRowBuilder = TableCellBuilder? Function(int row);
-
-typedef TableRowDecorator = Widget Function(Widget rowWidget, int rowIndex);
-typedef TablePlaceholderDecorator = Widget Function(
-    Widget placeholderWidget, int rowIndex);
-typedef TableHeaderDecorator = Widget Function(Widget headerWidget);
-typedef TableFooterDecorator = Widget Function(Widget footerWidget);
-typedef TablePlaceholderContainerBuilder = Widget Function(
-    Widget placeholderContainer);
 
 class TableView extends StatefulWidget {
   final int rowCount;
