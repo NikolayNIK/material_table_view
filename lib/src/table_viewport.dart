@@ -1,10 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:material_table_view/material_table_view.dart';
 import 'package:material_table_view/src/iterator_extensions.dart';
 import 'package:material_table_view/src/listenable_builder.dart';
 import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
+import 'package:material_table_view/src/table_column.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
 import 'package:material_table_view/src/wiggly_divider_painter.dart';
