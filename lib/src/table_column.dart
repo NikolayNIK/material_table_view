@@ -8,7 +8,7 @@ class TableColumn {
   const TableColumn({
     required this.width,
     this.freezePriority = 0,
-  }) : assert(freezePriority == null || freezePriority >= 0);
+  }) : assert(freezePriority >= 0);
 
   bool frozenAt(int priority) => freezePriority > priority;
 }
