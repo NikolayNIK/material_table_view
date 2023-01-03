@@ -474,8 +474,9 @@ class TableViewport extends StatelessWidget {
 
                                                 if (placeholderContainerBuilder !=
                                                     null) {
-                                                  widget = placeholderContainerBuilder!(
-                                                      widget);
+                                                  widget =
+                                                      placeholderContainerBuilder!
+                                                          .call(widget);
                                                 }
 
                                                 children.add(widget);
