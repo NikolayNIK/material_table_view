@@ -13,6 +13,7 @@ above all else.
 ![Material widget demo](./README-demo.gif)
 This demo uses a [Shimmer](https://pub.dev/packages/shimmer)
 package for shimmer effects that can be seen.
+The source code for this demo is available [here](https://github.com/NikolayNIK/material_table_view_demo).
 
 ## Features
 
