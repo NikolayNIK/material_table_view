@@ -1,7 +1,7 @@
 name: material_table_view
-description: Flutter material TableView library
+description: Flutter library providing a material TableView widget
 
-publish_to: 'none'
+repository: 'https://github.com/NikolayNIK/material_table_view'
 
 version: 1.0.0
 
