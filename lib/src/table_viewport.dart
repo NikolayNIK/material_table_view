@@ -177,7 +177,8 @@ class TableViewport extends StatelessWidget {
                               }
                               centerOffset += column.width;
                             } else {
-                              for (int j = columns.length - 1; j > i - 2; j--) {
+                              i = max(0, i - 2);
+                              for (int j = columns.length - 1; j > i; j--) {
                                 final column = columns[j];
                                 if (column.frozenAt(freezePriority)) {
                                   columnsRight.add(j);
@@ -186,8 +187,9 @@ class TableViewport extends StatelessWidget {
 
                                   final maxVisibleOffset =
                                       width - leftOffset + rightOffset;
-                                  while (columnOffsetsCenter.last >
-                                      maxVisibleOffset) {
+                                  while (columnsCenter.isNotEmpty &&
+                                      columnOffsetsCenter.last >
+                                          maxVisibleOffset) {
                                     columnsCenter.removeLast();
                                     columnOffsetsCenter.removeLast();
                                     i--;
