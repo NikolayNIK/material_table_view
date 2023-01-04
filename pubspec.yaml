@@ -3,7 +3,7 @@ description: Flutter library providing a material TableView widget
 
 repository: 'https://github.com/NikolayNIK/material_table_view'
 
-version: 1.0.0
+version: 1.0.1
 
 environment:
   sdk: ">=2.17.1 <3.0.0"
