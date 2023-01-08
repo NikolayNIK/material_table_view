@@ -1,34 +1,22 @@
 import 'package:flutter/widgets.dart';
 
-class ListenableBuilder extends StatefulWidget {
-  const ListenableBuilder({
+/// TODO remove once this widget is available in the Flutter SDK
+class XListenableBuilder extends StatefulWidget {
+  const XListenableBuilder({
     super.key,
     required this.listenable,
     required this.builder,
   });
 
-  /// The [ValueListenable] whose value you depend on in order to build.
-  ///
-  /// This widget does not ensure that the [ValueListenable]'s value is not
-  /// null, therefore your [builder] may need to handle null values.
-  ///
-  /// This [ValueListenable] itself must not be null.
   final Listenable listenable;
 
-  /// A [ValueWidgetBuilder] which builds a widget depending on the
-  /// [valueListenable]'s value.
-  ///
-  /// Can incorporate a [valueListenable] value-independent widget subtree
-  /// from the [child] parameter into the returned widget tree.
-  ///
-  /// Must not be null.
   final WidgetBuilder builder;
 
   @override
-  State<StatefulWidget> createState() => _ListenableBuilderState();
+  State<StatefulWidget> createState() => _XListenableBuilderState();
 }
 
-class _ListenableBuilderState<T> extends State<ListenableBuilder> {
+class _XListenableBuilderState<T> extends State<XListenableBuilder> {
   @override
   void initState() {
     super.initState();
@@ -36,7 +24,7 @@ class _ListenableBuilderState<T> extends State<ListenableBuilder> {
   }
 
   @override
-  void didUpdateWidget(ListenableBuilder oldWidget) {
+  void didUpdateWidget(XListenableBuilder oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.listenable != widget.listenable) {
       oldWidget.listenable.removeListener(_valueChanged);
