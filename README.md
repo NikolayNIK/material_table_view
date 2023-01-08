@@ -82,6 +82,7 @@ and is available [here](https://github.com/NikolayNIK/material_table_view_demo).
   when using a stretching overscroll effect for the
   horizontal scroll that is default on Android causing the
   scrollbar to stretch off the screen on overscroll.
+- No support for RTL layout.
 
 ## Getting help
 
