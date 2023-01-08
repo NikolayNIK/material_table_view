@@ -6,11 +6,14 @@ class XListenableBuilder extends StatefulWidget {
     super.key,
     required this.listenable,
     required this.builder,
+    this.child,
   });
 
   final Listenable listenable;
 
-  final WidgetBuilder builder;
+  final TransitionBuilder builder;
+
+  final Widget? child;
 
   @override
   State<StatefulWidget> createState() => _XListenableBuilderState();
@@ -43,5 +46,5 @@ class _XListenableBuilderState<T> extends State<XListenableBuilder> {
   }
 
   @override
-  Widget build(BuildContext context) => widget.builder(context);
+  Widget build(BuildContext context) => widget.builder(context, widget.child);
 }

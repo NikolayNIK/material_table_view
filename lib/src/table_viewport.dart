@@ -137,7 +137,7 @@ class TableViewport extends StatelessWidget {
                       scrollExtent: columnsWidth + scrollPadding.horizontal,
                       child: XListenableBuilder(
                         listenable: horizontalOffset,
-                        builder: (context) {
+                        builder: (context, _) {
                           final horizontalOffsetPixels =
                               horizontalOffset.pixels;
 
@@ -428,7 +428,7 @@ class TableViewport extends StatelessWidget {
                                       child: ClipRect(
                                         child: XListenableBuilder(
                                           listenable: verticalOffset,
-                                          builder: (context) {
+                                          builder: (context, _) {
                                             final verticalOffsetPixels =
                                                 verticalOffset.pixels -
                                                     scrollPadding.top;
