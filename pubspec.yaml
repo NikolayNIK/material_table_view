@@ -1,5 +1,5 @@
 name: material_table_view
-description: Flutter library providing a material TableView widget
+description: Flutter library providing a both horizontally and vertically scrollable material-style table widget.
 
 repository: 'https://github.com/NikolayNIK/material_table_view'
 
