@@ -362,37 +362,39 @@ class TableViewport extends StatelessWidget {
                           final TableRowContentBuilder contentBuilder =
                               (BuildContext context,
                                       TableCellBuilder cellBuilder) =>
-                                  Stack(
-                                    fit: StackFit.expand,
-                                    clipBehavior: Clip.none,
-                                    children: [
-                                      Positioned(
-                                        key: const ValueKey<int>(-1),
-                                        left: leftWidth,
-                                        width: centerWidth,
-                                        height: rowHeight,
-                                        child: RepaintBoundary(
-                                          child: ClipPath(
-                                            clipper: contentClipper,
-                                            child: Stack(
-                                              fit: StackFit.expand,
-                                              clipBehavior: Clip.none,
-                                              children: columnMapper(
-                                                columnsCenter,
-                                                columnOffsetsCenter,
-                                                cellBuilder,
-                                              ).toList(growable: false),
+                                  RepaintBoundary(
+                                    child: Stack(
+                                      fit: StackFit.expand,
+                                      clipBehavior: Clip.none,
+                                      children: [
+                                        Positioned(
+                                          key: const ValueKey<int>(-1),
+                                          left: leftWidth,
+                                          width: centerWidth,
+                                          height: rowHeight,
+                                          child: RepaintBoundary(
+                                            child: ClipPath(
+                                              clipper: contentClipper,
+                                              child: Stack(
+                                                fit: StackFit.expand,
+                                                clipBehavior: Clip.none,
+                                                children: columnMapper(
+                                                  columnsCenter,
+                                                  columnOffsetsCenter,
+                                                  cellBuilder,
+                                                ).toList(growable: false),
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      if (columnsFixed.isNotEmpty)
-                                        ...columnMapper(
-                                          columnsFixed,
-                                          columnOffsetsFixed,
-                                          cellBuilder,
-                                        ),
-                                    ],
+                                        if (columnsFixed.isNotEmpty)
+                                          ...columnMapper(
+                                            columnsFixed,
+                                            columnOffsetsFixed,
+                                            cellBuilder,
+                                          ),
+                                      ],
+                                    ),
                                   );
 
                           final body = Material(
