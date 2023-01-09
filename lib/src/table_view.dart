@@ -12,28 +12,82 @@ const _defaultDividerRevealOffset = 32.0;
 ///
 /// This widget will try to expand to the highest constraints given.
 class TableView extends StatefulWidget {
-  const TableView({
+  const TableView.builder({
     super.key,
-    this.controller,
-    required this.columns,
-    this.minScrollableWidth,
-    this.minScrollableWidthRatio = .6180339887498547,
     required this.rowCount,
-    this.rowHeight = _defaultItemHeight,
+    required this.rowHeight,
+    required this.columns,
+    this.controller,
     required this.rowBuilder,
-    this.rowDecorator,
     this.placeholderBuilder,
-    this.placeholderDecorator,
     this.placeholderContainerBuilder,
     this.headerBuilder,
     this.headerHeight,
-    this.headerDecorator,
-    this.footerHeight,
     this.footerBuilder,
-    this.footerDecorator,
+    this.footerHeight,
+    this.minScrollableWidth,
+    this.minScrollableWidthRatio = .6180339887498547,
     this.dividerRevealOffset = _defaultDividerRevealOffset,
     this.scrollPadding,
   });
+
+  @Deprecated('Use named constructor .builder instead')
+  TableView({
+    Key? key,
+    TableViewController? controller,
+    required List<TableColumn> columns,
+    double? minScrollableWidth,
+    double minScrollableWidthRatio = .6180339887498547,
+    required int rowCount,
+    double rowHeight = _defaultItemHeight,
+    required _LegacyTableRowBuilder rowBuilder,
+    _LegacyTableRowDecorator rowDecorator = _emptyRowDecorator,
+    TableCellBuilder? placeholderBuilder,
+    _LegacyTablePlaceholderDecorator placeholderDecorator = _emptyRowDecorator,
+    TablePlaceholderContainerBuilder placeholderContainerBuilder =
+        _emptyHeaderDecorator,
+    TableCellBuilder? headerBuilder,
+    double? headerHeight,
+    _LegacyTableHeaderDecorator headerDecorator = _emptyHeaderDecorator,
+    double? footerHeight,
+    TableCellBuilder? footerBuilder,
+    _LegacyTableFooterDecorator footerDecorator = _emptyFooterDecorator,
+    double dividerRevealOffset = _defaultDividerRevealOffset,
+    EdgeInsets? scrollPadding,
+  }) : this.builder(
+          key: key,
+          controller: controller,
+          columns: columns,
+          minScrollableWidth: minScrollableWidth,
+          minScrollableWidthRatio: minScrollableWidthRatio,
+          rowCount: rowCount,
+          rowHeight: rowHeight,
+          rowBuilder: (context, row, contentBuilder) {
+            final cellBuilder = rowBuilder(row);
+            if (cellBuilder == null) {
+              return null;
+            }
+
+            return rowDecorator(contentBuilder(context, cellBuilder), row);
+          },
+          placeholderBuilder: placeholderBuilder == null
+              ? null
+              : (context, row, contentBuilder) => placeholderDecorator(
+                  contentBuilder(context, placeholderBuilder), row),
+          placeholderContainerBuilder: placeholderContainerBuilder,
+          headerBuilder: headerBuilder == null
+              ? null
+              : (context, contentBuilder) =>
+                  headerDecorator(contentBuilder(context, headerBuilder)),
+          headerHeight: headerHeight,
+          footerBuilder: footerBuilder == null
+              ? null
+              : (context, contentBuilder) =>
+                  footerDecorator(contentBuilder(context, footerBuilder)),
+          footerHeight: footerHeight,
+          dividerRevealOffset: dividerRevealOffset,
+          scrollPadding: scrollPadding,
+        );
 
   /// Count of fixed-height rows displayed in a table.
   final int rowCount;
@@ -57,21 +111,9 @@ class TableView extends StatefulWidget {
   /// [placeholderContainerBuilder] property.
   final TableRowBuilder rowBuilder;
 
-  /// A function that will be called on-demand for each row displayed
-  /// in order to enable custom behaviour like row background or click handling
-  /// by wrapping already built row widget passed as an argument in
-  /// a [ColoredBox] or [InkWell], for example.
-  final TableRowDecorator? rowDecorator;
-
   /// A function that will be called on-demand for each cell in a placeholder
   /// row in order to obtains a widget for that cell.
-  final TableCellBuilder? placeholderBuilder;
-
-  /// A function that will be called on-demand for each placeholder row displayed
-  /// in order to enable custom behaviour like row background or click handling
-  /// by wrapping already built row widget passed as an argument in
-  /// a [ColoredBox] or [InkWell], for example.
-  final TablePlaceholderDecorator? placeholderDecorator;
+  final TablePlaceholderBuilder? placeholderBuilder;
 
   /// A function that will be called on-demand in order to enable custom
   /// placeholder behaviour by wrapping already built widget that contains
@@ -85,29 +127,19 @@ class TableView extends StatefulWidget {
   /// in order to build a widget for that section of a header.
   ///
   /// If null, no header will be built.
-  final TableCellBuilder? headerBuilder;
+  final TableHeaderBuilder? headerBuilder;
 
   /// Height of a header. If null, [rowHeight] will be used instead.
   final double? headerHeight;
-
-  /// A function that will be called on-demand for a header row widget
-  /// in order to enable custom behaviour like header background or click handling
-  /// by wrapping already built header widget passed as an argument.
-  final TableHeaderDecorator? headerDecorator;
 
   /// A function that will be called on-demand for each cell in a footer
   /// in order to build a widget for that section of a footer.
   ///
   /// If null, no footer will be built.
-  final TableCellBuilder? footerBuilder;
+  final TableFooterBuilder? footerBuilder;
 
   /// Height of a footer. If null, [rowHeight] will be used instead.
   final double? footerHeight;
-
-  /// A function that will be called on-demand for a footer row widget
-  /// in order to enable custom behaviour like footer background or click handling
-  /// by wrapping already built footer widget passed as an argument.
-  final TableFooterDecorator? footerDecorator;
 
   /// Minimum scrollable width that may not be taken up by frozen columns.
   /// If a resulting scrollable width is less than this property, columns
@@ -165,17 +197,12 @@ class _TableViewState extends State<TableView> {
           rowCount: widget.rowCount,
           rowHeight: widget.rowHeight,
           rowBuilder: widget.rowBuilder,
-          rowDecorator: widget.rowDecorator ?? _emptyRowDecorator,
           placeholderBuilder: widget.placeholderBuilder,
-          placeholderDecorator:
-              widget.placeholderDecorator ?? _emptyRowDecorator,
           placeholderContainerBuilder: widget.placeholderContainerBuilder,
           headerBuilder: widget.headerBuilder,
           headerHeight: widget.headerHeight ?? widget.rowHeight,
-          headerDecorator: widget.headerDecorator ?? _emptyHeaderDecorator,
           footerHeight: widget.footerHeight ?? widget.rowHeight,
           footerBuilder: widget.footerBuilder,
-          footerDecorator: widget.footerDecorator ?? _emptyFooterDecorator,
           dividerRevealOffset: widget.dividerRevealOffset,
           scrollPadding:
               widget.scrollPadding ?? _determineScrollPadding(context),
@@ -199,4 +226,28 @@ Widget _emptyRowDecorator(Widget rowWidget, int _) => rowWidget;
 
 Widget _emptyHeaderDecorator(Widget headerWidget) => headerWidget;
 
-TableFooterDecorator _emptyFooterDecorator = _emptyHeaderDecorator;
+const _LegacyTableFooterDecorator _emptyFooterDecorator = _emptyHeaderDecorator;
+
+/// Function used to retrieve a [TableCellBuilder] for a specific row.
+/// Returning null indicates the intent to replace that row with a placeholder.
+typedef _LegacyTableRowBuilder = TableCellBuilder? Function(int row);
+
+/// Function used to wrap a given row widget for a specific row
+/// in order to achieve some custom row behaviour.
+typedef _LegacyTableRowDecorator = Widget Function(
+    Widget rowWidget, int rowIndex);
+
+/// Function used to wrap a given placeholder row widget for a specific row
+/// in order to achieve some custom row behaviour.
+typedef _LegacyTablePlaceholderDecorator = Widget Function(
+  Widget placeholderWidget,
+  int rowIndex,
+);
+
+/// Function used to wrap a given header row widget for a specific row
+/// in order to achieve some custom row behaviour.
+typedef _LegacyTableHeaderDecorator = Widget Function(Widget headerWidget);
+
+/// Function used to wrap a given footer row widget for a specific row
+/// in order to achieve some custom row behaviour.
+typedef _LegacyTableFooterDecorator = Widget Function(Widget footerWidget);

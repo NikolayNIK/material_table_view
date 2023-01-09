@@ -19,16 +19,12 @@ class TableViewport extends StatelessWidget {
   final int rowCount;
   final double rowHeight;
   final TableRowBuilder rowBuilder;
-  final TableRowDecorator rowDecorator;
-  final TableCellBuilder? placeholderBuilder;
-  final TablePlaceholderDecorator placeholderDecorator;
+  final TablePlaceholderBuilder? placeholderBuilder;
   final TablePlaceholderContainerBuilder? placeholderContainerBuilder;
-  final TableCellBuilder? headerBuilder;
+  final TableHeaderBuilder? headerBuilder;
   final double headerHeight;
-  final TableHeaderDecorator headerDecorator;
   final double footerHeight;
-  final TableCellBuilder? footerBuilder;
-  final TableFooterDecorator footerDecorator;
+  final TableFooterBuilder? footerBuilder;
   final double dividerRevealOffset;
   final EdgeInsets scrollPadding;
 
@@ -41,16 +37,12 @@ class TableViewport extends StatelessWidget {
     required this.rowCount,
     required this.rowHeight,
     required this.rowBuilder,
-    required this.rowDecorator,
     required this.placeholderBuilder,
-    required this.placeholderDecorator,
     required this.placeholderContainerBuilder,
     required this.headerBuilder,
     required this.headerHeight,
-    required this.headerDecorator,
     required this.footerHeight,
     required this.footerBuilder,
-    required this.footerDecorator,
     required this.dividerRevealOffset,
     required this.scrollPadding,
   });
@@ -247,41 +239,6 @@ class TableViewport extends StatelessWidget {
                                 );
                               });
 
-                          Widget buildRow(TableCellBuilder cellBuilder,
-                                  CustomClipper<Path> clipper) =>
-                              Stack(
-                                fit: StackFit.expand,
-                                clipBehavior: Clip.none,
-                                children: [
-                                  Positioned(
-                                    key: const ValueKey<int>(-1),
-                                    left: leftWidth,
-                                    width: centerWidth,
-                                    height: rowHeight,
-                                    child: RepaintBoundary(
-                                      child: ClipPath(
-                                        clipper: clipper,
-                                        child: Stack(
-                                          fit: StackFit.expand,
-                                          clipBehavior: Clip.none,
-                                          children: columnMapper(
-                                            columnsCenter,
-                                            columnOffsetsCenter,
-                                            cellBuilder,
-                                          ).toList(growable: false),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  if (columnsFixed.isNotEmpty)
-                                    ...columnMapper(
-                                      columnsFixed,
-                                      columnOffsetsFixed,
-                                      cellBuilder,
-                                    ),
-                                ],
-                              );
-
                           final Color leftDividerColor, rightDividerColor;
                           final double leftDividerWiggleOffset,
                               rightDividerWiggleOffset;
@@ -397,10 +354,46 @@ class TableViewport extends StatelessWidget {
                                         dividerRevealOffset));
                           }
 
-                          final rowClipper = WigglyRowClipper(
+                          final contentClipper = WigglyRowClipper(
                             wiggleLeftOffset: leftDividerWiggleOffset,
                             wiggleRightOffset: rightDividerWiggleOffset,
                           );
+
+                          final TableRowContentBuilder contentBuilder =
+                              (BuildContext context,
+                                      TableCellBuilder cellBuilder) =>
+                                  Stack(
+                                    fit: StackFit.expand,
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      Positioned(
+                                        key: const ValueKey<int>(-1),
+                                        left: leftWidth,
+                                        width: centerWidth,
+                                        height: rowHeight,
+                                        child: RepaintBoundary(
+                                          child: ClipPath(
+                                            clipper: contentClipper,
+                                            child: Stack(
+                                              fit: StackFit.expand,
+                                              clipBehavior: Clip.none,
+                                              children: columnMapper(
+                                                columnsCenter,
+                                                columnOffsetsCenter,
+                                                cellBuilder,
+                                              ).toList(growable: false),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      if (columnsFixed.isNotEmpty)
+                                        ...columnMapper(
+                                          columnsFixed,
+                                          columnOffsetsFixed,
+                                          cellBuilder,
+                                        ),
+                                    ],
+                                  );
 
                           final body = Material(
                             clipBehavior: Clip.hardEdge,
@@ -446,10 +439,6 @@ class TableViewport extends StatelessWidget {
                                             {
                                               final placeholderChildren =
                                                   <Widget>[];
-                                              late final placeholder = buildRow(
-                                                placeholderBuilder!,
-                                                rowClipper,
-                                              );
 
                                               double rowOffset =
                                                   -(verticalOffsetPixels %
@@ -462,10 +451,12 @@ class TableViewport extends StatelessWidget {
                                                       max(0, startRowIndex);
                                                   rowIndex < endRowIndex;
                                                   rowIndex++) {
-                                                final cellBuilder =
-                                                    rowBuilder(rowIndex);
+                                                final rowWidget = rowBuilder(
+                                                    context,
+                                                    rowIndex,
+                                                    contentBuilder);
 
-                                                (cellBuilder == null
+                                                (rowWidget == null
                                                         ? placeholderChildren
                                                         : children)
                                                     .add(
@@ -476,17 +467,12 @@ class TableViewport extends StatelessWidget {
                                                     top: rowOffset,
                                                     width: width,
                                                     height: rowHeight,
-                                                    child: cellBuilder == null
-                                                        ? placeholderDecorator(
-                                                            placeholder,
-                                                            rowIndex)
-                                                        : rowDecorator(
-                                                            RepaintBoundary(
-                                                              child: buildRow(
-                                                                  cellBuilder,
-                                                                  rowClipper),
-                                                            ),
-                                                            rowIndex),
+                                                    child: rowWidget == null
+                                                        ? placeholderBuilder!(
+                                                            context,
+                                                            rowIndex,
+                                                            contentBuilder)
+                                                        : rowWidget,
                                                   ),
                                                 );
 
@@ -581,16 +567,8 @@ class TableViewport extends StatelessWidget {
                                                 leftDividerWiggleOffset,
                                             horizontalRightOffset:
                                                 rightDividerWiggleOffset),
-                                        child: headerDecorator(buildRow(
-                                            headerBuilder,
-                                            headerHeight == rowHeight
-                                                ? rowClipper
-                                                : WigglyRowClipper(
-                                                    wiggleLeftOffset:
-                                                        leftDividerWiggleOffset,
-                                                    wiggleRightOffset:
-                                                        rightDividerWiggleOffset,
-                                                  ))),
+                                        child: headerBuilder(
+                                            context, contentBuilder),
                                       ),
                                     ),
                                   ),
@@ -628,19 +606,8 @@ class TableViewport extends StatelessWidget {
                                                 leftDividerWiggleOffset,
                                             horizontalRightOffset:
                                                 rightDividerWiggleOffset),
-                                        child: footerDecorator(
-                                          buildRow(
-                                            footerBuilder,
-                                            footerHeight == rowHeight
-                                                ? rowClipper
-                                                : WigglyRowClipper(
-                                                    wiggleLeftOffset:
-                                                        leftDividerWiggleOffset,
-                                                    wiggleRightOffset:
-                                                        rightDividerWiggleOffset,
-                                                  ),
-                                          ),
-                                        ),
+                                        child: footerBuilder(
+                                            context, contentBuilder),
                                       ),
                                     ),
                                   ),
