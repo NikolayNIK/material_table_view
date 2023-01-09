@@ -456,7 +456,9 @@ class TableViewport extends StatelessWidget {
                                                     rowIndex,
                                                     contentBuilder);
 
-                                                (rowWidget == null
+                                                (rowWidget == null &&
+                                                            placeholderContainerBuilder !=
+                                                                null
                                                         ? placeholderChildren
                                                         : children)
                                                     .add(
