@@ -397,6 +397,10 @@ class TableViewport extends StatelessWidget {
                                     ),
                                   );
 
+                          late int previousStartRowIndex, previousEndRowIndex;
+                          late List<Widget?> previousRows, previousPlaceholders;
+                          var hasCache = false;
+
                           final body = Material(
                             clipBehavior: Clip.hardEdge,
                             child: NotificationListener<OverscrollNotification>(
@@ -432,10 +436,23 @@ class TableViewport extends StatelessWidget {
                                                 (verticalOffsetPixels /
                                                         rowHeight)
                                                     .floor();
-                                            final endRowIndex = min(
+                                            final endRowIndex = min<int>(
                                                 rowCount,
                                                 startRowIndex +
-                                                    height / rowHeight);
+                                                    (height / rowHeight)
+                                                        .ceil());
+
+                                            final rows = List<Widget?>.filled(
+                                                    endRowIndex - startRowIndex,
+                                                    null),
+                                                placeholders =
+                                                    List<Widget?>.filled(
+                                                        rows.length, null);
+
+                                            final cacheIndexOffset = hasCache
+                                                ? startRowIndex -
+                                                    previousStartRowIndex
+                                                : 0;
 
                                             final children = <Widget>[];
                                             {
@@ -453,10 +470,26 @@ class TableViewport extends StatelessWidget {
                                                       max(0, startRowIndex);
                                                   rowIndex < endRowIndex;
                                                   rowIndex++) {
-                                                final rowWidget = rowBuilder(
-                                                    context,
-                                                    rowIndex,
-                                                    contentBuilder);
+                                                final screenIndex =
+                                                    rowIndex - startRowIndex;
+                                                final cachedIndex = hasCache
+                                                    ? screenIndex +
+                                                        cacheIndexOffset
+                                                    : 0;
+                                                // TODO try to split up cached into different loop to avoid checking every row
+                                                final cached = hasCache &&
+                                                    cachedIndex >= 0 &&
+                                                    cachedIndex <
+                                                        previousRows.length;
+
+                                                final rowWidget =
+                                                    rows[screenIndex] = cached
+                                                        ? previousRows[
+                                                            cachedIndex]
+                                                        : rowBuilder(
+                                                            context,
+                                                            rowIndex,
+                                                            contentBuilder);
 
                                                 (rowWidget == null &&
                                                             placeholderContainerBuilder !=
@@ -471,12 +504,17 @@ class TableViewport extends StatelessWidget {
                                                     top: rowOffset,
                                                     width: width,
                                                     height: rowHeight,
-                                                    child: rowWidget == null
-                                                        ? placeholderBuilder!(
-                                                            context,
-                                                            rowIndex,
-                                                            contentBuilder)
-                                                        : rowWidget,
+                                                    child: placeholders[
+                                                        screenIndex] = rowWidget !=
+                                                            null
+                                                        ? rowWidget
+                                                        : cached
+                                                            ? previousPlaceholders[
+                                                                cachedIndex]!
+                                                            : placeholderBuilder!(
+                                                                context,
+                                                                rowIndex,
+                                                                contentBuilder),
                                                   ),
                                                 );
 
@@ -502,6 +540,13 @@ class TableViewport extends StatelessWidget {
                                                 children.add(widget);
                                               }
                                             }
+
+                                            previousRows = rows;
+                                            previousPlaceholders = placeholders;
+                                            previousStartRowIndex =
+                                                startRowIndex;
+                                            previousEndRowIndex = endRowIndex;
+                                            hasCache = true;
 
                                             return CustomPaint(
                                               foregroundPainter: WigglyDividerPainter(
