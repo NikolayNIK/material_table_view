@@ -1,3 +1,12 @@
+## 2.0.0
+
+- Existing nameless `TableView` constructor is now deprecated and no longer constant
+  but otherwise works the same.
+- New named `TableView.builder` constructor added in which
+  decorators are removed in favor of row-building function returning a widget
+  built with the help of a closure passed as an argument.
+- Performance improvements.
+
 ## 1.0.2
 
 - Fix name conflict of ListenableBuilder widget with upcoming SDK counterpart.
