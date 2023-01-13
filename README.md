@@ -52,7 +52,7 @@ and is available [here](https://github.com/NikolayNIK/material_table_view_demo).
 
 ## Usage
 
-    TableView(
+    TableView.builder(
       columns: [
         // TODO specify columns
         const TableColumn(
@@ -60,12 +60,19 @@ and is available [here](https://github.com/NikolayNIK/material_table_view_demo).
           freezePriority: 100,
         ),
         for (var i = 1; i < 100; i++)
-          TableColumn(width: 64), // TODO specify freezePriority to freeze a column
+          const TableColumn(width: 64), // TODO specify freezePriority to freeze a column
       ],
       rowCount: 1048576, // TODO specify row count
-      rowBuilder: (row) {
+      rowHeight: 56.0, // TODO specify row height
+      rowBuilder: (context, row, contentBuilder) {
         // TODO fetch row data
-        return (context, column) => Text('$column'); // TODO build a cell widget
+        return InkWell(
+          onTap: () => print('Row $row clicked'),
+          child: contentBuilder(
+            context,
+            (context, column) => Text('$column'), // TODO build a cell widget
+          ),
+        );
       },
       // TODO specify other parameters for other features
     ),
