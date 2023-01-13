@@ -90,8 +90,9 @@ and is available [here](https://github.com/NikolayNIK/material_table_view_demo).
   horizontal scroll that is default on Android causing the
   scrollbar to stretch off the screen on overscroll.
 - No support for RTL layout.
-- Column widgets will lose its state upon switching
-  between scrolled and docked state.
+- Column widgets will lose their state upon switching
+  between scrolled and docked state
+  unless they have `GlobalKey` assigned to them.
   This is an implementation detail and should not be relied upon.
 
 ## Getting help
