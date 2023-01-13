@@ -397,7 +397,7 @@ class TableViewport extends StatelessWidget {
                                     ),
                                   );
 
-                          late int previousStartRowIndex, previousEndRowIndex;
+                          late int previousStartRowIndex;
                           late List<Widget?> previousRows, previousPlaceholders;
                           var hasCache = false;
 
@@ -545,7 +545,6 @@ class TableViewport extends StatelessWidget {
                                             previousPlaceholders = placeholders;
                                             previousStartRowIndex =
                                                 startRowIndex;
-                                            previousEndRowIndex = endRowIndex;
                                             hasCache = true;
 
                                             return CustomPaint(
