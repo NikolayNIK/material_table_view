@@ -1,3 +1,7 @@
+## 2.1.0
+
+- New `bodyContainerBuilder` property implemented.
+
 ## 2.0.0
 
 - Existing nameless `TableView` constructor is now deprecated and no longer constant
