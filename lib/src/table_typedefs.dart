@@ -27,6 +27,9 @@ typedef TablePlaceholderBuilder = Widget Function(
   TableRowContentBuilder contentBuilder,
 );
 
+typedef TableBodyContainerBuilder = Widget Function(
+    BuildContext context, Widget bodyContainer);
+
 /// Function used to wrap a given placeholder widget containing all visible
 /// placeholders in order to achieve some custom behaviour.
 typedef TablePlaceholderContainerBuilder = Widget Function(

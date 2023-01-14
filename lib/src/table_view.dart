@@ -21,6 +21,7 @@ class TableView extends StatefulWidget {
     required this.rowBuilder,
     this.placeholderBuilder,
     this.placeholderContainerBuilder,
+    this.bodyContainerBuilder = _defaultBodyContainerBuilder,
     this.headerBuilder,
     this.headerHeight,
     this.footerBuilder,
@@ -46,6 +47,8 @@ class TableView extends StatefulWidget {
     _LegacyTablePlaceholderDecorator placeholderDecorator = _emptyRowDecorator,
     TablePlaceholderContainerBuilder placeholderContainerBuilder =
         _emptyHeaderDecorator,
+    TableBodyContainerBuilder bodyContainerBuilder =
+        _defaultBodyContainerBuilder,
     TableCellBuilder? headerBuilder,
     double? headerHeight,
     _LegacyTableHeaderDecorator headerDecorator = _emptyHeaderDecorator,
@@ -75,6 +78,7 @@ class TableView extends StatefulWidget {
               : (context, row, contentBuilder) => placeholderDecorator(
                   contentBuilder(context, placeholderBuilder), row),
           placeholderContainerBuilder: placeholderContainerBuilder,
+          bodyContainerBuilder: bodyContainerBuilder,
           headerBuilder: headerBuilder == null
               ? null
               : (context, contentBuilder) =>
@@ -122,6 +126,13 @@ class TableView extends StatefulWidget {
   /// For example, this can be used to wrap placeholders in a shimmer widget
   /// of your choice.
   final TablePlaceholderContainerBuilder? placeholderContainerBuilder;
+
+  /// A function that will be called on-demand enabling wrapping vertically
+  /// scrollable table body section that contains all visible rows including
+  /// placeholders.
+  ///
+  /// This would usually wrap the body in [Material] widget.
+  final TableBodyContainerBuilder bodyContainerBuilder;
 
   /// A function that will be called on-demand for each cell in a header
   /// in order to build a widget for that section of a header.
@@ -199,6 +210,7 @@ class _TableViewState extends State<TableView> {
           rowBuilder: widget.rowBuilder,
           placeholderBuilder: widget.placeholderBuilder,
           placeholderContainerBuilder: widget.placeholderContainerBuilder,
+          bodyContainerBuilder: widget.bodyContainerBuilder,
           headerBuilder: widget.headerBuilder,
           headerHeight: widget.headerHeight ?? widget.rowHeight,
           footerHeight: widget.footerHeight ?? widget.rowHeight,
@@ -221,6 +233,10 @@ class _TableViewState extends State<TableView> {
     }
   }
 }
+
+Widget _defaultBodyContainerBuilder(
+        BuildContext context, Widget bodyContainer) =>
+    Material(child: bodyContainer);
 
 Widget _emptyRowDecorator(Widget rowWidget, int _) => rowWidget;
 

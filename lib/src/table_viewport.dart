@@ -21,6 +21,7 @@ class TableViewport extends StatelessWidget {
   final TableRowBuilder rowBuilder;
   final TablePlaceholderBuilder? placeholderBuilder;
   final TablePlaceholderContainerBuilder? placeholderContainerBuilder;
+  final TableBodyContainerBuilder bodyContainerBuilder;
   final TableHeaderBuilder? headerBuilder;
   final double headerHeight;
   final double footerHeight;
@@ -37,6 +38,7 @@ class TableViewport extends StatelessWidget {
     required this.rowCount,
     required this.rowHeight,
     required this.rowBuilder,
+    required this.bodyContainerBuilder,
     required this.placeholderBuilder,
     required this.placeholderContainerBuilder,
     required this.headerBuilder,
@@ -401,177 +403,186 @@ class TableViewport extends StatelessWidget {
                           late List<Widget?> previousRows, previousPlaceholders;
                           var hasCache = false;
 
-                          final body = Material(
-                            clipBehavior: Clip.hardEdge,
-                            child: NotificationListener<OverscrollNotification>(
-                              // Suppress OverscrollNotification events that escape from the inner scrollable
-                              onNotification: (notification) => true,
-                              child: Scrollbar(
-                                controller: controller.verticalScrollController,
-                                interactive: true,
-                                thumbVisibility: true,
-                                trackVisibility: true,
-                                child: Scrollable(
+                          final body = bodyContainerBuilder(
+                            context,
+                            ClipRect(
+                              child:
+                                  NotificationListener<OverscrollNotification>(
+                                // Suppress OverscrollNotification events that escape from the inner scrollable
+                                onNotification: (notification) => true,
+                                child: Scrollbar(
                                   controller:
                                       controller.verticalScrollController,
-                                  clipBehavior: Clip.none,
-                                  axisDirection: AxisDirection.down,
-                                  viewportBuilder: (context, verticalOffset) =>
-                                      ScrollDimensionsApplicator(
-                                    position: controller
-                                        .verticalScrollController.position,
-                                    axis: Axis.vertical,
-                                    scrollExtent: rowCount * rowHeight +
-                                        scrollPadding.vertical,
-                                    child: RepaintBoundary(
-                                      child: ClipRect(
-                                        child: XListenableBuilder(
-                                          listenable: verticalOffset,
-                                          builder: (context, _) {
-                                            final verticalOffsetPixels =
-                                                verticalOffset.pixels -
-                                                    scrollPadding.top;
+                                  interactive: true,
+                                  thumbVisibility: true,
+                                  trackVisibility: true,
+                                  child: Scrollable(
+                                    controller:
+                                        controller.verticalScrollController,
+                                    clipBehavior: Clip.none,
+                                    axisDirection: AxisDirection.down,
+                                    viewportBuilder:
+                                        (context, verticalOffset) =>
+                                            ScrollDimensionsApplicator(
+                                      position: controller
+                                          .verticalScrollController.position,
+                                      axis: Axis.vertical,
+                                      scrollExtent: rowCount * rowHeight +
+                                          scrollPadding.vertical,
+                                      child: RepaintBoundary(
+                                        child: ClipRect(
+                                          child: XListenableBuilder(
+                                            listenable: verticalOffset,
+                                            builder: (context, _) {
+                                              final verticalOffsetPixels =
+                                                  verticalOffset.pixels -
+                                                      scrollPadding.top;
 
-                                            final startRowIndex =
-                                                (verticalOffsetPixels /
-                                                        rowHeight)
-                                                    .floor();
-                                            final endRowIndex = min<int>(
-                                                rowCount,
-                                                startRowIndex +
-                                                    (height / rowHeight)
-                                                        .ceil());
+                                              final startRowIndex =
+                                                  (verticalOffsetPixels /
+                                                          rowHeight)
+                                                      .floor();
+                                              final endRowIndex = min<int>(
+                                                  rowCount,
+                                                  startRowIndex +
+                                                      (height / rowHeight)
+                                                          .ceil());
 
-                                            final rows = List<Widget?>.filled(
-                                                    endRowIndex - startRowIndex,
-                                                    null),
-                                                placeholders =
-                                                    List<Widget?>.filled(
-                                                        rows.length, null);
+                                              final rows = List<Widget?>.filled(
+                                                      endRowIndex -
+                                                          startRowIndex,
+                                                      null),
+                                                  placeholders =
+                                                      List<Widget?>.filled(
+                                                          rows.length, null);
 
-                                            final cacheIndexOffset = hasCache
-                                                ? startRowIndex -
-                                                    previousStartRowIndex
-                                                : 0;
+                                              final cacheIndexOffset = hasCache
+                                                  ? startRowIndex -
+                                                      previousStartRowIndex
+                                                  : 0;
 
-                                            final children = <Widget>[];
-                                            {
-                                              final placeholderChildren =
-                                                  <Widget>[];
+                                              final children = <Widget>[];
+                                              {
+                                                final placeholderChildren =
+                                                    <Widget>[];
 
-                                              double rowOffset =
-                                                  -(verticalOffsetPixels %
-                                                          rowHeight) -
-                                                      (startRowIndex < 0
-                                                          ? startRowIndex *
-                                                              rowHeight
-                                                          : 0);
-                                              for (var rowIndex =
-                                                      max(0, startRowIndex);
-                                                  rowIndex < endRowIndex;
-                                                  rowIndex++) {
-                                                final screenIndex =
-                                                    rowIndex - startRowIndex;
-                                                final cachedIndex = hasCache
-                                                    ? screenIndex +
-                                                        cacheIndexOffset
-                                                    : 0;
-                                                // TODO try to split up cached into different loop to avoid checking every row
-                                                final cached = hasCache &&
-                                                    cachedIndex >= 0 &&
-                                                    cachedIndex <
-                                                        previousRows.length;
+                                                double rowOffset =
+                                                    -(verticalOffsetPixels %
+                                                            rowHeight) -
+                                                        (startRowIndex < 0
+                                                            ? startRowIndex *
+                                                                rowHeight
+                                                            : 0);
+                                                for (var rowIndex =
+                                                        max(0, startRowIndex);
+                                                    rowIndex < endRowIndex;
+                                                    rowIndex++) {
+                                                  final screenIndex =
+                                                      rowIndex - startRowIndex;
+                                                  final cachedIndex = hasCache
+                                                      ? screenIndex +
+                                                          cacheIndexOffset
+                                                      : 0;
+                                                  // TODO try to split up cached into different loop to avoid checking every row
+                                                  final cached = hasCache &&
+                                                      cachedIndex >= 0 &&
+                                                      cachedIndex <
+                                                          previousRows.length;
 
-                                                final rowWidget =
-                                                    rows[screenIndex] = cached
-                                                        ? previousRows[
-                                                            cachedIndex]
-                                                        : rowBuilder(
-                                                            context,
-                                                            rowIndex,
-                                                            contentBuilder);
+                                                  final rowWidget =
+                                                      rows[screenIndex] = cached
+                                                          ? previousRows[
+                                                              cachedIndex]
+                                                          : rowBuilder(
+                                                              context,
+                                                              rowIndex,
+                                                              contentBuilder);
 
-                                                (rowWidget == null &&
-                                                            placeholderContainerBuilder !=
-                                                                null
-                                                        ? placeholderChildren
-                                                        : children)
-                                                    .add(
-                                                  Positioned(
-                                                    key:
-                                                        ValueKey<int>(rowIndex),
-                                                    left: 0,
-                                                    top: rowOffset,
-                                                    width: width,
-                                                    height: rowHeight,
-                                                    child: placeholders[
-                                                        screenIndex] = rowWidget !=
-                                                            null
-                                                        ? rowWidget
-                                                        : cached
-                                                            ? previousPlaceholders[
-                                                                cachedIndex]!
-                                                            : placeholderBuilder!(
-                                                                context,
-                                                                rowIndex,
-                                                                contentBuilder),
-                                                  ),
-                                                );
+                                                  (rowWidget == null &&
+                                                              placeholderContainerBuilder !=
+                                                                  null
+                                                          ? placeholderChildren
+                                                          : children)
+                                                      .add(
+                                                    Positioned(
+                                                      key: ValueKey<int>(
+                                                          rowIndex),
+                                                      left: 0,
+                                                      top: rowOffset,
+                                                      width: width,
+                                                      height: rowHeight,
+                                                      child: placeholders[
+                                                          screenIndex] = rowWidget !=
+                                                              null
+                                                          ? rowWidget
+                                                          : cached
+                                                              ? previousPlaceholders[
+                                                                  cachedIndex]!
+                                                              : placeholderBuilder!(
+                                                                  context,
+                                                                  rowIndex,
+                                                                  contentBuilder),
+                                                    ),
+                                                  );
 
-                                                rowOffset += rowHeight;
-                                              }
-
-                                              if (placeholderChildren
-                                                  .isNotEmpty) {
-                                                Widget widget = Stack(
-                                                  key: const ValueKey<int>(-1),
-                                                  fit: StackFit.expand,
-                                                  clipBehavior: Clip.none,
-                                                  children: placeholderChildren,
-                                                );
-
-                                                if (placeholderContainerBuilder !=
-                                                    null) {
-                                                  widget =
-                                                      placeholderContainerBuilder!
-                                                          .call(widget);
+                                                  rowOffset += rowHeight;
                                                 }
 
-                                                children.add(widget);
+                                                if (placeholderChildren
+                                                    .isNotEmpty) {
+                                                  Widget widget = Stack(
+                                                    key:
+                                                        const ValueKey<int>(-1),
+                                                    fit: StackFit.expand,
+                                                    clipBehavior: Clip.none,
+                                                    children:
+                                                        placeholderChildren,
+                                                  );
+
+                                                  if (placeholderContainerBuilder !=
+                                                      null) {
+                                                    widget =
+                                                        placeholderContainerBuilder!
+                                                            .call(widget);
+                                                  }
+
+                                                  children.add(widget);
+                                                }
                                               }
-                                            }
 
-                                            previousRows = rows;
-                                            previousPlaceholders = placeholders;
-                                            previousStartRowIndex =
-                                                startRowIndex;
-                                            hasCache = true;
+                                              previousRows = rows;
+                                              previousPlaceholders =
+                                                  placeholders;
+                                              previousStartRowIndex =
+                                                  startRowIndex;
+                                              hasCache = true;
 
-                                            return CustomPaint(
-                                              foregroundPainter: WigglyDividerPainter(
-                                                  leftLineColor:
-                                                      leftDividerColor,
-                                                  rightLineColor:
-                                                      rightDividerColor,
-                                                  leftLineX: leftWidth -
-                                                      halfDividerThickness,
-                                                  rightLineX: rightWidth -
-                                                      halfDividerThickness,
-                                                  lineWidth: dividerThickness,
-                                                  patternHeight: rowHeight,
-                                                  verticalOffset:
-                                                      verticalOffsetPixels,
-                                                  horizontalLeftOffset:
-                                                      leftDividerWiggleOffset,
-                                                  horizontalRightOffset:
-                                                      rightDividerWiggleOffset),
-                                              child: Stack(
-                                                fit: StackFit.expand,
-                                                clipBehavior: Clip.none,
-                                                children: children,
-                                              ),
-                                            );
-                                          },
+                                              return CustomPaint(
+                                                foregroundPainter: WigglyDividerPainter(
+                                                    leftLineColor:
+                                                        leftDividerColor,
+                                                    rightLineColor:
+                                                        rightDividerColor,
+                                                    leftLineX: leftWidth -
+                                                        halfDividerThickness,
+                                                    rightLineX: rightWidth -
+                                                        halfDividerThickness,
+                                                    lineWidth: dividerThickness,
+                                                    patternHeight: rowHeight,
+                                                    verticalOffset:
+                                                        verticalOffsetPixels,
+                                                    horizontalLeftOffset:
+                                                        leftDividerWiggleOffset,
+                                                    horizontalRightOffset:
+                                                        rightDividerWiggleOffset),
+                                                child: Stack(
+                                                  fit: StackFit.expand,
+                                                  clipBehavior: Clip.none,
+                                                  children: children,
+                                                ),
+                                              );
+                                            },
+                                          ),
                                         ),
                                       ),
                                     ),
