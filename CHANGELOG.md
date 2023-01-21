@@ -1,3 +1,10 @@
+# 2.1.2
+
+- Placeholder system is now deprecated and scheduled to be removed in the next
+  major release to allow for further optimization and feature development.
+  It is advised to use the [approach](https://docs.flutter.dev/cookbook/effects/shimmer-loading#paint-one-big-shimmer)
+  suggested in the official docs instead.
+
 ## 2.1.1
 
 - Minor bug fixes and improvements.
