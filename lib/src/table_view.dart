@@ -19,7 +19,9 @@ class TableView extends StatefulWidget {
     required this.columns,
     this.controller,
     required this.rowBuilder,
+    @Deprecated('This property will be removed in the next major release. See CHANGELOG.md for more details.')
     this.placeholderBuilder,
+    @Deprecated('This property will be removed in the next major release. See CHANGELOG.md for more details.')
     this.placeholderContainerBuilder,
     this.bodyContainerBuilder = _defaultBodyContainerBuilder,
     this.headerBuilder,
@@ -43,10 +45,14 @@ class TableView extends StatefulWidget {
     double rowHeight = _defaultItemHeight,
     required _LegacyTableRowBuilder rowBuilder,
     _LegacyTableRowDecorator rowDecorator = _emptyRowDecorator,
-    TableCellBuilder? placeholderBuilder,
-    _LegacyTablePlaceholderDecorator placeholderDecorator = _emptyRowDecorator,
-    TablePlaceholderContainerBuilder placeholderContainerBuilder =
-        _emptyHeaderDecorator,
+    @Deprecated('This property will be removed in the next major release. See CHANGELOG.md for more details.')
+        TableCellBuilder? placeholderBuilder,
+    @Deprecated('This property will be removed in the next major release. See CHANGELOG.md for more details.')
+        _LegacyTablePlaceholderDecorator
+            placeholderDecorator = _emptyRowDecorator,
+    @Deprecated('This property will be removed in the next major release. See CHANGELOG.md for more details.')
+        TablePlaceholderContainerBuilder
+            placeholderContainerBuilder = _emptyHeaderDecorator,
     TableBodyContainerBuilder bodyContainerBuilder =
         _defaultBodyContainerBuilder,
     TableCellBuilder? headerBuilder,
@@ -113,10 +119,14 @@ class TableView extends StatefulWidget {
   /// replaced with a placeholder, meaning that the [placeholderBuilder] must
   /// not be null. This enables additional behaviour described in a
   /// [placeholderContainerBuilder] property.
+  @Deprecated(
+      'This property will be removed in the next major release. See CHANGELOG.md for more details.')
   final TableRowBuilder rowBuilder;
 
   /// A function that will be called on-demand for each cell in a placeholder
   /// row in order to obtains a widget for that cell.
+  @Deprecated(
+      'This property will be removed in the next major release. See CHANGELOG.md for more details.')
   final TablePlaceholderBuilder? placeholderBuilder;
 
   /// A function that will be called on-demand in order to enable custom
