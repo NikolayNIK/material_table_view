@@ -5,8 +5,7 @@ a widget that displays your data
 in a both vertically and horizontally scrollable
 material-style table with fixed-width freezable columns
 dynamically adjusting based on a screen size
-with support for billions of on-demand built rows
-and for row placeholders for shimmer effects.
+with support for billions of on-demand built rows.
 This package prioritizes usability and visual consistency
 above all else.
 
@@ -45,10 +44,6 @@ and is available [here](https://github.com/NikolayNIK/material_table_view_demo).
   the columns have been separated and there is more content to
   scroll to.
 - Horizontally scrollable header and footer support.
-- Placeholder row support with the ability for the developer
-  to wrap all visible placeholder row widgets in a
-  custom widget. For example, it can be wrapped in a shimmer
-  widget in order to achieve a shimmer effect.
 
 ## Usage
 
