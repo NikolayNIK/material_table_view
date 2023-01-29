@@ -122,11 +122,11 @@ class TableView extends StatefulWidget {
   /// a specified cell in that row.
   ///
   /// In case of this function returning null, the corresponding row will be
+  // ignore: deprecated_member_use_from_same_package
   /// replaced with a placeholder, meaning that the [placeholderBuilder] must
   /// not be null. This enables additional behaviour described in a
+  // ignore: deprecated_member_use_from_same_package
   /// [placeholderContainerBuilder] property.
-  @Deprecated(
-      'This property will be removed in the next major release. See CHANGELOG.md for more details.')
   final TableRowBuilder rowBuilder;
 
   /// A function that will be called on-demand for each cell in a placeholder
@@ -141,6 +141,8 @@ class TableView extends StatefulWidget {
   ///
   /// For example, this can be used to wrap placeholders in a shimmer widget
   /// of your choice.
+  @Deprecated(
+      'This property will be removed in the next major release. See CHANGELOG.md for more details.')
   final TablePlaceholderContainerBuilder? placeholderContainerBuilder;
 
   /// A function that will be called on-demand enabling wrapping vertically
@@ -224,7 +226,9 @@ class _TableViewState extends State<TableView> {
           rowCount: widget.rowCount,
           rowHeight: widget.rowHeight,
           rowBuilder: widget.rowBuilder,
+          // ignore: deprecated_member_use_from_same_package
           placeholderBuilder: widget.placeholderBuilder,
+          // ignore: deprecated_member_use_from_same_package
           placeholderContainerBuilder: widget.placeholderContainerBuilder,
           bodyContainerBuilder: widget.bodyContainerBuilder,
           headerBuilder: widget.headerBuilder,
