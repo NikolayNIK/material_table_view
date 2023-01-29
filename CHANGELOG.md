@@ -1,4 +1,4 @@
-# 2.1.2
+## 2.1.2
 
 - Placeholder system is now deprecated and scheduled to be removed in the next
   major release to allow for further optimization and feature development.
