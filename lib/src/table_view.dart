@@ -20,9 +20,9 @@ class TableView extends StatefulWidget {
     this.controller,
     required this.rowBuilder,
     @Deprecated('This property will be removed in the next major release. See CHANGELOG.md for more details.')
-    this.placeholderBuilder,
+        this.placeholderBuilder,
     @Deprecated('This property will be removed in the next major release. See CHANGELOG.md for more details.')
-    this.placeholderContainerBuilder,
+        this.placeholderContainerBuilder,
     this.bodyContainerBuilder = _defaultBodyContainerBuilder,
     this.headerBuilder,
     this.headerHeight,
