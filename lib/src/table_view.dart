@@ -32,7 +32,13 @@ class TableView extends StatefulWidget {
     this.minScrollableWidthRatio = .6180339887498547,
     this.dividerRevealOffset = _defaultDividerRevealOffset,
     this.scrollPadding,
-  });
+  })  : assert(rowCount >= 0),
+        assert(rowHeight > 0),
+        assert(headerHeight == null || headerHeight > 0),
+        assert(footerHeight == null || footerHeight > 0),
+        assert(minScrollableWidth == null || minScrollableWidth > 0),
+        assert(minScrollableWidthRatio >= 0 && minScrollableWidthRatio <= 1),
+        assert(dividerRevealOffset > 0);
 
   @Deprecated('Use named constructor .builder instead')
   TableView({
