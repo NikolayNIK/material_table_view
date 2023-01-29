@@ -1,3 +1,7 @@
+## 2.1.3
+
+- Deprecations and warnings fixes.
+
 ## 2.1.2
 
 - Placeholder system is now deprecated and scheduled to be removed in the next
