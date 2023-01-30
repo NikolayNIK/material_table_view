@@ -439,6 +439,7 @@ class TableViewport extends StatelessWidget {
                                             itemExtent: rowHeight,
                                             delegate:
                                                 SliverChildBuilderDelegate(
+                                              childCount: rowCount,
                                               (context, index) => rowBuilder(
                                                   context,
                                                   index,
