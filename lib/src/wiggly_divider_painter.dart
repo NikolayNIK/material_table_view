@@ -29,7 +29,7 @@ class WigglyDividerPainter extends CustomPainter {
 
       final halfPatternHeight = patternHeight / 2;
       double verticalOffset =
-          -(this.verticalOffset?.pixels ?? 0 % patternHeight);
+          -((this.verticalOffset?.pixels ?? 0) % patternHeight);
       path.moveTo(0, verticalOffset);
 
       final end = size.height + halfPatternHeight;
