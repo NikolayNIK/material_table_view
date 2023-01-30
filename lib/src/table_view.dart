@@ -4,7 +4,6 @@ import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
 import 'package:material_table_view/src/table_viewport.dart';
 
-const _defaultItemHeight = 56.0;
 const _defaultDividerRevealOffset = 32.0;
 
 /// Material-style widget that displays its content in a both vertically and
@@ -19,10 +18,6 @@ class TableView extends StatefulWidget {
     required this.columns,
     this.controller,
     required this.rowBuilder,
-    @Deprecated('This property will be removed in the next major release. See CHANGELOG.md for more details.')
-        this.placeholderBuilder,
-    @Deprecated('This property will be removed in the next major release. See CHANGELOG.md for more details.')
-        this.placeholderContainerBuilder,
     this.bodyContainerBuilder = _defaultBodyContainerBuilder,
     this.headerBuilder,
     this.headerHeight,
@@ -39,71 +34,6 @@ class TableView extends StatefulWidget {
         assert(minScrollableWidth == null || minScrollableWidth > 0),
         assert(minScrollableWidthRatio >= 0 && minScrollableWidthRatio <= 1),
         assert(dividerRevealOffset > 0);
-
-  @Deprecated('Use named constructor .builder instead')
-  TableView({
-    Key? key,
-    TableViewController? controller,
-    required List<TableColumn> columns,
-    double? minScrollableWidth,
-    double minScrollableWidthRatio = .6180339887498547,
-    required int rowCount,
-    double rowHeight = _defaultItemHeight,
-    required _LegacyTableRowBuilder rowBuilder,
-    _LegacyTableRowDecorator rowDecorator = _emptyRowDecorator,
-    @Deprecated('This property will be removed in the next major release. See CHANGELOG.md for more details.')
-        TableCellBuilder? placeholderBuilder,
-    @Deprecated('This property will be removed in the next major release. See CHANGELOG.md for more details.')
-        _LegacyTablePlaceholderDecorator
-            placeholderDecorator = _emptyRowDecorator,
-    @Deprecated('This property will be removed in the next major release. See CHANGELOG.md for more details.')
-        TablePlaceholderContainerBuilder
-            placeholderContainerBuilder = _emptyHeaderDecorator,
-    TableBodyContainerBuilder bodyContainerBuilder =
-        _defaultBodyContainerBuilder,
-    TableCellBuilder? headerBuilder,
-    double? headerHeight,
-    _LegacyTableHeaderDecorator headerDecorator = _emptyHeaderDecorator,
-    double? footerHeight,
-    TableCellBuilder? footerBuilder,
-    _LegacyTableFooterDecorator footerDecorator = _emptyFooterDecorator,
-    double dividerRevealOffset = _defaultDividerRevealOffset,
-    EdgeInsets? scrollPadding,
-  }) : this.builder(
-          key: key,
-          controller: controller,
-          columns: columns,
-          minScrollableWidth: minScrollableWidth,
-          minScrollableWidthRatio: minScrollableWidthRatio,
-          rowCount: rowCount,
-          rowHeight: rowHeight,
-          rowBuilder: (context, row, contentBuilder) {
-            final cellBuilder = rowBuilder(row);
-            if (cellBuilder == null) {
-              return null;
-            }
-
-            return rowDecorator(contentBuilder(context, cellBuilder), row);
-          },
-          placeholderBuilder: placeholderBuilder == null
-              ? null
-              : (context, row, contentBuilder) => placeholderDecorator(
-                  contentBuilder(context, placeholderBuilder), row),
-          placeholderContainerBuilder: placeholderContainerBuilder,
-          bodyContainerBuilder: bodyContainerBuilder,
-          headerBuilder: headerBuilder == null
-              ? null
-              : (context, contentBuilder) =>
-                  headerDecorator(contentBuilder(context, headerBuilder)),
-          headerHeight: headerHeight,
-          footerBuilder: footerBuilder == null
-              ? null
-              : (context, contentBuilder) =>
-                  footerDecorator(contentBuilder(context, footerBuilder)),
-          footerHeight: footerHeight,
-          dividerRevealOffset: dividerRevealOffset,
-          scrollPadding: scrollPadding,
-        );
 
   /// Count of fixed-height rows displayed in a table.
   final int rowCount;
@@ -128,22 +58,6 @@ class TableView extends StatefulWidget {
   // ignore: deprecated_member_use_from_same_package
   /// [placeholderContainerBuilder] property.
   final TableRowBuilder rowBuilder;
-
-  /// A function that will be called on-demand for each cell in a placeholder
-  /// row in order to obtains a widget for that cell.
-  @Deprecated(
-      'This property will be removed in the next major release. See CHANGELOG.md for more details.')
-  final TablePlaceholderBuilder? placeholderBuilder;
-
-  /// A function that will be called on-demand in order to enable custom
-  /// placeholder behaviour by wrapping already built widget that contains
-  /// all visible placeholder rows with required offsets passed as an argument.
-  ///
-  /// For example, this can be used to wrap placeholders in a shimmer widget
-  /// of your choice.
-  @Deprecated(
-      'This property will be removed in the next major release. See CHANGELOG.md for more details.')
-  final TablePlaceholderContainerBuilder? placeholderContainerBuilder;
 
   /// A function that will be called on-demand enabling wrapping vertically
   /// scrollable table body section that contains all visible rows including
@@ -226,10 +140,6 @@ class _TableViewState extends State<TableView> {
           rowCount: widget.rowCount,
           rowHeight: widget.rowHeight,
           rowBuilder: widget.rowBuilder,
-          // ignore: deprecated_member_use_from_same_package
-          placeholderBuilder: widget.placeholderBuilder,
-          // ignore: deprecated_member_use_from_same_package
-          placeholderContainerBuilder: widget.placeholderContainerBuilder,
           bodyContainerBuilder: widget.bodyContainerBuilder,
           headerBuilder: widget.headerBuilder,
           headerHeight: widget.headerHeight ?? widget.rowHeight,
@@ -257,33 +167,3 @@ class _TableViewState extends State<TableView> {
 Widget _defaultBodyContainerBuilder(
         BuildContext context, Widget bodyContainer) =>
     Material(child: bodyContainer);
-
-Widget _emptyRowDecorator(Widget rowWidget, int _) => rowWidget;
-
-Widget _emptyHeaderDecorator(Widget headerWidget) => headerWidget;
-
-const _LegacyTableFooterDecorator _emptyFooterDecorator = _emptyHeaderDecorator;
-
-/// Function used to retrieve a [TableCellBuilder] for a specific row.
-/// Returning null indicates the intent to replace that row with a placeholder.
-typedef _LegacyTableRowBuilder = TableCellBuilder? Function(int row);
-
-/// Function used to wrap a given row widget for a specific row
-/// in order to achieve some custom row behaviour.
-typedef _LegacyTableRowDecorator = Widget Function(
-    Widget rowWidget, int rowIndex);
-
-/// Function used to wrap a given placeholder row widget for a specific row
-/// in order to achieve some custom row behaviour.
-typedef _LegacyTablePlaceholderDecorator = Widget Function(
-  Widget placeholderWidget,
-  int rowIndex,
-);
-
-/// Function used to wrap a given header row widget for a specific row
-/// in order to achieve some custom row behaviour.
-typedef _LegacyTableHeaderDecorator = Widget Function(Widget headerWidget);
-
-/// Function used to wrap a given footer row widget for a specific row
-/// in order to achieve some custom row behaviour.
-typedef _LegacyTableFooterDecorator = Widget Function(Widget footerWidget);

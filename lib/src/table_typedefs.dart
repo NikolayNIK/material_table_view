@@ -8,7 +8,7 @@ typedef TableRowContentBuilder = Widget Function(
   TableCellBuilder cellBuilder,
 );
 
-typedef TableRowBuilder = Widget? Function(
+typedef TableRowBuilder = Widget Function(
   BuildContext context,
   int row,
   TableRowContentBuilder contentBuilder,

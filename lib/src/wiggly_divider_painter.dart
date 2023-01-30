@@ -5,7 +5,7 @@ class WigglyDividerPainter extends CustomPainter {
   final double leftLineX, rightLineX;
   final double lineWidth;
   final double patternHeight;
-  final double verticalOffset;
+  final ViewportOffset? verticalOffset;
   final double horizontalLeftOffset, horizontalRightOffset;
 
   WigglyDividerPainter({
@@ -18,7 +18,7 @@ class WigglyDividerPainter extends CustomPainter {
     required this.verticalOffset,
     required this.horizontalLeftOffset,
     required this.horizontalRightOffset,
-  });
+  }) : super(repaint: verticalOffset);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -28,7 +28,8 @@ class WigglyDividerPainter extends CustomPainter {
       final path = Path();
 
       final halfPatternHeight = patternHeight / 2;
-      double verticalOffset = -(this.verticalOffset % patternHeight);
+      double verticalOffset =
+          -(this.verticalOffset?.pixels ?? 0 % patternHeight);
       path.moveTo(0, verticalOffset);
 
       final end = size.height + halfPatternHeight;
