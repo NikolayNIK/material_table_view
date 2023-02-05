@@ -11,7 +11,7 @@ import 'package:material_table_view/src/wiggly_divider_painter.dart';
 import 'package:material_table_view/src/wiggly_row_clipper.dart';
 
 /// TODO replace crude Widget implementation with a RenderBox one
-class TableViewport extends StatelessWidget {
+class TableContent extends StatelessWidget {
   final TableViewController controller;
   final List<TableColumn> columns;
   final double? minScrollableWidth;
@@ -27,7 +27,7 @@ class TableViewport extends StatelessWidget {
   final double dividerRevealOffset;
   final EdgeInsets scrollPadding;
 
-  const TableViewport({
+  const TableContent({
     super.key,
     required this.controller,
     required this.columns,

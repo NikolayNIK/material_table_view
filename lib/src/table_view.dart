@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:material_table_view/src/table_column.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
-import 'package:material_table_view/src/table_viewport.dart';
+import 'package:material_table_view/src/table_content.dart';
 
 const _defaultDividerRevealOffset = 32.0;
 
@@ -132,7 +132,7 @@ class _TableViewState extends State<TableView> {
   Widget build(BuildContext context) => SizedBox(
         width: double.infinity,
         height: double.infinity,
-        child: TableViewport(
+        child: TableContent(
           controller: _controller,
           columns: widget.columns,
           minScrollableWidth: widget.minScrollableWidth,
