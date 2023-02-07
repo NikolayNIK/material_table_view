@@ -8,9 +8,14 @@ typedef TableRowContentBuilder = Widget Function(
   TableCellBuilder cellBuilder,
 );
 
-typedef TableRowBuilder = Widget Function(
+typedef TableRowBuilder = Widget? Function(
   BuildContext context,
   int row,
+  TableRowContentBuilder contentBuilder,
+);
+
+typedef TablePlaceholderBuilder = Widget Function(
+  BuildContext context,
   TableRowContentBuilder contentBuilder,
 );
 
@@ -20,12 +25,6 @@ typedef TableHeaderBuilder = Widget Function(
 );
 
 typedef TableFooterBuilder = TableHeaderBuilder;
-
-typedef TablePlaceholderBuilder = Widget Function(
-  BuildContext context,
-  int row,
-  TableRowContentBuilder contentBuilder,
-);
 
 typedef TableBodyContainerBuilder = Widget Function(
     BuildContext context, Widget bodyContainer);

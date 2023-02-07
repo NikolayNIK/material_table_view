@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:material_table_view/src/table_layout_data.dart';
 import 'package:material_table_view/src/table_painting_context.dart';
+import 'package:material_table_view/src/table_placeholder_shader_configuration.dart';
 
 class TableSection extends StatelessWidget {
   final ViewportOffset? verticalOffset;
   final double rowHeight;
+  final TableViewPlaceholderShaderConfig? placeholderShaderConfig;
   final Widget child;
 
   TableSection({
     required this.verticalOffset,
     required this.rowHeight,
+    required this.placeholderShaderConfig,
     required this.child,
   });
 
@@ -20,6 +23,7 @@ class TableSection extends StatelessWidget {
         rowHeight: rowHeight,
         layoutData: TableContentLayoutData.of(context),
         dividerThickness: DividerTheme.of(context).thickness ?? 2.0,
+        placeholderShaderConfig: placeholderShaderConfig,
         child: child,
       );
 }
@@ -29,12 +33,14 @@ class _TableSection extends SingleChildRenderObjectWidget {
   final double rowHeight;
   final TableContentLayoutData layoutData;
   final double dividerThickness;
+  final TableViewPlaceholderShaderConfig? placeholderShaderConfig;
 
   _TableSection({
     required this.verticalOffset,
     required this.rowHeight,
     required this.layoutData,
     required this.dividerThickness,
+    required this.placeholderShaderConfig,
     required Widget child,
   }) : super(child: child);
 
@@ -55,6 +61,7 @@ class _TableSection extends SingleChildRenderObjectWidget {
     renderObject.rowHeight = rowHeight;
     renderObject.layoutData = layoutData;
     renderObject.dividerThickness = dividerThickness;
+    renderObject.placeholderShaderConfig = placeholderShaderConfig;
   }
 }
 
@@ -75,6 +82,7 @@ class _RenderTableSection extends RenderProxyBox {
   double _rowHeight;
   TableContentLayoutData _layoutData;
   double _dividerThickness;
+  TableViewPlaceholderShaderConfig? _placeholderShaderConfig;
 
   set verticalOffset(ViewportOffset? verticalOffset) {
     if (identical(_verticalOffset, verticalOffset)) return;
@@ -104,6 +112,14 @@ class _RenderTableSection extends RenderProxyBox {
     // this comparison should be fine
     if (_dividerThickness != dividerThickness) {
       _dividerThickness = dividerThickness;
+      markNeedsPaint();
+    }
+  }
+
+  set placeholderShaderConfig(
+      TableViewPlaceholderShaderConfig? placeholderShaderConfig) {
+    if (_placeholderShaderConfig != placeholderShaderConfig) {
+      _placeholderShaderConfig = placeholderShaderConfig;
       markNeedsPaint();
     }
   }
@@ -192,9 +208,13 @@ class _RenderTableSection extends RenderProxyBox {
     clipPath.close();
 
     final innerContext = TablePaintingContext(
-        mainLayer: ContainerLayer(),
-        context: context,
-        scrolledClipPath: clipPath);
+      mainLayer: ContainerLayer(),
+      context: context,
+      scrolledClipPath: clipPath,
+      placeholderShaderConfig: _placeholderShaderConfig,
+      offset: offset,
+      size: size,
+    );
 
     super.paint(innerContext, offset);
 

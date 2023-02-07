@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:material_table_view/src/iterator_extensions.dart';
 import 'package:material_table_view/src/listenable_builder.dart';
 import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
+import 'package:material_table_view/src/sliver_table_view_body.dart';
 import 'package:material_table_view/src/table_column.dart';
 import 'package:material_table_view/src/table_layout_data.dart';
+import 'package:material_table_view/src/table_placeholder_shader_configuration.dart';
 import 'package:material_table_view/src/table_row.dart';
 import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
@@ -20,6 +22,8 @@ class TableContent extends StatelessWidget {
   final int rowCount;
   final double rowHeight;
   final TableRowBuilder rowBuilder;
+  final TablePlaceholderBuilder? placeholderBuilder;
+  final TableViewPlaceholderShaderConfig? placeholderShaderConfig;
   final TableBodyContainerBuilder bodyContainerBuilder;
   final TableHeaderBuilder? headerBuilder;
   final double headerHeight;
@@ -37,6 +41,8 @@ class TableContent extends StatelessWidget {
     required this.rowCount,
     required this.rowHeight,
     required this.rowBuilder,
+    required this.placeholderBuilder,
+    required this.placeholderShaderConfig,
     required this.bodyContainerBuilder,
     required this.headerBuilder,
     required this.headerHeight,
@@ -368,22 +374,19 @@ class TableContent extends StatelessWidget {
                                             TableSection(
                                       verticalOffset: verticalOffset,
                                       rowHeight: rowHeight,
+                                      placeholderShaderConfig:
+                                          placeholderShaderConfig,
                                       child: TableViewport(
                                         clipBehavior: Clip.none,
                                         offset: verticalOffset,
                                         slivers: [
-                                          SliverFixedExtentList(
-                                            itemExtent: rowHeight,
-                                            delegate:
-                                                SliverChildBuilderDelegate(
-                                              childCount: rowCount,
-                                              addRepaintBoundaries: false,
-                                              (context, index) => rowBuilder(
-                                                  context,
-                                                  index,
-                                                  contentBuilder),
-                                            ),
-                                          )
+                                          SliverTableViewBody(
+                                            rowCount: rowCount,
+                                            rowHeight: rowHeight,
+                                            rowBuilder: rowBuilder,
+                                            placeholderBuilder:
+                                                placeholderBuilder,
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -436,6 +439,7 @@ class TableContent extends StatelessWidget {
                                     child: TableSection(
                                       verticalOffset: null,
                                       rowHeight: headerHeight,
+                                      placeholderShaderConfig: null,
                                       child: headerBuilder(
                                           context, contentBuilder),
                                     ),
@@ -459,6 +463,7 @@ class TableContent extends StatelessWidget {
                                     child: TableSection(
                                       verticalOffset: null,
                                       rowHeight: footerHeight,
+                                      placeholderShaderConfig: null,
                                       child: footerBuilder(
                                           context, contentBuilder),
                                     ),

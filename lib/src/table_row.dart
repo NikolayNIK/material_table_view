@@ -6,8 +6,10 @@ import 'package:material_table_view/src/table_painting_context.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 
 class TableViewRow extends SingleChildRenderObjectWidget {
-  TableViewRow({required TableCellBuilder cellBuilder})
-      : super(
+  TableViewRow({
+    required TableCellBuilder cellBuilder,
+    bool usePlaceholderLayers = false,
+  }) : super(
           child: Builder(
             // this is temporary I swear
             builder: (context) {
@@ -34,7 +36,9 @@ class TableViewRow extends SingleChildRenderObjectWidget {
                 children: [
                   Positioned(
                     child: TablePaintingContextCollapse(
-                      type: TablePaintingContextLayerType.regularScrolled,
+                      type: usePlaceholderLayers
+                          ? TablePaintingContextLayerType.placeholderScrolled
+                          : TablePaintingContextLayerType.regularScrolled,
                       child: Stack(
                         fit: StackFit.expand,
                         clipBehavior: Clip.none,
@@ -45,7 +49,9 @@ class TableViewRow extends SingleChildRenderObjectWidget {
                   ),
                   Positioned(
                     child: TablePaintingContextCollapse(
-                      type: TablePaintingContextLayerType.regularFixed,
+                      type: usePlaceholderLayers
+                          ? TablePaintingContextLayerType.placeholderFixed
+                          : TablePaintingContextLayerType.regularFixed,
                       child: Stack(
                         fit: StackFit.expand,
                         clipBehavior: Clip.none,

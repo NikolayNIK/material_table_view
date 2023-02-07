@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:material_table_view/src/table_column.dart';
+import 'package:material_table_view/src/table_content.dart';
+import 'package:material_table_view/src/table_placeholder_shader_configuration.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
-import 'package:material_table_view/src/table_content.dart';
 
 const _defaultDividerRevealOffset = 32.0;
 
@@ -18,6 +19,8 @@ class TableView extends StatefulWidget {
     required this.columns,
     this.controller,
     required this.rowBuilder,
+    this.placeholderBuilder,
+    this.placeholderShaderConfig,
     this.bodyContainerBuilder = _defaultBodyContainerBuilder,
     this.headerBuilder,
     this.headerHeight,
@@ -58,6 +61,10 @@ class TableView extends StatefulWidget {
   // ignore: deprecated_member_use_from_same_package
   /// [placeholderContainerBuilder] property.
   final TableRowBuilder rowBuilder;
+
+  final TablePlaceholderBuilder? placeholderBuilder;
+
+  final TableViewPlaceholderShaderConfig? placeholderShaderConfig;
 
   /// A function that will be called on-demand enabling wrapping vertically
   /// scrollable table body section that contains all visible rows including
@@ -140,6 +147,8 @@ class _TableViewState extends State<TableView> {
           rowCount: widget.rowCount,
           rowHeight: widget.rowHeight,
           rowBuilder: widget.rowBuilder,
+          placeholderBuilder: widget.placeholderBuilder,
+          placeholderShaderConfig: widget.placeholderShaderConfig,
           bodyContainerBuilder: widget.bodyContainerBuilder,
           headerBuilder: widget.headerBuilder,
           headerHeight: widget.headerHeight ?? widget.rowHeight,

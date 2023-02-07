@@ -1,5 +1,6 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:material_table_view/src/table_placeholder_shader_configuration.dart';
 
 class TablePaintingLayerPair {
   final PaintingContext fixed, scrolled;
@@ -21,28 +22,47 @@ class TablePaintingContext extends PaintingContext {
     required ContainerLayer mainLayer,
     required PaintingContext context,
     required Path scrolledClipPath,
+    required TableViewPlaceholderShaderConfig? placeholderShaderConfig,
+    required Offset offset,
+    required Size size,
   }) : super(mainLayer, context.estimatedBounds) {
     final regularFixed = mainLayer;
     final regularScrolled = ClipPathLayer(clipPath: scrolledClipPath);
-    final placeholderFixed = ContainerLayer();
-    final placeholderScrolled = ClipPathLayer(clipPath: scrolledClipPath);
 
     context.addLayer(regularFixed);
     context.addLayer(regularScrolled);
-    context.addLayer(placeholderFixed);
-    context.addLayer(placeholderScrolled);
 
     regular = TablePaintingLayerPair(
         fixed: PaintingContext(regularFixed, context.estimatedBounds),
         scrolled: PaintingContext(regularScrolled, context.estimatedBounds));
 
-    placeholder = TablePaintingLayerPair(
-        fixed: PaintingContext(placeholderFixed, context.estimatedBounds),
-        scrolled:
-            PaintingContext(placeholderScrolled, context.estimatedBounds));
+    if (placeholderShaderConfig == null) {
+      placeholderShaderContext = null;
+      placeholder = regular;
+    } else {
+      final layer = ShaderMaskLayer()
+        ..blendMode = placeholderShaderConfig.blendMode
+        ..maskRect = offset & size
+        ..shader = placeholderShaderConfig.shaderCallback(Offset.zero & size);
+
+      final placeholderFixed = ContainerLayer();
+      final placeholderScrolled = ClipPathLayer(clipPath: scrolledClipPath);
+
+      placeholderShaderContext = PaintingContext(layer, context.estimatedBounds)
+        ..addLayer(placeholderFixed)
+        ..addLayer(placeholderScrolled);
+
+      context.addLayer(layer);
+
+      placeholder = TablePaintingLayerPair(
+          fixed: PaintingContext(placeholderFixed, context.estimatedBounds),
+          scrolled:
+              PaintingContext(placeholderScrolled, context.estimatedBounds));
+    }
   }
 
   late final TablePaintingLayerPair regular, placeholder;
+  late final PaintingContext? placeholderShaderContext;
 
   @override
   VoidCallback addCompositionCallback(CompositionCallback callback) =>
@@ -137,6 +157,7 @@ class TablePaintingContext extends PaintingContext {
     regular.scrolled.stopRecordingIfNeeded();
     placeholder.fixed.stopRecordingIfNeeded();
     placeholder.scrolled.stopRecordingIfNeeded();
+    placeholderShaderContext?.stopRecordingIfNeeded();
   }
 }
 
@@ -144,6 +165,8 @@ class TablePaintingContext extends PaintingContext {
 enum TablePaintingContextLayerType {
   regularFixed,
   regularScrolled,
+  placeholderFixed,
+  placeholderScrolled,
 }
 
 @Deprecated('replace')
@@ -184,6 +207,12 @@ class _RenderTablePaintingContextCollapse extends RenderProxyBox {
         break;
       case TablePaintingContextLayerType.regularScrolled:
         context = context.regular.scrolled;
+        break;
+      case TablePaintingContextLayerType.placeholderFixed:
+        context = context.placeholder.fixed;
+        break;
+      case TablePaintingContextLayerType.placeholderScrolled:
+        context = context.placeholder.scrolled;
         break;
     }
 
