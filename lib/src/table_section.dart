@@ -46,11 +46,11 @@ class _TableSection extends SingleChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) => _RenderTableSection(
-        verticalOffset: verticalOffset,
-        rowHeight: rowHeight,
-        layoutData: layoutData,
-        dividerThickness: dividerThickness,
-      );
+      verticalOffset: verticalOffset,
+      rowHeight: rowHeight,
+      layoutData: layoutData,
+      dividerThickness: dividerThickness,
+      placeholderShaderConfig: placeholderShaderConfig);
 
   @override
   void updateRenderObject(
@@ -71,9 +71,11 @@ class _RenderTableSection extends RenderProxyBox {
     required double rowHeight,
     required TableContentLayoutData layoutData,
     required double dividerThickness,
+    required TableViewPlaceholderShaderConfig? placeholderShaderConfig,
   })  : _rowHeight = rowHeight,
         _layoutData = layoutData,
-        _dividerThickness = dividerThickness {
+        _dividerThickness = dividerThickness,
+        _placeholderShaderConfig = placeholderShaderConfig {
     _verticalOffset = verticalOffset;
     _verticalOffset?.addListener(_verticalOffsetChanged);
   }
