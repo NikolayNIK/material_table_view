@@ -5,12 +5,13 @@ import 'package:material_table_view/src/iterator_extensions.dart';
 import 'package:material_table_view/src/listenable_builder.dart';
 import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/table_column.dart';
+import 'package:material_table_view/src/table_layout_data.dart';
+import 'package:material_table_view/src/table_row.dart';
+import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
-import 'package:material_table_view/src/wiggly_divider_painter.dart';
-import 'package:material_table_view/src/wiggly_row_clipper.dart';
+import 'package:material_table_view/src/table_viewport.dart';
 
-/// TODO replace crude Widget implementation with a RenderBox one
 class TableContent extends StatelessWidget {
   final TableViewController controller;
   final List<TableColumn> columns;
@@ -54,7 +55,6 @@ class TableContent extends StatelessWidget {
 
             final dividerThickness =
                 Theme.of(context).dividerTheme.thickness ?? 2.0;
-            final halfDividerThickness = dividerThickness / 2.0;
             final dividerColor = Theme.of(context).dividerTheme.color ??
                 Theme.of(context).dividerColor;
 
@@ -201,6 +201,9 @@ class TableContent extends StatelessWidget {
                                   scrollPadding.right;
                           final centerWidth = width - leftWidth - rightWidth;
 
+                          for (var i = 0; i < columnOffsetsCenter.length; i++)
+                            columnOffsetsCenter[i] += leftWidth;
+
                           if (columnsLeft.isEmpty) {
                             for (var i = 0;
                                 i < columnOffsetsCenter.length;
@@ -217,24 +220,6 @@ class TableContent extends StatelessWidget {
                               .followedBy(
                                   columnOffsetsRight.map((e) => width + e))
                               .toList(growable: false);
-
-                          Iterable<Widget> columnMapper(
-                            List<int> columns,
-                            List<double> offsets,
-                            TableCellBuilder cellBuilder,
-                          ) =>
-                              Iterable.generate(columns.length).map((i) {
-                                final columnIndex = columns[i];
-                                return Positioned(
-                                  key: ValueKey<int>(columnIndex),
-                                  width: this.columns[columnIndex].width,
-                                  height: rowHeight,
-                                  left: offsets[i],
-                                  child: Builder(
-                                      builder: (context) =>
-                                          cellBuilder(context, columnIndex)),
-                                );
-                              });
 
                           final Color leftDividerColor, rightDividerColor;
                           final double leftDividerWiggleOffset,
@@ -259,7 +244,8 @@ class TableContent extends StatelessWidget {
                                       0.0,
                                       min(
                                           1.0,
-                                          columnOffsetsCenter[toFreeze] /
+                                          (columnOffsetsCenter[toFreeze] -
+                                                  leftWidth) /
                                               dividerRevealOffset));
                                 }
 
@@ -273,7 +259,8 @@ class TableContent extends StatelessWidget {
                                           .0,
                                           min(
                                               1.0,
-                                              -columnOffsetsCenter.first /
+                                              -(columnOffsetsCenter.first -
+                                                      leftWidth) /
                                                   dividerRevealOffset)));
                                 }
                               }
@@ -311,8 +298,9 @@ class TableContent extends StatelessWidget {
                                       min(
                                           1.0,
                                           (centerWidth -
-                                                  columnOffsetsCenter[
-                                                      toFreeze] -
+                                                  (columnOffsetsCenter[
+                                                          toFreeze] -
+                                                      leftWidth) -
                                                   columns[columnsCenter[
                                                           toFreeze]]
                                                       .width) /
@@ -330,7 +318,9 @@ class TableContent extends StatelessWidget {
                                           min(
                                               1.0,
                                               (-centerWidth +
-                                                      columnOffsetsCenter.last +
+                                                      (columnOffsetsCenter
+                                                              .last -
+                                                          leftWidth) +
                                                       columns[columnsCenter
                                                               .last]
                                                           .width) /
@@ -351,48 +341,9 @@ class TableContent extends StatelessWidget {
                                         dividerRevealOffset));
                           }
 
-                          final contentClipper = WigglyRowClipper(
-                            wiggleLeftOffset: leftDividerWiggleOffset,
-                            wiggleRightOffset: rightDividerWiggleOffset,
-                          );
-
-                          final TableRowContentBuilder contentBuilder =
-                              (BuildContext context,
-                                      TableCellBuilder cellBuilder) =>
-                                  RepaintBoundary(
-                                    child: Stack(
-                                      fit: StackFit.expand,
-                                      clipBehavior: Clip.none,
-                                      children: [
-                                        Positioned(
-                                          key: const ValueKey<int>(-1),
-                                          left: leftWidth,
-                                          width: centerWidth,
-                                          height: rowHeight,
-                                          child: RepaintBoundary(
-                                            child: ClipPath(
-                                              clipper: contentClipper,
-                                              child: Stack(
-                                                fit: StackFit.expand,
-                                                clipBehavior: Clip.none,
-                                                children: columnMapper(
-                                                  columnsCenter,
-                                                  columnOffsetsCenter,
-                                                  cellBuilder,
-                                                ).toList(growable: false),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        if (columnsFixed.isNotEmpty)
-                                          ...columnMapper(
-                                            columnsFixed,
-                                            columnOffsetsFixed,
-                                            cellBuilder,
-                                          ),
-                                      ],
-                                    ),
-                                  );
+                          Widget contentBuilder(BuildContext context,
+                                  TableCellBuilder cellBuilder) =>
+                              TableViewRow(cellBuilder: cellBuilder);
 
                           final body = bodyContainerBuilder(
                             context,
@@ -414,24 +365,10 @@ class TableContent extends StatelessWidget {
                                     axisDirection: AxisDirection.down,
                                     viewportBuilder:
                                         (context, verticalOffset) =>
-                                            CustomPaint(
-                                      willChange: true,
-                                      foregroundPainter: WigglyDividerPainter(
-                                        leftLineColor: leftDividerColor,
-                                        rightLineColor: rightDividerColor,
-                                        leftLineX:
-                                            leftWidth - halfDividerThickness,
-                                        rightLineX:
-                                            rightWidth - halfDividerThickness,
-                                        lineWidth: dividerThickness,
-                                        patternHeight: rowHeight,
-                                        verticalOffset: verticalOffset,
-                                        horizontalLeftOffset:
-                                            leftDividerWiggleOffset,
-                                        horizontalRightOffset:
-                                            rightDividerWiggleOffset,
-                                      ),
-                                      child: Viewport(
+                                            TableSection(
+                                      verticalOffset: verticalOffset,
+                                      rowHeight: rowHeight,
+                                      child: TableViewport(
                                         clipBehavior: Clip.none,
                                         offset: verticalOffset,
                                         slivers: [
@@ -440,6 +377,7 @@ class TableContent extends StatelessWidget {
                                             delegate:
                                                 SliverChildBuilderDelegate(
                                               childCount: rowCount,
+                                              addRepaintBoundaries: false,
                                               (context, index) => rowBuilder(
                                                   context,
                                                   index,
@@ -465,77 +403,69 @@ class TableContent extends StatelessWidget {
                             );
                           }
 
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              if (headerBuilder != null) ...[
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: headerHeight,
-                                  child: RepaintBoundary(
-                                    child: ClipRect(
-                                      child: CustomPaint(
-                                        foregroundPainter: WigglyDividerPainter(
-                                            leftLineColor: leftDividerColor,
-                                            rightLineColor: rightDividerColor,
-                                            leftLineX: leftWidth -
-                                                halfDividerThickness,
-                                            rightLineX: rightWidth -
-                                                halfDividerThickness,
-                                            lineWidth: dividerThickness,
-                                            patternHeight: headerHeight,
-                                            verticalOffset: null,
-                                            horizontalLeftOffset:
-                                                leftDividerWiggleOffset,
-                                            horizontalRightOffset:
-                                                rightDividerWiggleOffset),
-                                        child: headerBuilder(
-                                            context, contentBuilder),
-                                      ),
+                          return InheritedTableContentLayout(
+                            data: TableContentLayoutData(
+                                rowHeight: rowHeight,
+                                leftWidth: leftWidth,
+                                centerWidth: centerWidth,
+                                scrollableColumns: TableContentColumnData(
+                                    indices: columnsCenter,
+                                    positions: columnOffsetsCenter,
+                                    widths: columnsCenter
+                                        .map((e) => columns[e].width)
+                                        .toList(growable: false)),
+                                fixedColumns: TableContentColumnData(
+                                    indices: columnsFixed,
+                                    positions: columnOffsetsFixed,
+                                    widths: columnsFixed
+                                        .map((e) => columns[e].width)
+                                        .toList(growable: false)),
+                                leftDivider: TableContentDividerData(
+                                    color: leftDividerColor,
+                                    wiggleOffset: leftDividerWiggleOffset),
+                                rightDivider: TableContentDividerData(
+                                    color: rightDividerColor,
+                                    wiggleOffset: rightDividerWiggleOffset)),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                if (headerBuilder != null) ...[
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: headerHeight,
+                                    child: TableSection(
+                                      verticalOffset: null,
+                                      rowHeight: headerHeight,
+                                      child: headerBuilder(
+                                          context, contentBuilder),
                                     ),
                                   ),
-                                ),
-                                Divider(
-                                  color: dividerColor,
-                                  height: dividerThickness,
-                                  thickness: dividerThickness,
-                                ),
-                              ],
-                              Expanded(child: body),
-                              if (footerBuilder != null) ...[
-                                Divider(
-                                  color: dividerColor,
-                                  height: dividerThickness,
-                                  thickness: dividerThickness,
-                                ),
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: footerHeight,
-                                  child: RepaintBoundary(
-                                    child: ClipRect(
-                                      child: CustomPaint(
-                                        foregroundPainter: WigglyDividerPainter(
-                                            leftLineColor: leftDividerColor,
-                                            rightLineColor: rightDividerColor,
-                                            leftLineX: leftWidth -
-                                                halfDividerThickness,
-                                            rightLineX: rightWidth -
-                                                halfDividerThickness,
-                                            lineWidth: dividerThickness,
-                                            patternHeight: footerHeight,
-                                            verticalOffset: null,
-                                            horizontalLeftOffset:
-                                                leftDividerWiggleOffset,
-                                            horizontalRightOffset:
-                                                rightDividerWiggleOffset),
-                                        child: footerBuilder(
-                                            context, contentBuilder),
-                                      ),
+                                  Divider(
+                                    color: dividerColor,
+                                    height: dividerThickness,
+                                    thickness: dividerThickness,
+                                  ),
+                                ],
+                                Expanded(child: body),
+                                if (footerBuilder != null) ...[
+                                  Divider(
+                                    color: dividerColor,
+                                    height: dividerThickness,
+                                    thickness: dividerThickness,
+                                  ),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: footerHeight,
+                                    child: TableSection(
+                                      verticalOffset: null,
+                                      rowHeight: footerHeight,
+                                      child: footerBuilder(
+                                          context, contentBuilder),
                                     ),
                                   ),
-                                ),
+                                ],
                               ],
-                            ],
+                            ),
                           );
                         },
                       ),
