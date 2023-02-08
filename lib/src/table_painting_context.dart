@@ -1,5 +1,4 @@
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:material_table_view/src/table_placeholder_shader_configuration.dart';
 
 class TablePaintingLayerPair {
@@ -158,64 +157,5 @@ class TablePaintingContext extends PaintingContext {
     placeholder.fixed.stopRecordingIfNeeded();
     placeholder.scrolled.stopRecordingIfNeeded();
     placeholderShaderContext?.stopRecordingIfNeeded();
-  }
-}
-
-@Deprecated('replace')
-enum TablePaintingContextLayerType {
-  regularFixed,
-  regularScrolled,
-  placeholderFixed,
-  placeholderScrolled,
-}
-
-@Deprecated('replace')
-class TablePaintingContextCollapse extends SingleChildRenderObjectWidget {
-  final TablePaintingContextLayerType type;
-
-  TablePaintingContextCollapse({
-    required this.type,
-    required Widget child,
-  }) : super(child: child);
-
-  @override
-  RenderObject createRenderObject(BuildContext context) =>
-      _RenderTablePaintingContextCollapse(type: type);
-
-  @override
-  void updateRenderObject(BuildContext context,
-      covariant _RenderTablePaintingContextCollapse renderObject) {
-    super.updateRenderObject(context, renderObject);
-
-    renderObject.type = type;
-  }
-}
-
-class _RenderTablePaintingContextCollapse extends RenderProxyBox {
-  _RenderTablePaintingContextCollapse({required this.type});
-
-  TablePaintingContextLayerType type;
-
-  @override
-  void paint(PaintingContext context, Offset offset) {
-    assert(context is TablePaintingContext);
-    context = context as TablePaintingContext;
-
-    switch (type) {
-      case TablePaintingContextLayerType.regularFixed:
-        context = context.regular.fixed;
-        break;
-      case TablePaintingContextLayerType.regularScrolled:
-        context = context.regular.scrolled;
-        break;
-      case TablePaintingContextLayerType.placeholderFixed:
-        context = context.placeholder.fixed;
-        break;
-      case TablePaintingContextLayerType.placeholderScrolled:
-        context = context.placeholder.scrolled;
-        break;
-    }
-
-    super.paint(context, offset);
   }
 }
