@@ -155,7 +155,7 @@ class _RenderTableSection extends RenderProxyBox {
         }
       }
 
-      final top = offset.dy - (verticalOffsetPixels % _rowHeight) - _rowHeight;
+      final top = offset.dy - (verticalOffsetPixels % _rowHeight);
       var bottom = size.height + _rowHeight;
       bottom += offset.dy - ((bottom + verticalOffsetPixels) % _rowHeight);
 
