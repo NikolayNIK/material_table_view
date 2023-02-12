@@ -14,6 +14,8 @@ import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
 import 'package:material_table_view/src/table_viewport.dart';
 
+const double _wiggleOffset = 16.0;
+
 class TableContent extends StatelessWidget {
   final TableViewController controller;
   final List<TableColumn> columns;
@@ -29,7 +31,6 @@ class TableContent extends StatelessWidget {
   final double headerHeight;
   final double footerHeight;
   final TableFooterBuilder? footerBuilder;
-  final double dividerRevealOffset;
   final EdgeInsets scrollPadding;
 
   const TableContent({
@@ -48,7 +49,6 @@ class TableContent extends StatelessWidget {
     required this.headerHeight,
     required this.footerHeight,
     required this.footerBuilder,
-    required this.dividerRevealOffset,
     required this.scrollPadding,
   });
 
@@ -233,42 +233,37 @@ class TableContent extends StatelessWidget {
                           {
                             double leftDividerAnimationValue = .0;
                             if (columnsLeft.isNotEmpty) {
-                              if (dividerRevealOffset == .0) {
-                                leftDividerAnimationValue = 1.0;
+                              final toFreeze =
+                                  Iterable.generate(columnsCenter.length)
+                                      .where((i) => columns[columnsCenter[i]]
+                                          .frozenAt(freezePriority))
+                                      .maybeFirst;
+
+                              if (toFreeze == null) {
+                                leftDividerAnimationValue =
+                                    columnsLeft.isEmpty ? .0 : 1.0;
                               } else {
-                                final toFreeze =
-                                    Iterable.generate(columnsCenter.length)
-                                        .where((i) => columns[columnsCenter[i]]
-                                            .frozenAt(freezePriority))
-                                        .maybeFirst;
+                                leftDividerAnimationValue = max(
+                                    0.0,
+                                    min(
+                                        1.0,
+                                        (columnOffsetsCenter[toFreeze] -
+                                                leftWidth) /
+                                            _wiggleOffset));
+                              }
 
-                                if (toFreeze == null) {
-                                  leftDividerAnimationValue =
-                                      columnsLeft.isEmpty ? .0 : 1.0;
-                                } else {
-                                  leftDividerAnimationValue = max(
-                                      0.0,
-                                      min(
-                                          1.0,
-                                          (columnOffsetsCenter[toFreeze] -
-                                                  leftWidth) /
-                                              dividerRevealOffset));
-                                }
-
-                                if (columnsLeft.isNotEmpty &&
-                                    columnsCenter.isNotEmpty &&
-                                    columnsLeft.last + 1 ==
-                                        columnsCenter.first) {
-                                  leftDividerAnimationValue = min(
-                                      leftDividerAnimationValue,
-                                      max(
-                                          .0,
-                                          min(
-                                              1.0,
-                                              -(columnOffsetsCenter.first -
-                                                      leftWidth) /
-                                                  dividerRevealOffset)));
-                                }
+                              if (columnsLeft.isNotEmpty &&
+                                  columnsCenter.isNotEmpty &&
+                                  columnsLeft.last + 1 == columnsCenter.first) {
+                                leftDividerAnimationValue = min(
+                                    leftDividerAnimationValue,
+                                    max(
+                                        .0,
+                                        min(
+                                            1.0,
+                                            -(columnOffsetsCenter.first -
+                                                    leftWidth) /
+                                                _wiggleOffset)));
                               }
                             }
 
@@ -277,61 +272,50 @@ class TableContent extends StatelessWidget {
                                     Curves.easeIn
                                         .transform(leftDividerAnimationValue));
                             leftDividerWiggleOffset = min(
-                                16.0,
-                                max(
-                                    .0,
-                                    leftDividerAnimationValue *
-                                        dividerRevealOffset));
+                                _wiggleOffset,
+                                max(.0,
+                                    leftDividerAnimationValue * _wiggleOffset));
 
                             double rightDividerAnimationValue = .0;
                             if (columnsRight.isNotEmpty) {
-                              if (dividerRevealOffset == 0) {
+                              final toFreeze = Iterable.generate(
+                                      columnsCenter.length,
+                                      (index) =>
+                                          columnsCenter.length - index - 1)
+                                  .where((i) => columns[columnsCenter[i]]
+                                      .frozenAt(freezePriority))
+                                  .maybeFirst;
+
+                              if (toFreeze == null) {
                                 rightDividerAnimationValue = 1.0;
                               } else {
-                                final toFreeze = Iterable.generate(
-                                        columnsCenter.length,
-                                        (index) =>
-                                            columnsCenter.length - index - 1)
-                                    .where((i) => columns[columnsCenter[i]]
-                                        .frozenAt(freezePriority))
-                                    .maybeFirst;
+                                rightDividerAnimationValue = max(
+                                    .0,
+                                    min(
+                                        1.0,
+                                        (centerWidth -
+                                                (columnOffsetsCenter[toFreeze] -
+                                                    leftWidth) -
+                                                columns[columnsCenter[toFreeze]]
+                                                    .width) /
+                                            _wiggleOffset));
+                              }
 
-                                if (toFreeze == null) {
-                                  rightDividerAnimationValue = 1.0;
-                                } else {
-                                  rightDividerAnimationValue = max(
-                                      .0,
-                                      min(
-                                          1.0,
-                                          (centerWidth -
-                                                  (columnOffsetsCenter[
-                                                          toFreeze] -
-                                                      leftWidth) -
-                                                  columns[columnsCenter[
-                                                          toFreeze]]
-                                                      .width) /
-                                              dividerRevealOffset));
-                                }
-
-                                if (columnsRight.isNotEmpty &&
-                                    columnsCenter.isNotEmpty &&
-                                    columnsRight.last - 1 ==
-                                        columnsCenter.last) {
-                                  rightDividerAnimationValue = min(
-                                      rightDividerAnimationValue,
-                                      max(
-                                          .0,
-                                          min(
-                                              1.0,
-                                              (-centerWidth +
-                                                      (columnOffsetsCenter
-                                                              .last -
-                                                          leftWidth) +
-                                                      columns[columnsCenter
-                                                              .last]
-                                                          .width) /
-                                                  dividerRevealOffset)));
-                                }
+                              if (columnsRight.isNotEmpty &&
+                                  columnsCenter.isNotEmpty &&
+                                  columnsRight.last - 1 == columnsCenter.last) {
+                                rightDividerAnimationValue = min(
+                                    rightDividerAnimationValue,
+                                    max(
+                                        .0,
+                                        min(
+                                            1.0,
+                                            (-centerWidth +
+                                                    (columnOffsetsCenter.last -
+                                                        leftWidth) +
+                                                    columns[columnsCenter.last]
+                                                        .width) /
+                                                _wiggleOffset)));
                               }
                             }
 
@@ -344,7 +328,7 @@ class TableContent extends StatelessWidget {
                                 max(
                                     .0,
                                     rightDividerAnimationValue *
-                                        dividerRevealOffset));
+                                        _wiggleOffset));
                           }
 
                           Widget contentBuilder(BuildContext context,

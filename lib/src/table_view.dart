@@ -5,8 +5,6 @@ import 'package:material_table_view/src/table_placeholder_shader_configuration.d
 import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
 
-const _defaultDividerRevealOffset = 32.0;
-
 /// Material-style widget that displays its content in a both vertically and
 /// horizontally scrollable table with fixed-width freezable columns.
 ///
@@ -28,15 +26,13 @@ class TableView extends StatefulWidget {
     this.footerHeight,
     this.minScrollableWidth,
     this.minScrollableWidthRatio = .6180339887498547,
-    this.dividerRevealOffset = _defaultDividerRevealOffset,
     this.scrollPadding,
   })  : assert(rowCount >= 0),
         assert(rowHeight > 0),
         assert(headerHeight == null || headerHeight > 0),
         assert(footerHeight == null || footerHeight > 0),
         assert(minScrollableWidth == null || minScrollableWidth > 0),
-        assert(minScrollableWidthRatio >= 0 && minScrollableWidthRatio <= 1),
-        assert(dividerRevealOffset > 0);
+        assert(minScrollableWidthRatio >= 0 && minScrollableWidthRatio <= 1);
 
   /// Count of fixed-height rows displayed in a table.
   final int rowCount;
@@ -105,10 +101,6 @@ class TableView extends StatefulWidget {
   /// if that property is null.
   final double minScrollableWidthRatio;
 
-  /// Horizontal offset required for the divider separating frozen and
-  /// scrollable columns to fully appear.
-  final double dividerRevealOffset;
-
   /// Padding for the scrollable part of the table.
   /// Primarily used to leave space for the scrollbars.
   /// If null, predefined insets will be used based on a target platform.
@@ -154,7 +146,6 @@ class _TableViewState extends State<TableView> {
           headerHeight: widget.headerHeight ?? widget.rowHeight,
           footerHeight: widget.footerHeight ?? widget.rowHeight,
           footerBuilder: widget.footerBuilder,
-          dividerRevealOffset: widget.dividerRevealOffset,
           scrollPadding:
               widget.scrollPadding ?? _determineScrollPadding(context),
         ),
