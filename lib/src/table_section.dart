@@ -227,8 +227,15 @@ class _RenderTableSection extends RenderProxyBox {
       ..style = PaintingStyle.stroke
       ..strokeWidth = _dividerThickness;
 
-    context.canvas.save();
-    context.canvas.clipRect(offset & size);
+    // if we have vertical offset,
+    // assume the dividers will get clipped
+    // by whatever clips vertically offset content
+    bool clipDividers = _verticalOffset == null;
+
+    if (clipDividers) {
+      context.canvas.save();
+      context.canvas.clipRect(offset & size);
+    }
 
     context.canvas.drawPath(
       leftDividerPath,
@@ -240,7 +247,9 @@ class _RenderTableSection extends RenderProxyBox {
       dividerPaint..color = layoutData.rightDivider.color,
     );
 
-    context.canvas.restore();
+    if (clipDividers) {
+      context.canvas.restore();
+    }
   }
 
   @protected
