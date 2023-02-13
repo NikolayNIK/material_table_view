@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:material_table_view/src/table_layout.dart';
 import 'package:material_table_view/src/table_layout_data.dart';
 import 'package:material_table_view/src/table_painting_context.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
+
+Widget contentBuilder(BuildContext context, TableCellBuilder cellBuilder) =>
+    TableViewRow(cellBuilder: cellBuilder);
 
 class TableViewRow extends StatelessWidget {
   final TableCellBuilder cellBuilder;
@@ -18,7 +22,7 @@ class TableViewRow extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO this should go on in an element to avoid rebuilding cell widgets that do not need to be rebuilt
 
-    final data = TableContentLayoutData.of(context);
+    final data = TableContentLayout.of(context);
 
     Iterable<Widget> columnMapper(
       TableContentColumnData columnData,

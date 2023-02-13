@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
+import 'package:material_table_view/src/sliver_table_view_body.dart';
 import 'package:material_table_view/src/table_column.dart';
-import 'package:material_table_view/src/table_content.dart';
+import 'package:material_table_view/src/table_layout.dart';
 import 'package:material_table_view/src/table_placeholder_shader_configuration.dart';
+import 'package:material_table_view/src/table_row.dart';
+import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
+import 'package:material_table_view/src/table_viewport.dart';
 
 /// Material-style widget that displays its content in a both vertically and
 /// horizontally scrollable table with fixed-width freezable columns.
@@ -21,9 +27,9 @@ class TableView extends StatefulWidget {
     this.placeholderShaderConfig,
     this.bodyContainerBuilder = _defaultBodyContainerBuilder,
     this.headerBuilder,
-    this.headerHeight,
+    double? headerHeight,
     this.footerBuilder,
-    this.footerHeight,
+    double? footerHeight,
     this.minScrollableWidth,
     this.minScrollableWidthRatio = .6180339887498547,
     this.scrollPadding,
@@ -32,7 +38,9 @@ class TableView extends StatefulWidget {
         assert(headerHeight == null || headerHeight > 0),
         assert(footerHeight == null || footerHeight > 0),
         assert(minScrollableWidth == null || minScrollableWidth > 0),
-        assert(minScrollableWidthRatio >= 0 && minScrollableWidthRatio <= 1);
+        assert(minScrollableWidthRatio >= 0 && minScrollableWidthRatio <= 1),
+        headerHeight = headerHeight ?? rowHeight,
+        footerHeight = footerHeight ?? rowHeight;
 
   /// Count of fixed-height rows displayed in a table.
   final int rowCount;
@@ -76,7 +84,7 @@ class TableView extends StatefulWidget {
   final TableHeaderBuilder? headerBuilder;
 
   /// Height of a header. If null, [rowHeight] will be used instead.
-  final double? headerHeight;
+  final double headerHeight;
 
   /// A function that will be called on-demand for each cell in a footer
   /// in order to build a widget for that section of a footer.
@@ -85,7 +93,7 @@ class TableView extends StatefulWidget {
   final TableFooterBuilder? footerBuilder;
 
   /// Height of a footer. If null, [rowHeight] will be used instead.
-  final double? footerHeight;
+  final double footerHeight;
 
   /// Minimum scrollable width that may not be taken up by frozen columns.
   /// If a resulting scrollable width is less than this property, columns
@@ -128,28 +136,163 @@ class _TableViewState extends State<TableView> {
   }
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-        width: double.infinity,
-        height: double.infinity,
-        child: TableContent(
-          controller: _controller,
-          columns: widget.columns,
-          minScrollableWidth: widget.minScrollableWidth,
+  Widget build(BuildContext context) {
+    final horizontalScrollbarOffset = Offset(
+      0,
+      widget.footerBuilder == null ? 0 : widget.footerHeight,
+    );
+
+    return SizedBox(
+      width: double.infinity,
+      height: double.infinity,
+      child: widget.columns.isEmpty
+          ? const SizedBox()
+          : LayoutBuilder(
+              builder: (context, constraints) {
+                return Transform.translate(
+                  offset: -horizontalScrollbarOffset,
+                  transformHitTests: false,
+                  child: Scrollbar(
+                    controller: _controller.horizontalScrollController,
+                    interactive: true,
+                    trackVisibility: true,
+                    thumbVisibility: true,
+                    child: Transform.translate(
+                      offset: horizontalScrollbarOffset,
+                      transformHitTests: false,
+                      child: Scrollable(
+                          controller: _controller.horizontalScrollController,
+                          clipBehavior: Clip.none,
+                          axisDirection: AxisDirection.right,
+                          viewportBuilder: _buildViewport),
+                    ),
+                  ),
+                );
+              },
+            ),
+    );
+  }
+
+  Widget _buildViewport(BuildContext context, ViewportOffset horizontalOffset) {
+    final scrollPadding =
+        widget.scrollPadding ?? _determineScrollPadding(context);
+
+    final dividerThickness = Theme.of(context).dividerTheme.thickness ?? 2.0;
+    final dividerColor =
+        Theme.of(context).dividerTheme.color ?? Theme.of(context).dividerColor;
+
+    return ScrollDimensionsApplicator(
+      position: _controller.horizontalScrollController.position,
+      axis: Axis.horizontal,
+      scrollExtent: widget.columns.fold<double>(
+              .0, (previousValue, element) => previousValue + element.width) +
+          scrollPadding.horizontal,
+      child: LayoutBuilder(
+        builder: (context, constraints) => TableContentLayout(
+          scrollPadding: scrollPadding,
+          width: constraints.maxWidth,
           minScrollableWidthRatio: widget.minScrollableWidthRatio,
-          rowCount: widget.rowCount,
-          rowHeight: widget.rowHeight,
-          rowBuilder: widget.rowBuilder,
-          placeholderBuilder: widget.placeholderBuilder,
-          placeholderShaderConfig: widget.placeholderShaderConfig,
-          bodyContainerBuilder: widget.bodyContainerBuilder,
-          headerBuilder: widget.headerBuilder,
-          headerHeight: widget.headerHeight ?? widget.rowHeight,
-          footerHeight: widget.footerHeight ?? widget.rowHeight,
-          footerBuilder: widget.footerBuilder,
-          scrollPadding:
-              widget.scrollPadding ?? _determineScrollPadding(context),
+          columns: widget.columns,
+          horizontalOffset: horizontalOffset,
+          minScrollableWidth: widget.minScrollableWidth,
+          child: Builder(
+            builder: (context) {
+              final body = widget.bodyContainerBuilder(
+                context,
+                ClipRect(
+                  child: NotificationListener<OverscrollNotification>(
+                    // Suppress OverscrollNotification events that escape from the inner scrollable
+                    onNotification: (notification) => true,
+                    child: Scrollbar(
+                      controller: _controller.verticalScrollController,
+                      interactive: true,
+                      thumbVisibility: true,
+                      trackVisibility: true,
+                      child: Scrollable(
+                        controller: _controller.verticalScrollController,
+                        clipBehavior: Clip.none,
+                        axisDirection: AxisDirection.down,
+                        viewportBuilder: (context, verticalOffset) =>
+                            TableSection(
+                          verticalOffset: verticalOffset,
+                          rowHeight: widget.rowHeight,
+                          placeholderShaderConfig:
+                              widget.placeholderShaderConfig,
+                          child: TableViewport(
+                            clipBehavior: Clip.none,
+                            offset: verticalOffset,
+                            slivers: [
+                              SliverTableViewBody(
+                                rowCount: widget.rowCount,
+                                rowHeight: widget.rowHeight,
+                                rowBuilder: widget.rowBuilder,
+                                placeholderBuilder: widget.placeholderBuilder,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+
+              final headerBuilder = widget.headerBuilder;
+              final footerBuilder = widget.footerBuilder;
+              if (headerBuilder == null && footerBuilder == null) {
+                return SizedBox(
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: body,
+                );
+              }
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (headerBuilder != null) ...[
+                    SizedBox(
+                      width: double.infinity,
+                      height: widget.headerHeight,
+                      child: TableSection(
+                        verticalOffset: null,
+                        rowHeight: widget.headerHeight,
+                        placeholderShaderConfig: null,
+                        child: headerBuilder(context, contentBuilder),
+                      ),
+                    ),
+                    Divider(
+                      color: dividerColor,
+                      height: dividerThickness,
+                      thickness: dividerThickness,
+                    ),
+                  ],
+                  Expanded(child: body),
+                  if (footerBuilder != null) ...[
+                    Divider(
+                      color: dividerColor,
+                      height: dividerThickness,
+                      thickness: dividerThickness,
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      height: widget.footerHeight,
+                      child: TableSection(
+                        verticalOffset: null,
+                        rowHeight: widget.footerHeight,
+                        placeholderShaderConfig: null,
+                        child: footerBuilder(context, contentBuilder),
+                      ),
+                    ),
+                  ],
+                ],
+              );
+            },
+          ),
         ),
-      );
+      ),
+    );
+  }
 
   EdgeInsets _determineScrollPadding(BuildContext context) {
     // TODO determining paddings for the scrollbars based on a target platform seems stupid

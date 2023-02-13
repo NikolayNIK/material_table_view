@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:material_table_view/src/table_layout.dart';
 import 'package:material_table_view/src/table_layout_data.dart';
 import 'package:material_table_view/src/table_painting_context.dart';
 import 'package:material_table_view/src/table_placeholder_shader_configuration.dart';
@@ -21,7 +22,7 @@ class TableSection extends StatelessWidget {
   Widget build(BuildContext context) => _TableSection(
         verticalOffset: verticalOffset,
         rowHeight: rowHeight,
-        layoutData: TableContentLayoutData.of(context),
+        layoutData: TableContentLayout.of(context),
         dividerThickness: DividerTheme.of(context).thickness ?? 2.0,
         placeholderShaderConfig: placeholderShaderConfig,
         child: child,

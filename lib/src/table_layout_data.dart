@@ -36,49 +36,20 @@ class TableContentColumnData {
 }
 
 @immutable
-class TableContentRowLayoutData {
-  final double rowHeight;
+class TableContentLayoutData {
   final TableContentColumnData scrollableColumns, fixedColumns;
 
-  TableContentRowLayoutData({
-    required this.rowHeight,
-    required this.scrollableColumns,
-    required this.fixedColumns,
-  });
-
-  factory TableContentRowLayoutData.of(BuildContext context) =
-      TableContentLayoutData.of;
-}
-
-@immutable
-class TableContentLayoutData extends TableContentRowLayoutData {
   final TableContentDividerData leftDivider, rightDivider;
   final double leftWidth, centerWidth;
 
   TableContentLayoutData({
-    required super.rowHeight,
-    required super.scrollableColumns,
-    required super.fixedColumns,
+    required this.scrollableColumns,
+    required this.fixedColumns,
     required this.leftDivider,
     required this.rightDivider,
     required this.leftWidth,
     required this.centerWidth,
   });
-
-  factory TableContentLayoutData.of(BuildContext context) => context
-      .dependOnInheritedWidgetOfExactType<InheritedTableContentLayout>()!
-      .data;
 }
 
-class InheritedTableContentLayout extends InheritedWidget {
-  final TableContentLayoutData data;
 
-  InheritedTableContentLayout({
-    required this.data,
-    required super.child,
-  });
-
-  @override
-  bool updateShouldNotify(covariant InheritedTableContentLayout oldWidget) =>
-      oldWidget.data != data;
-}
