@@ -20,33 +20,46 @@ class TableViewRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO this should go on in an element to avoid rebuilding cell widgets that do not need to be rebuilt
+    // TODO implement caching in the element tree instead
+    Map<int, Widget> previousCells = {};
 
-    final data = TableContentLayout.of(context);
+    return Builder(
+      builder: (context) {
+        final data = TableContentLayout.of(context);
 
-    Iterable<Widget> columnMapper(
-      TableContentColumnData columnData,
-      bool scrolled,
-    ) =>
-        Iterable.generate(columnData.indices.length).map((i) {
-          final columnIndex = columnData.indices[i];
-          return _TableViewCell(
-            key: ValueKey<int>(columnIndex),
-            width: columnData.widths[i],
-            // height: data.rowHeight,
-            position: columnData.positions[i],
-            scrolled: scrolled,
-            child: Builder(
-                builder: (context) => cellBuilder(context, columnIndex)),
-          );
-        });
+        final newCells = <int, Widget>{};
 
-    return _TableViewRow(
-      usePlaceholderLayers: usePlaceholderLayers,
-      children: [
-        ...columnMapper(data.fixedColumns, false),
-        ...columnMapper(data.scrollableColumns, true),
-      ],
+        Iterable<Widget> columnMapper(
+          TableContentColumnData columnData,
+          bool scrolled,
+        ) =>
+            Iterable.generate(columnData.indices.length).map((i) {
+              final columnIndex = columnData.indices[i];
+              return _TableViewCell(
+                key: ValueKey<int>(columnIndex),
+                width: columnData.widths[i],
+                // height: data.rowHeight,
+                position: columnData.positions[i],
+                scrolled: scrolled,
+                child: newCells[columnIndex] = previousCells[columnIndex] ??
+                    Builder(
+                        builder: (context) =>
+                            cellBuilder(context, columnIndex)),
+              );
+            });
+
+        final children = [
+          ...columnMapper(data.fixedColumns, false),
+          ...columnMapper(data.scrollableColumns, true),
+        ];
+
+        previousCells = newCells;
+
+        return _TableViewRow(
+          usePlaceholderLayers: usePlaceholderLayers,
+          children: children,
+        );
+      },
     );
   }
 }
