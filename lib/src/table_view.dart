@@ -222,11 +222,17 @@ class _TableViewState extends State<TableView> {
                             clipBehavior: Clip.none,
                             offset: verticalOffset,
                             slivers: [
-                              SliverTableViewBody(
-                                rowCount: widget.rowCount,
-                                rowHeight: widget.rowHeight,
-                                rowBuilder: widget.rowBuilder,
-                                placeholderBuilder: widget.placeholderBuilder,
+                              SliverPadding(
+                                padding: EdgeInsets.only(
+                                  top: scrollPadding.top,
+                                  bottom: scrollPadding.bottom,
+                                ),
+                                sliver: SliverTableViewBody(
+                                  rowCount: widget.rowCount,
+                                  rowHeight: widget.rowHeight,
+                                  rowBuilder: widget.rowBuilder,
+                                  placeholderBuilder: widget.placeholderBuilder,
+                                ),
                               ),
                             ],
                           ),
