@@ -4,7 +4,7 @@ import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/sliver_table_view_body.dart';
 import 'package:material_table_view/src/table_column.dart';
 import 'package:material_table_view/src/table_layout.dart';
-import 'package:material_table_view/src/table_placeholder_shader_configuration.dart';
+import 'package:material_table_view/src/table_placeholder_shade.dart';
 import 'package:material_table_view/src/table_row.dart';
 import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
@@ -24,7 +24,7 @@ class TableView extends StatefulWidget {
     this.controller,
     required this.rowBuilder,
     this.placeholderBuilder,
-    this.placeholderShaderConfig,
+    this.placeholderShade,
     this.bodyContainerBuilder = _defaultBodyContainerBuilder,
     this.headerBuilder,
     double? headerHeight,
@@ -68,7 +68,7 @@ class TableView extends StatefulWidget {
 
   final TablePlaceholderBuilder? placeholderBuilder;
 
-  final TableViewPlaceholderShaderConfig? placeholderShaderConfig;
+  final TablePlaceholderShade? placeholderShade;
 
   /// A function that will be called on-demand enabling wrapping vertically
   /// scrollable table body section that contains all visible rows including
@@ -216,8 +216,8 @@ class _TableViewState extends State<TableView> {
                             TableSection(
                           verticalOffset: verticalOffset,
                           rowHeight: widget.rowHeight,
-                          placeholderShaderConfig:
-                              widget.placeholderShaderConfig,
+                          placeholderShade:
+                              widget.placeholderShade,
                           child: TableViewport(
                             clipBehavior: Clip.none,
                             offset: verticalOffset,
@@ -263,7 +263,7 @@ class _TableViewState extends State<TableView> {
                       child: TableSection(
                         verticalOffset: null,
                         rowHeight: widget.headerHeight,
-                        placeholderShaderConfig: null,
+                        placeholderShade: null,
                         child: headerBuilder(context, contentBuilder),
                       ),
                     ),
@@ -286,7 +286,7 @@ class _TableViewState extends State<TableView> {
                       child: TableSection(
                         verticalOffset: null,
                         rowHeight: widget.footerHeight,
-                        placeholderShaderConfig: null,
+                        placeholderShade: null,
                         child: footerBuilder(context, contentBuilder),
                       ),
                     ),

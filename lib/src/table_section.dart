@@ -3,18 +3,18 @@ import 'package:flutter/rendering.dart';
 import 'package:material_table_view/src/table_layout.dart';
 import 'package:material_table_view/src/table_layout_data.dart';
 import 'package:material_table_view/src/table_painting_context.dart';
-import 'package:material_table_view/src/table_placeholder_shader_configuration.dart';
+import 'package:material_table_view/src/table_placeholder_shade.dart';
 
 class TableSection extends StatelessWidget {
   final ViewportOffset? verticalOffset;
   final double rowHeight;
-  final TableViewPlaceholderShaderConfig? placeholderShaderConfig;
+  final TablePlaceholderShade? placeholderShade;
   final Widget child;
 
   TableSection({
     required this.verticalOffset,
     required this.rowHeight,
-    required this.placeholderShaderConfig,
+    required this.placeholderShade,
     required this.child,
   });
 
@@ -24,7 +24,7 @@ class TableSection extends StatelessWidget {
         rowHeight: rowHeight,
         layoutData: TableContentLayout.of(context),
         dividerThickness: DividerTheme.of(context).thickness ?? 2.0,
-        placeholderShaderConfig: placeholderShaderConfig,
+        placeholderShade: placeholderShade,
         child: child,
       );
 }
@@ -34,14 +34,14 @@ class _TableSection extends SingleChildRenderObjectWidget {
   final double rowHeight;
   final TableContentLayoutData layoutData;
   final double dividerThickness;
-  final TableViewPlaceholderShaderConfig? placeholderShaderConfig;
+  final TablePlaceholderShade? placeholderShade;
 
   _TableSection({
     required this.verticalOffset,
     required this.rowHeight,
     required this.layoutData,
     required this.dividerThickness,
-    required this.placeholderShaderConfig,
+    required this.placeholderShade,
     required Widget child,
   }) : super(child: child);
 
@@ -51,7 +51,7 @@ class _TableSection extends SingleChildRenderObjectWidget {
       rowHeight: rowHeight,
       layoutData: layoutData,
       dividerThickness: dividerThickness,
-      placeholderShaderConfig: placeholderShaderConfig);
+      placeholderShade: placeholderShade);
 
   @override
   void updateRenderObject(
@@ -62,7 +62,7 @@ class _TableSection extends SingleChildRenderObjectWidget {
     renderObject.rowHeight = rowHeight;
     renderObject.layoutData = layoutData;
     renderObject.dividerThickness = dividerThickness;
-    renderObject.placeholderShaderConfig = placeholderShaderConfig;
+    renderObject.placeholderShade = placeholderShade;
   }
 }
 
@@ -72,20 +72,21 @@ class _RenderTableSection extends RenderProxyBox {
     required double rowHeight,
     required TableContentLayoutData layoutData,
     required double dividerThickness,
-    required TableViewPlaceholderShaderConfig? placeholderShaderConfig,
+    required TablePlaceholderShade? placeholderShade,
   })  : _rowHeight = rowHeight,
         _layoutData = layoutData,
         _dividerThickness = dividerThickness,
-        _placeholderShaderConfig = placeholderShaderConfig {
+        _placeholderShade = placeholderShade {
     _verticalOffset = verticalOffset;
     _verticalOffset?.addListener(_verticalOffsetChanged);
+    _placeholderShade?.addListener(_placeholderShaderChanged);
   }
 
   ViewportOffset? _verticalOffset;
   double _rowHeight;
   TableContentLayoutData _layoutData;
   double _dividerThickness;
-  TableViewPlaceholderShaderConfig? _placeholderShaderConfig;
+  TablePlaceholderShade? _placeholderShade;
 
   set verticalOffset(ViewportOffset? verticalOffset) {
     if (identical(_verticalOffset, verticalOffset)) return;
@@ -119,12 +120,13 @@ class _RenderTableSection extends RenderProxyBox {
     }
   }
 
-  set placeholderShaderConfig(
-      TableViewPlaceholderShaderConfig? placeholderShaderConfig) {
-    if (_placeholderShaderConfig != placeholderShaderConfig) {
-      _placeholderShaderConfig = placeholderShaderConfig;
-      markNeedsPaint();
-    }
+  set placeholderShade(TablePlaceholderShade? placeholderShade) {
+    if (identical(_placeholderShade, placeholderShade)) return;
+
+    _placeholderShade?.removeListener(_placeholderShaderChanged);
+    _placeholderShade = placeholderShade;
+    placeholderShade?.addListener(_placeholderShaderChanged);
+    _placeholderShaderChanged();
   }
 
   @override
@@ -135,6 +137,8 @@ class _RenderTableSection extends RenderProxyBox {
   }
 
   void _verticalOffsetChanged() => markNeedsPaint();
+
+  void _placeholderShaderChanged() => markNeedsPaint();
 
   @override
   void paint(PaintingContext context, Offset offset) {
@@ -214,7 +218,7 @@ class _RenderTableSection extends RenderProxyBox {
       mainLayer: ContainerLayer(),
       context: context,
       scrolledClipPath: clipPath,
-      placeholderShaderConfig: _placeholderShaderConfig,
+      placeholderShade: _placeholderShade,
       offset: offset,
       size: size,
     );

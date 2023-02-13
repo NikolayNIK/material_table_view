@@ -1,5 +1,5 @@
 import 'package:flutter/rendering.dart';
-import 'package:material_table_view/src/table_placeholder_shader_configuration.dart';
+import 'package:material_table_view/src/table_placeholder_shade.dart';
 
 class TablePaintingLayerPair {
   final PaintingContext fixed, scrolled;
@@ -21,7 +21,7 @@ class TablePaintingContext extends PaintingContext {
     required ContainerLayer mainLayer,
     required PaintingContext context,
     required Path scrolledClipPath,
-    required TableViewPlaceholderShaderConfig? placeholderShaderConfig,
+    required TablePlaceholderShade? placeholderShade,
     required Offset offset,
     required Size size,
   }) : super(mainLayer, context.estimatedBounds) {
@@ -35,14 +35,14 @@ class TablePaintingContext extends PaintingContext {
         fixed: PaintingContext(regularFixed, context.estimatedBounds),
         scrolled: PaintingContext(regularScrolled, context.estimatedBounds));
 
-    if (placeholderShaderConfig == null) {
+    if (placeholderShade == null) {
       placeholderShaderContext = null;
       placeholder = regular;
     } else {
       final layer = ShaderMaskLayer()
-        ..blendMode = placeholderShaderConfig.blendMode
+        ..blendMode = placeholderShade.blendMode
         ..maskRect = offset & size
-        ..shader = placeholderShaderConfig.shaderCallback(Offset.zero & size);
+        ..shader = placeholderShade.shaderCallback(Offset.zero & size);
 
       final placeholderFixed = ContainerLayer();
       final placeholderScrolled = ClipPathLayer(clipPath: scrolledClipPath);
