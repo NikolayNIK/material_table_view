@@ -32,13 +32,7 @@ class SliverTableViewBody extends StatelessWidget {
         childCount: rowCount,
         addRepaintBoundaries: false,
         (context, index) =>
-            rowBuilder(
-                context,
-                index,
-                (context, cellBuilder) => TableViewRow(
-                      cellBuilder: cellBuilder,
-                    )) ??
-            placeholder,
+            rowBuilder(context, index, contentBuilder) ?? placeholder,
       ),
     );
   }
