@@ -6,9 +6,17 @@ import 'package:material_table_view/src/table_layout_data.dart';
 import 'package:material_table_view/src/table_painting_context.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 
+/// The function that builds a row using a cell builder passed to it.
+/// This both for API compatibility reasons and to not expose [TableViewRow]
+/// widget itself to the user (although I'm not sure about the last point).
 Widget contentBuilder(BuildContext context, TableCellBuilder cellBuilder) =>
     TableViewRow(cellBuilder: cellBuilder);
 
+/// This is the row widget used to build a single row of a table using layout
+/// data provided by the [TableContentLayout] widget.
+///
+/// It ends the custom compositing process by painting each cell on a single
+/// designated layer.
 class TableViewRow extends StatelessWidget {
   final TableCellBuilder cellBuilder;
   final bool usePlaceholderLayers;

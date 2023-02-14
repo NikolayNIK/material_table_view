@@ -9,6 +9,11 @@ import 'package:material_table_view/src/table_layout_data.dart';
 
 const double _wiggleOffset = 16.0;
 
+/// This widget calculates the horizontal layout of the table using the width
+/// passed down to it, thus allowing it to be used in both box and sliver layout.
+///
+/// The [TableContentLayout.of] static method is used to retrieve layout data
+/// and depend on its updates.
 class TableContentLayout extends StatelessWidget {
   final double width;
   final ViewportOffset horizontalOffset;

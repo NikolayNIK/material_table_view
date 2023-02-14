@@ -1,6 +1,7 @@
 import 'package:flutter/rendering.dart';
 import 'package:material_table_view/src/table_placeholder_shade.dart';
 
+/// Storage class that holds a pair of layers to be used for cell painting.
 class TablePaintingLayerPair {
   final PaintingContext fixed, scrolled;
 
@@ -16,6 +17,8 @@ class TablePaintingLayerPair {
   }
 }
 
+/// A subclass of a [PaintingContext] used to implement custom painting
+/// composition of a table.
 class TablePaintingContext extends PaintingContext {
   TablePaintingContext({
     required ContainerLayer mainLayer,

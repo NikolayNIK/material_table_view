@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:material_table_view/src/table_row.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 
+/// This is a sliver widget that builds rows of a table.
 class SliverTableViewBody extends StatelessWidget {
   final int rowCount;
   final double rowHeight;

@@ -1,6 +1,10 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
+/// This is a highly sophisticated widget used as a [Viewport] for the table.
+///
+/// The only difference from a regular [Viewport] is that it doesn't serve as a
+/// [RepaintBoundary] and thus doesn't mess up custom compositing.
 class TableViewport extends Viewport {
   TableViewport({
     super.key,

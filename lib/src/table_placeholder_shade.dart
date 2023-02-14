@@ -1,9 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 
+/// Instances of classes extending (or implementing, or mixing-in) this class
+/// manage placeholder layer shading.
+///
+/// Notifying listeners added to it will result in the eventual repainting of
+/// the layers shaded by the shader it creates.
 abstract class TablePlaceholderShade implements Listenable {
   const TablePlaceholderShade();
 
+  /// This constructor creates a [TablePlaceholderShade] that isn't effected by
+  /// existence of placeholders to shade and that doesn't cause repaints.
   const factory TablePlaceholderShade.static({
     required ShaderCallback shaderCallback,
     BlendMode blendMode,
@@ -13,6 +20,9 @@ abstract class TablePlaceholderShade implements Listenable {
 
   BlendMode get blendMode => BlendMode.modulate;
 
+  /// Called on every repaint of the layers affected by the shading.
+  /// This call is meant be used to determine the need to start or stop
+  /// scheduling of updates for the purposes of animating the shader.
   set active(bool active);
 }
 

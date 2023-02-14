@@ -35,6 +35,8 @@ class TableContentColumnData {
   });
 }
 
+/// An immutable storage class that contains horizontal layout information of
+/// a table.
 @immutable
 class TableContentLayoutData {
   final TableContentColumnData scrollableColumns, fixedColumns;

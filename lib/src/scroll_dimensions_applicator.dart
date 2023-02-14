@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
+/// This widget provides a strait forward (dumb) way to set
+/// known in advance dimensions of a [ScrollPosition].
 class ScrollDimensionsApplicator extends SingleChildRenderObjectWidget {
   final ScrollPosition position;
   final Axis axis;

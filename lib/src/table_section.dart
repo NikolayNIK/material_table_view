@@ -5,6 +5,13 @@ import 'package:material_table_view/src/table_layout_data.dart';
 import 'package:material_table_view/src/table_painting_context.dart';
 import 'package:material_table_view/src/table_placeholder_shade.dart';
 
+/// This widget represents a single table section:
+/// either a header, a body or a footer.
+///
+/// Using layout data provided by the [TableContentLayout] widget it:
+/// - paints wiggly dividers separating scrolled and fixed sections;
+/// - serves as a starting point of a custom painting composition process
+/// (including clipping scrolled section, handling repainting, etc).
 class TableSection extends StatelessWidget {
   final ViewportOffset? verticalOffset;
   final double rowHeight;
