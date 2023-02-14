@@ -12,6 +12,8 @@ abstract class TablePlaceholderShade implements Listenable {
   ShaderCallback get shaderCallback;
 
   BlendMode get blendMode => BlendMode.modulate;
+
+  set active(bool active);
 }
 
 @immutable
@@ -32,4 +34,7 @@ class _StaticTablePlaceholderShade extends TablePlaceholderShade {
 
   @override
   void removeListener(VoidCallback listener) {}
+
+  @override
+  set active(bool active) {}
 }

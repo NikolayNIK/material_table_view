@@ -225,6 +225,8 @@ class _RenderTableSection extends RenderProxyBox {
 
     super.paint(innerContext, offset);
 
+    _placeholderShade?.active = innerContext.placeholderLayersUsed;
+
     innerContext.stopRecordingIfNeeded();
 
     final dividerPaint = Paint()

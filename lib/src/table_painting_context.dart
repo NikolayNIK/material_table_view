@@ -37,7 +37,7 @@ class TablePaintingContext extends PaintingContext {
 
     if (placeholderShade == null) {
       placeholderShaderContext = null;
-      placeholder = regular;
+      _placeholder = regular;
     } else {
       final layer = ShaderMaskLayer()
         ..blendMode = placeholderShade.blendMode
@@ -53,15 +53,23 @@ class TablePaintingContext extends PaintingContext {
 
       context.addLayer(layer);
 
-      placeholder = TablePaintingLayerPair(
+      _placeholder = TablePaintingLayerPair(
           fixed: PaintingContext(placeholderFixed, context.estimatedBounds),
           scrolled:
               PaintingContext(placeholderScrolled, context.estimatedBounds));
     }
   }
 
-  late final TablePaintingLayerPair regular, placeholder;
+  late final TablePaintingLayerPair regular, _placeholder;
   late final PaintingContext? placeholderShaderContext;
+  var _placeholderLayersUsed = false;
+
+  TablePaintingLayerPair get placeholder {
+    _placeholderLayersUsed = true;
+    return _placeholder;
+  }
+
+  bool get placeholderLayersUsed => _placeholderLayersUsed;
 
   @override
   VoidCallback addCompositionCallback(CompositionCallback callback) =>
@@ -154,8 +162,8 @@ class TablePaintingContext extends PaintingContext {
 
     regular.fixed.stopRecordingIfNeeded();
     regular.scrolled.stopRecordingIfNeeded();
-    placeholder.fixed.stopRecordingIfNeeded();
-    placeholder.scrolled.stopRecordingIfNeeded();
+    _placeholder.fixed.stopRecordingIfNeeded();
+    _placeholder.scrolled.stopRecordingIfNeeded();
     placeholderShaderContext?.stopRecordingIfNeeded();
   }
 }
