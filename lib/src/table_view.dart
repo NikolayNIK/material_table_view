@@ -315,4 +315,4 @@ class _TableViewState extends State<TableView> {
 
 Widget _defaultBodyContainerBuilder(
         BuildContext context, Widget bodyContainer) =>
-    Material(child: bodyContainer);
+    bodyContainer;
