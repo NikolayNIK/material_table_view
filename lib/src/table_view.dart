@@ -216,8 +216,7 @@ class _TableViewState extends State<TableView> {
                             TableSection(
                           verticalOffset: verticalOffset,
                           rowHeight: widget.rowHeight,
-                          placeholderShade:
-                              widget.placeholderShade,
+                          placeholderShade: widget.placeholderShade,
                           child: TableViewport(
                             clipBehavior: Clip.none,
                             offset: verticalOffset,
