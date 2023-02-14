@@ -16,7 +16,7 @@ abstract class TablePlaceholderShade implements Listenable {
     BlendMode blendMode,
   }) = _StaticTablePlaceholderShade;
 
-  ShaderCallback get shaderCallback;
+  Shader createShader(Rect bounds, double verticalScrollOffset);
 
   BlendMode get blendMode => BlendMode.modulate;
 
@@ -33,11 +33,14 @@ class _StaticTablePlaceholderShade extends TablePlaceholderShade {
     this.blendMode = BlendMode.modulate,
   });
 
-  @override
   final ShaderCallback shaderCallback;
 
   @override
   final BlendMode blendMode;
+
+  @override
+  Shader createShader(Rect bounds, double verticalScrollOffset) =>
+      shaderCallback(bounds);
 
   @override
   void addListener(VoidCallback listener) {}

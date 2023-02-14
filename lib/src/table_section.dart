@@ -155,9 +155,10 @@ class _RenderTableSection extends RenderProxyBox {
         leftDividerPath = Path(),
         rightDividerPath = Path();
 
+    final double verticalOffsetPixels;
+
     {
       final halfRowHeight = _rowHeight / 2;
-      final double verticalOffsetPixels;
       {
         final verticalOffset = _verticalOffset;
         if (verticalOffset != null && verticalOffset.hasPixels) {
@@ -227,6 +228,7 @@ class _RenderTableSection extends RenderProxyBox {
       scrolledClipPath: clipPath,
       placeholderShade: _placeholderShade,
       offset: offset,
+      verticalScrollOffsetPixels: verticalOffsetPixels,
       size: size,
     );
 

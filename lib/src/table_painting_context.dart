@@ -26,6 +26,7 @@ class TablePaintingContext extends PaintingContext {
     required Path scrolledClipPath,
     required TablePlaceholderShade? placeholderShade,
     required Offset offset,
+    required double verticalScrollOffsetPixels,
     required Size size,
   }) : super(mainLayer, context.estimatedBounds) {
     final regularFixed = mainLayer;
@@ -45,7 +46,10 @@ class TablePaintingContext extends PaintingContext {
       final layer = ShaderMaskLayer()
         ..blendMode = placeholderShade.blendMode
         ..maskRect = offset & size
-        ..shader = placeholderShade.shaderCallback(Offset.zero & size);
+        ..shader = placeholderShade.createShader(
+          Offset.zero & size,
+          verticalScrollOffsetPixels,
+        );
 
       final placeholderFixed = ContainerLayer();
       final placeholderScrolled = ClipPathLayer(clipPath: scrolledClipPath);
