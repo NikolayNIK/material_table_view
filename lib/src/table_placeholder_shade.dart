@@ -7,8 +7,6 @@ import 'package:flutter/rendering.dart';
 /// Notifying listeners added to it will result in the eventual repainting of
 /// the layers shaded by the shader it creates.
 abstract class TablePlaceholderShade implements Listenable {
-  const TablePlaceholderShade();
-
   /// This constructor creates a [TablePlaceholderShade] that isn't effected by
   /// existence of placeholders to shade and that doesn't cause repaints.
   const factory TablePlaceholderShade.static({
@@ -27,7 +25,7 @@ abstract class TablePlaceholderShade implements Listenable {
 }
 
 @immutable
-class _StaticTablePlaceholderShade extends TablePlaceholderShade {
+class _StaticTablePlaceholderShade implements TablePlaceholderShade {
   const _StaticTablePlaceholderShade({
     required this.shaderCallback,
     this.blendMode = BlendMode.modulate,
