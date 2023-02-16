@@ -15,7 +15,10 @@ class ShimmerPlaceholderShadeProvider extends StatefulWidget {
     required this.stops,
     required this.builder,
     this.angle = pi / 4,
-  });
+  }) : assert(
+          colors.length == stops.length,
+          'List of stops must have the same width as the list of colors',
+        );
 
   /// The time it will take for the shimmer effect to repeat.
   final Duration loopDuration;
