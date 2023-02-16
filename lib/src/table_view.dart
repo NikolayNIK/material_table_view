@@ -23,7 +23,7 @@ class TableView extends StatefulWidget {
     required this.columns,
     this.controller,
     required this.rowBuilder,
-    this.placeholderBuilder,
+    this.placeholderBuilder = _defaultPlaceholderBuilder,
     this.placeholderShade,
     this.bodyContainerBuilder = _defaultBodyContainerBuilder,
     this.headerBuilder,
@@ -66,7 +66,7 @@ class TableView extends StatefulWidget {
   /// [placeholderContainerBuilder] property.
   final TableRowBuilder rowBuilder;
 
-  final TablePlaceholderBuilder? placeholderBuilder;
+  final TablePlaceholderBuilder placeholderBuilder;
 
   final TablePlaceholderShade? placeholderShade;
 
@@ -315,3 +315,30 @@ class _TableViewState extends State<TableView> {
 Widget _defaultBodyContainerBuilder(
         BuildContext context, Widget bodyContainer) =>
     bodyContainer;
+
+Widget _defaultPlaceholderBuilder(
+  BuildContext context,
+  TableRowContentBuilder contentBuilder,
+) =>
+    contentBuilder(
+      context,
+      (context, column) {
+        final theme = Theme.of(context);
+
+        // get rid of transparency for the sake of a shader
+        final color = Color.alphaBlend(
+          theme.dividerColor,
+          theme.colorScheme.background,
+        );
+
+        return Padding(
+          padding: EdgeInsets.all(8.0),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+            ),
+          ),
+        );
+      },
+    );
