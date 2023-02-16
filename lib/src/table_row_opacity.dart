@@ -5,6 +5,35 @@ import 'package:flutter/widgets.dart';
 import 'package:material_table_view/src/table_painting_context.dart';
 
 /// This widget is meant to provide the same functionality as a regular
+/// [AnimatedOpacity] widget. As a regular [AnimatedOpacity] widget can not
+/// be used to wrap an entire table row, this one should be used instead.
+///
+/// Note that this widget is considerably more expensive to paint compared to
+/// already expensive regular counterpart. This widget is only meant for
+/// animating relatively short transitions.
+///
+/// This widget will not work for any other purpose.
+class TableRowAnimatedOpacity extends StatelessWidget {
+  final Animation<double> animation;
+  final Widget child;
+
+  const TableRowAnimatedOpacity({
+    super.key,
+    required this.animation,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder<double>(
+        valueListenable: animation,
+        builder: (context, value, _) => TableRowOpacity(
+          opacity: value,
+          child: child,
+        ),
+      );
+}
+
+/// This widget is meant to provide the same functionality as a regular
 /// [Opacity] widget. As a regular [Opacity] widget can not be used to wrap
 /// an entire table row, this one should be used instead.
 ///
