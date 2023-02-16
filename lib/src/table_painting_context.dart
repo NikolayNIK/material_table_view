@@ -42,17 +42,6 @@ class TablePaintingContext extends PaintingContext {
   final TablePaintingLayerPair regular, _placeholder;
   final PaintingContext? placeholderShaderContext;
 
-      context.addLayer(layer);
-
-      _placeholder = TablePaintingLayerPair(
-          fixed: PaintingContext(placeholderFixed, context.estimatedBounds),
-          scrolled:
-              PaintingContext(placeholderScrolled, context.estimatedBounds));
-    }
-  }
-
-  late final TablePaintingLayerPair regular, _placeholder;
-  late final PaintingContext? placeholderShaderContext;
   var _placeholderLayersUsed = false;
 
   TablePaintingLayerPair get placeholder {
@@ -156,5 +145,43 @@ class TablePaintingContext extends PaintingContext {
     _placeholder.fixed.stopRecordingIfNeeded();
     _placeholder.scrolled.stopRecordingIfNeeded();
     placeholderShaderContext?.stopRecordingIfNeeded();
+  }
+
+  void paintChildrenLayers(
+    ContainerLayer Function() createLayer,
+    void Function(PaintingContext context) painter,
+  ) {
+    final mainLayer = createLayer();
+    final regularFixed = mainLayer;
+    final regularScrolled = createLayer();
+
+    regular.fixed.addLayer(regularFixed);
+    regular.scrolled.addLayer(regularScrolled);
+    final ContainerLayer placeholderFixed, placeholderScrolled;
+    if (identical(_placeholder, regular)) {
+      placeholderFixed = regularFixed;
+      placeholderScrolled = regularScrolled;
+    } else {
+      placeholderFixed = createLayer();
+      placeholderScrolled = createLayer();
+      _placeholder.fixed.addLayer(placeholderFixed);
+      _placeholder.scrolled.addLayer(placeholderScrolled);
+    }
+
+    final innerContext = TablePaintingContext(
+      mainLayer: mainLayer,
+      regular: TablePaintingLayerPair(
+          fixed: PaintingContext(regularFixed, estimatedBounds),
+          scrolled: PaintingContext(regularScrolled, estimatedBounds)),
+      placeholder: TablePaintingLayerPair(
+          fixed: PaintingContext(placeholderFixed, estimatedBounds),
+          scrolled: PaintingContext(placeholderScrolled, estimatedBounds)),
+      placeholderShaderContext: null,
+      estimatedBounds: estimatedBounds,
+    );
+
+    painter(innerContext);
+    innerContext.stopRecordingIfNeeded();
+    _placeholderLayersUsed |= innerContext.placeholderLayersUsed;
   }
 }
