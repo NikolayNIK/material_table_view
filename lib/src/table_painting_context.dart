@@ -1,5 +1,16 @@
 import 'package:flutter/rendering.dart';
 
+extension RequireTablePaintingContext on PaintingContext {
+  TablePaintingContext requireTablePaintingContext() {
+    assert(
+      this is TablePaintingContext,
+      'This widget may only be used in a TableView row',
+    );
+
+    return this as TablePaintingContext;
+  }
+}
+
 /// Storage class that holds a pair of layers to be used for cell painting.
 class TablePaintingLayerPair {
   final PaintingContext fixed, scrolled;
