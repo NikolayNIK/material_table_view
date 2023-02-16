@@ -222,15 +222,60 @@ class _RenderTableSection extends RenderProxyBox {
 
     clipPath.close();
 
-    final innerContext = TablePaintingContext(
-      mainLayer: ContainerLayer(),
-      context: context,
-      scrolledClipPath: clipPath,
-      placeholderShade: _placeholderShade,
-      offset: offset,
-      verticalScrollOffsetPixels: verticalOffsetPixels,
-      size: size,
-    );
+    final TablePaintingContext innerContext;
+    {
+      // layer creation
+      final mainLayer = ContainerLayer();
+      final regularFixed = mainLayer;
+      final regularScrolled = ClipPathLayer(clipPath: clipPath);
+
+      context.addLayer(regularFixed);
+      context.addLayer(regularScrolled);
+
+      final regular = TablePaintingLayerPair(
+          fixed: PaintingContext(regularFixed, context.estimatedBounds),
+          scrolled: PaintingContext(regularScrolled, context.estimatedBounds));
+
+      final TablePaintingLayerPair placeholder;
+      final PaintingContext? placeholderShaderContext;
+      final placeholderShade = _placeholderShade;
+
+      if (placeholderShade == null) {
+        placeholderShaderContext = null;
+        placeholder = regular;
+      } else {
+        final layer = ShaderMaskLayer()
+          ..blendMode = placeholderShade.blendMode
+          ..maskRect = offset & size
+          ..shader = placeholderShade.createShader(
+            Offset.zero & size,
+            verticalOffsetPixels,
+          );
+
+        final placeholderFixed = ContainerLayer();
+        final placeholderScrolled = ClipPathLayer(clipPath: clipPath);
+
+        placeholderShaderContext =
+            PaintingContext(layer, context.estimatedBounds)
+              ..addLayer(placeholderFixed)
+              ..addLayer(placeholderScrolled);
+
+        context.addLayer(layer);
+
+        placeholder = TablePaintingLayerPair(
+            fixed: PaintingContext(placeholderFixed, context.estimatedBounds),
+            scrolled:
+                PaintingContext(placeholderScrolled, context.estimatedBounds));
+      }
+
+      innerContext = TablePaintingContext(
+        mainLayer: mainLayer,
+        estimatedBounds: context.estimatedBounds,
+        regular: regular,
+        placeholder: placeholder,
+        placeholderShaderContext: placeholderShaderContext,
+      );
+    }
 
     super.paint(innerContext, offset);
 

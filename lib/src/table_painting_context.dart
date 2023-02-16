@@ -1,5 +1,4 @@
 import 'package:flutter/rendering.dart';
-import 'package:material_table_view/src/table_placeholder_shade.dart';
 
 /// Storage class that holds a pair of layers to be used for cell painting.
 class TablePaintingLayerPair {
@@ -22,41 +21,15 @@ class TablePaintingLayerPair {
 class TablePaintingContext extends PaintingContext {
   TablePaintingContext({
     required ContainerLayer mainLayer,
-    required PaintingContext context,
-    required Path scrolledClipPath,
-    required TablePlaceholderShade? placeholderShade,
-    required Offset offset,
-    required double verticalScrollOffsetPixels,
-    required Size size,
-  }) : super(mainLayer, context.estimatedBounds) {
-    final regularFixed = mainLayer;
-    final regularScrolled = ClipPathLayer(clipPath: scrolledClipPath);
+    required this.regular,
+    required TablePaintingLayerPair placeholder,
+    required this.placeholderShaderContext,
+    required Rect estimatedBounds,
+  })  : _placeholder = placeholder,
+        super(mainLayer, estimatedBounds);
 
-    context.addLayer(regularFixed);
-    context.addLayer(regularScrolled);
-
-    regular = TablePaintingLayerPair(
-        fixed: PaintingContext(regularFixed, context.estimatedBounds),
-        scrolled: PaintingContext(regularScrolled, context.estimatedBounds));
-
-    if (placeholderShade == null) {
-      placeholderShaderContext = null;
-      _placeholder = regular;
-    } else {
-      final layer = ShaderMaskLayer()
-        ..blendMode = placeholderShade.blendMode
-        ..maskRect = offset & size
-        ..shader = placeholderShade.createShader(
-          Offset.zero & size,
-          verticalScrollOffsetPixels,
-        );
-
-      final placeholderFixed = ContainerLayer();
-      final placeholderScrolled = ClipPathLayer(clipPath: scrolledClipPath);
-
-      placeholderShaderContext = PaintingContext(layer, context.estimatedBounds)
-        ..addLayer(placeholderFixed)
-        ..addLayer(placeholderScrolled);
+  final TablePaintingLayerPair regular, _placeholder;
+  final PaintingContext? placeholderShaderContext;
 
       context.addLayer(layer);
 
