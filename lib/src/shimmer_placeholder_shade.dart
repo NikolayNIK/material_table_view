@@ -95,10 +95,13 @@ class _ShimmerPlaceholderShadeProviderState
 
   @override
   Shader createShader(Rect bounds, double verticalOffsetPixels) {
-    final maxDimension = max(bounds.width, bounds.height);
+    // Even though this radius can be shorter the more the angle aligns with
+    // either axis, for now we just use the biggest.
+    final radius =
+        sqrt(bounds.width * bounds.width + bounds.height * bounds.height);
     final offset = Offset(
-      maxDimension * cos(widget.angle),
-      maxDimension * sin(widget.angle),
+      radius * cos(widget.angle),
+      radius * sin(widget.angle),
     );
 
     final center = bounds.center;
