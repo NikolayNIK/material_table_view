@@ -1,0 +1,2 @@
+export 'package:material_table_view/src/default_animated_switcher_transition_builder.dart'
+    show tableRowDefaultAnimatedSwitcherTransitionBuilder;
