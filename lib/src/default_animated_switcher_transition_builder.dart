@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:material_table_view/src/table_row_opacity.dart';
+import 'package:material_table_view/src/table_row_fade_transition.dart';
 
 /// This function is meant to reflect the behavior of the
 /// [AnimatedSwitcher.defaultTransitionBuilder] with the only difference being
@@ -13,4 +13,4 @@ const AnimatedSwitcherTransitionBuilder
 
 Widget _tableRowDefaultAnimatedSwitcherTransitionBuilder(
         Widget child, Animation<double> animation) =>
-    TableRowAnimatedOpacity(animation: animation, child: child);
+    TableRowFadeTransition(animation: animation, child: child);
