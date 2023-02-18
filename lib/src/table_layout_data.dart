@@ -53,5 +53,3 @@ class TableContentLayoutData {
     required this.centerWidth,
   });
 }
-
-

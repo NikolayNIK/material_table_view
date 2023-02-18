@@ -22,10 +22,10 @@ class TableRowFadeTransition extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ValueListenableBuilder<double>(
-    valueListenable: animation,
-    builder: (context, value, _) => TableRowOpacity(
-      opacity: value,
-      child: child,
-    ),
-  );
+        valueListenable: animation,
+        builder: (context, value, _) => TableRowOpacity(
+          opacity: value,
+          child: child,
+        ),
+      );
 }
