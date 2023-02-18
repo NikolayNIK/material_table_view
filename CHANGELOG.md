@@ -1,3 +1,25 @@
+## 3.0.0
+
+- Substantial performance improvements.
+- Rows and cells are no longer rebuilt on horizontal scroll.
+- Cell widgets no longer lose state when transitioning between
+  scrolled and fixed state.
+- Both regular and placeholder row widgets are now built in the same
+  hierarchy meaning that both types of row widgets will share
+  a state as long as their types and keys match.
+  Thanks to that, `GlobalKey` and `RepaintBoundary` hacks are
+  no longer required to implement transitions between them
+- Limitations on the usage of certain widgets for wrapping rows
+  are introduced because of intrusive optimizations. Refer to
+  [the README section](https://github.com/NikolayNIK/material_table_view#row-wrapping-widgets-restriction)
+  for more information.
+- Deprecated `placeholderContainerBuilder` `TableView` constructor
+  parameter is removed. Use `placeholderShade` described below to
+  implement placeholder shading.
+- `placeholderShade` parameter introduced in a `TableView.builder`
+  constructor which can be used to implement placeholder shading.
+- Deprecated default constructor of `TableView` is removed.
+
 ## 2.1.3
 
 - Deprecations and warnings fixes.
