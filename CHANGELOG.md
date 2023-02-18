@@ -1,3 +1,7 @@
+## 3.0.1
+
+- Documentation comments and static analysis fixes.
+
 ## 3.0.0
 
 - Substantial performance improvements.
