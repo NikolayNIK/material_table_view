@@ -19,6 +19,7 @@
 - `placeholderShade` parameter introduced in a `TableView.builder`
   constructor which can be used to implement placeholder shading.
 - Deprecated default constructor of `TableView` is removed.
+- `dividerRevealOffset` property of a `TableView.builder` constructor is now removed.
 
 ## 2.1.3
 
