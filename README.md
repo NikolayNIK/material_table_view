@@ -10,8 +10,7 @@ This package prioritizes usability and visual consistency
 above all else.
 
 ![Material widget demo](./README-demo.gif)
-This demo uses a [Shimmer](https://pub.dev/packages/shimmer)
-package for shimmer effects that can be seen.
+This demo uses the shimmer included in the package.
 The source code for this demo is included in the package example
 and is available [here](https://github.com/NikolayNIK/material_table_view_demo).
 
@@ -34,6 +33,13 @@ and is available [here](https://github.com/NikolayNIK/material_table_view_demo).
   the developer to wrap each individual row in on InkWell
   while containing all cell widgets inside enabling for
   many material interactions within that row.
+- Support for placeholder rows.
+- Support for custom optionally animated shading of the placeholder
+  rows allowing the shader to depend on a vertical scrolling offset
+  and to start or stop animating whenever any or none of
+  the placeholders are visible.
+- Included shimmer shader that allows for animated linear gradient
+  to be applied to placeholder rows.
 - Scroll behaviour defined by an application theme used
   including scroll physics, overscroll effects, etc.
   It means that the platform-default scrolling behaviour
@@ -72,6 +78,36 @@ and is available [here](https://github.com/NikolayNIK/material_table_view_demo).
       // TODO specify other parameters for other features
     ),
 
+## Limitations
+
+### Row wrapping widgets restriction
+
+Not every widget can be used to wrap row widget built in
+a rowBuilder and placeholderBuilder functions.
+Any widget that may need to utilize compositing will either cause
+an exception or will not work as expected.
+This includes widgets like `RepaintBoundary`, `Opacity`, `ShaderMask`,
+clipping widgets and more. For some of these, special alternatives
+are provided by the package that will work for that purpose
+(and that purpose only):
+
+- `TableRowOpacity` - an alternative for `Opacity` widget;
+- `TableRowFadeTransition` - an alternative for `FadeTransition` widget;
+- `tableRowDefaultAnimatedSwitcherTransitionBuilder` function - an alternative
+  for the `AnimatedSwitcher.defaultTransitionBuilder` function
+  which can be used as a `transitionBuilder` for the `AnimatedSwitcher` in that context
+  as a default one will not work.
+
+If any alternative you need are not available,
+feel free to use [the issue tracker](https://github.com/NikolayNIK/material_table_view/issues).
+
+Drawing on top of the row might not work as expected.
+
+These limitations do **not** apply to cell widgets built by a `cellBuilder` closure.
+
+These limitations are caused by the custom compositing involved in
+a table widget painting used for optimization purposes.
+
 ## Known issues
 
 - After the first column gets frozen on the
@@ -85,10 +121,6 @@ and is available [here](https://github.com/NikolayNIK/material_table_view_demo).
   horizontal scroll that is default on Android causing the
   scrollbar to stretch off the screen on overscroll.
 - No support for RTL layout.
-- Column widgets will lose their state upon switching
-  between scrolled and docked state
-  unless they have `GlobalKey` assigned to them.
-  This is an implementation detail and should not be relied upon.
 
 ## Getting help
 
