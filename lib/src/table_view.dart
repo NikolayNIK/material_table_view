@@ -55,19 +55,21 @@ class TableView extends StatefulWidget {
   final TableViewController? controller;
 
   /// A function that will be called on-demand for each row displayed
-  /// in order to obtain a [TableCellBuilder] that will build a widget for
-  /// a specified cell in that row.
+  /// in order to build a widget of a row of the table.
   ///
   /// In case of this function returning null, the corresponding row will be
-  // ignore: deprecated_member_use_from_same_package
-  /// replaced with a placeholder, meaning that the [placeholderBuilder] must
-  /// not be null. This enables additional behaviour described in a
-  // ignore: deprecated_member_use_from_same_package
-  /// [placeholderContainerBuilder] property.
+  /// replaced with a placeholder. This enables additional behaviour described in a
+  /// [placeholderBuilder] property.
   final TableRowBuilder rowBuilder;
 
+  /// A function that will be called on-demand for building the placeholder
+  /// row widget. It never gets called more than once per build cycle as the
+  /// same widget is reused for every placeholder row built.
+  ///
+  /// [placeholderShade] can be used to apply a shader to the widgets painted.
   final TablePlaceholderBuilder placeholderBuilder;
 
+  /// A callback that allows application of a shader to the placeholder rows.
   final TablePlaceholderShade? placeholderShade;
 
   /// A function that will be called on-demand enabling wrapping vertically
