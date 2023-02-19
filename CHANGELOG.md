@@ -1,3 +1,7 @@
+## 3.1.0
+
+- `SliverTableView` introduced.
+
 ## 3.0.2
 
 - Fix a bug leading to a memory leak and perpetual exceptions in debug mode
