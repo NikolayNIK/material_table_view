@@ -1,3 +1,8 @@
+## 3.0.2
+
+- Fix a bug leading to a memory leak and perpetual exceptions in debug mode
+  when the table is disposed separately from the `placeholderShade` used by it.
+
 ## 3.0.1
 
 - Documentation comments and static analysis fixes.
