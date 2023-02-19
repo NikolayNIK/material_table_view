@@ -139,6 +139,7 @@ class _RenderTableSection extends RenderProxyBox {
   @override
   void dispose() {
     _verticalOffset?.removeListener(_verticalOffsetChanged);
+    _placeholderShade?.removeListener(_placeholderShaderChanged);
 
     super.dispose();
   }
