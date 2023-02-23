@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:material_table_view/src/determine_scroll_padding.dart';
 import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/sliver_table_view_body.dart';
 import 'package:material_table_view/src/table_column.dart';
@@ -177,7 +178,7 @@ class _TableViewState extends State<TableView> {
 
   Widget _buildViewport(BuildContext context, ViewportOffset horizontalOffset) {
     final scrollPadding =
-        widget.scrollPadding ?? _determineScrollPadding(context);
+        widget.scrollPadding ?? determineScrollPadding(context);
 
     final dividerThickness = Theme.of(context).dividerTheme.thickness ?? 2.0;
     final dividerColor =
@@ -301,17 +302,7 @@ class _TableViewState extends State<TableView> {
     );
   }
 
-  EdgeInsets _determineScrollPadding(BuildContext context) {
-    // TODO determining paddings for the scrollbars based on a target platform seems stupid
-    switch (Theme.of(context).platform) {
-      case TargetPlatform.android:
-        return const EdgeInsets.only(right: 4.0, bottom: 4.0);
-      case TargetPlatform.iOS:
-        return const EdgeInsets.only(right: 6.0, bottom: 6.0);
-      default:
-        return const EdgeInsets.only(right: 14.0, bottom: 10.0);
-    }
-  }
+
 }
 
 Widget _defaultBodyContainerBuilder(
