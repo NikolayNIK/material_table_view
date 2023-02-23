@@ -301,8 +301,6 @@ class _TableViewState extends State<TableView> {
       ),
     );
   }
-
-
 }
 
 Widget _defaultBodyContainerBuilder(
