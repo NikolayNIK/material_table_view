@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:material_table_view/src/determine_scroll_padding.dart';
 import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/sliver_table_view_body.dart';
 import 'package:material_table_view/src/table_layout.dart';
@@ -63,7 +64,8 @@ class _SliverTableViewState extends State<SliverTableView> {
 
   @override
   Widget build(BuildContext context) {
-    final scrollPadding = widget.scrollPadding ?? EdgeInsets.only(bottom: 12.0);
+    final scrollPadding =
+        widget.scrollPadding ?? determineScrollPadding(context);
     final dividerThickness = Theme.of(context).dividerTheme.thickness ?? 2.0;
 
     final headerHeight = (widget.headerBuilder == null
