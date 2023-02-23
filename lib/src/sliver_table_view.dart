@@ -299,4 +299,12 @@ class _RenderBoxToSliver extends RenderBox
 
   void paint(PaintingContext context, Offset offset) =>
       context.paintChild(child!, offset);
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>
+      child!.hitTest(
+        SliverHitTestResult.wrap(result),
+        mainAxisPosition: position.dy,
+        crossAxisPosition: position.dx,
+      );
 }
