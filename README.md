@@ -9,10 +9,19 @@ with support for billions of on-demand built rows.
 This package prioritizes usability and visual consistency
 above all else.
 
-![Material widget demo](./README-demo.gif)
-This demo uses the shimmer included in the package.
-The source code for this demo is included in the package example
-and is available [here](https://github.com/NikolayNIK/material_table_view_demo).
+<table>
+  <tr>
+    <td><img src="https://github.com/NikolayNIK/material_table_view/blob/83035ba8397bd23819e3beb64b2d5c74739b4f84/screenshots/demo-regular-box-windows-light.gif" height="70%"/></td>
+    <td><img src="https://github.com/NikolayNIK/material_table_view/blob/96cacc60842e3cedfb7ae1af0cb633a81891ca86/screenshots/demo-slivers-android-dark.gif" height="28%"/></td>
+  </tr>
+  <tr>
+    <td colspan="2">
+      This demo uses the shimmer included in the package.
+      The source code for this demo is included in the package example
+      and is available <a href="https://github.com/NikolayNIK/material_table_view_demo)">here</a>.
+    </td>
+  </tr>
+</table>
 
 ## Features
 
