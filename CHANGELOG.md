@@ -1,3 +1,7 @@
+## 3.1.2
+
+- README updated.
+
 ## 3.1.1
 
 - `SliverTableView` hit detection bug fixed.
