@@ -61,9 +61,9 @@ above all else.
   the columns have been separated and there is more content to
   scroll to.
 - Horizontally scrollable header and footer support.
-- [SliverTableView] - sliver variant of a table view which can be used
-  in a [CustomScrollView] alongside other slivers (including other instances
-  of the [SliverTableView]) to be scrolled vertically by a single view.
+- `SliverTableView` - sliver variant of a table view which can be used
+  in a `CustomScrollView` alongside other slivers (including other instances
+  of the `SliverTableView`) to be scrolled vertically by a single view.
   It features sticky header and footer, and the same capabilities as a regular one.
 
 ## Usage
