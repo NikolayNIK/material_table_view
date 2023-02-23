@@ -1,4 +1,6 @@
 # material_table_view
+[![pub package](https://img.shields.io/pub/v/material_table_view.svg)](https://pub.dev/packages/material_table_view)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/NikolayNIK/material_table_view/blob/master/LICENSE)
 
 This is an open source Flutter package containing
 a widget that displays your data
