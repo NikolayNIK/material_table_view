@@ -1,3 +1,7 @@
+## 3.1.3
+
+- Screenshots updated.
+
 ## 3.1.2
 
 - README updated.
