@@ -20,7 +20,7 @@ above all else.
     <td colspan="2">
       This demo uses the shimmer included in the package.
       The source code for this demo is included in the package example
-      and is available <a href="https://github.com/NikolayNIK/material_table_view_demo)">here</a>.
+      and is available <a href="https://github.com/NikolayNIK/material_table_view_demo">here</a>.
     </td>
   </tr>
 </table>
