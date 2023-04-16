@@ -102,7 +102,10 @@ a rowBuilder and placeholderBuilder functions.
 Any widget that may need to utilize compositing will either cause
 an exception or will not work as expected.
 This includes widgets like `RepaintBoundary`, `Opacity`, `ShaderMask`,
-clipping widgets and more. For some of these, special alternatives
+clipping widgets and more. `Material` widget may only be used with
+a specified type of `MaterialType.transparency`, which is the only
+type not requiring compositing.
+For some of these, special alternatives
 are provided by the package that will work for that purpose
 (and that purpose only):
 
