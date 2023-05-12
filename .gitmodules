@@ -1,3 +1,3 @@
 [submodule "example"]
 	path = example
-	url = git@github.com:NikolayNIK/material_table_view_demo.git
+	url = ../material_table_view_demo.git
