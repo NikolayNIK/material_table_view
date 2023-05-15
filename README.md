@@ -2,7 +2,7 @@
 
 [![pub package](https://img.shields.io/pub/v/material_table_view.svg)](https://pub.dev/packages/material_table_view)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/NikolayNIK/material_table_view/blob/master/LICENSE)
-[![Netlify Status](https://api.netlify.com/api/v1/badges/1e81dcb6-9a0d-4fa1-9f70-fca006e8f122/deploy-status)](https://app.netlify.com/sites/visionary-chimera-cb5753/deploys)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/1e362646-cc55-40cc-b696-998c2f7b6ed3/deploy-status)](https://app.netlify.com/sites/candid-melba-12c597/deploys)
 
 Comprehensive, feature-rich and intuitive UI/UX widget solution for many data table use cases
 that is easy to integrate into any Flutter app.
