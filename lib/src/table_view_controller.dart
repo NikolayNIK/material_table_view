@@ -8,6 +8,8 @@ class TableViewController {
   /// Controller used to hold vertical scroll state of a table.
   final verticalScrollController = ScrollController();
 
+  final stickyHorizontalOffset = ValueNotifier<double>(0);
+
   /// Discards any resources used by the object. After this is called, the
   /// object is not in a usable state and should be discarded.
   ///

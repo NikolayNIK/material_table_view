@@ -6,7 +6,10 @@ class TableColumn {
   const TableColumn({
     required this.width,
     this.freezePriority = 0,
-  }) : assert(freezePriority >= 0);
+    this.sticky = false,
+  })  : assert(freezePriority >= 0),
+        assert(freezePriority != 0 || !sticky,
+            'Only freezable columns can be sticky');
 
   /// Width of a column in a logical pixels.
   final double width;
@@ -16,6 +19,10 @@ class TableColumn {
   /// in case of lacking space to freeze all the required columns. If zero,
   /// the column will never be frozen.
   final int freezePriority;
+
+  /// When set to true, frozen column will be scrolled of the edge of the screen
+  /// but will come back upon scrolling in the other direction.
+  final bool sticky;
 
   /// Check whether or not the column is frozen at a given priority.
   bool frozenAt(int priority) => freezePriority > priority;

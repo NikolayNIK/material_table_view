@@ -197,6 +197,7 @@ class _TableViewState extends State<TableView> {
           minScrollableWidthRatio: widget.minScrollableWidthRatio,
           columns: widget.columns,
           horizontalOffset: horizontalOffset,
+          stickyHorizontalOffset: _controller.stickyHorizontalOffset,
           minScrollableWidth: widget.minScrollableWidth,
           child: Builder(
             builder: (context) {

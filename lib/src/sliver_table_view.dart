@@ -45,6 +45,7 @@ class SliverTableView extends TableView {
 
 class _SliverTableViewState extends State<SliverTableView> {
   late ScrollController _horizontalScrollController;
+  late ValueNotifier<double> _horizontalStickyOffset;
 
   @override
   void initState() {
@@ -52,6 +53,7 @@ class _SliverTableViewState extends State<SliverTableView> {
 
     _horizontalScrollController =
         widget.horizontalScrollController ?? ScrollController();
+    _horizontalStickyOffset = ValueNotifier(.0);
   }
 
   @override
@@ -112,6 +114,7 @@ class _SliverTableViewState extends State<SliverTableView> {
                     width: constraints.crossAxisExtent,
                     columns: widget.columns,
                     horizontalOffset: position,
+                    stickyHorizontalOffset: _horizontalStickyOffset,
                     minScrollableWidthRatio: widget.minScrollableWidthRatio,
                     minScrollableWidth: widget.minScrollableWidth,
                     scrollPadding: scrollPadding,
