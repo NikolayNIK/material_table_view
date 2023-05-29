@@ -170,7 +170,8 @@ class _RenderTableViewRow extends RenderBox
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
-    final scrolledClipPath = _nearestTableSectionAncestor!.scrolledSectionClipPath;
+    final scrolledClipPath =
+        _nearestTableSectionAncestor!.scrolledSectionClipPath;
 
     RenderBox? child = lastChild;
     while (child != null) {
