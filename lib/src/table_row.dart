@@ -191,6 +191,7 @@ class _TableViewCell extends ParentDataWidget<_TableViewCellParentData> {
 
     final parent = renderObject.parent;
     if (parent is RenderObject) {
+      parent.markNeedsLayout();
       parent.markNeedsPaint();
     }
   }
