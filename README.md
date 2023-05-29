@@ -15,7 +15,7 @@ above all else.
 <table>
   <tr>
     <td><img src="https://raw.githubusercontent.com/NikolayNIK/material_table_view/f85d7a826a45ead61b927f48626fda39f88cd86b/screenshots/demo-regular-box-windows-light.gif" height="70%"/></td>
-    <td><img src="https://raw.githubusercontent.com/NikolayNIK/material_table_view/f85d7a826a45ead61b927f48626fda39f88cd86b/screenshots/demo-slivers-android-dark.gif" height="28%"/></td>
+    <td><img src="https://raw.githubusercontent.com/NikolayNIK/material_table_view/8b00a3eecf1be0996715965e3088f95a794a1867/screenshots/demo-slivers-android-dark.gif" height="28%"/></td>
   </tr>
   <tr>
     <td colspan="2">
