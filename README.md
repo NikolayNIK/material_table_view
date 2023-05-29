@@ -39,6 +39,9 @@ above all else.
   be unfrozen in case of insufficient horizontal space based
   on a developer-defined freeze priorities meaning that
   table will adjust to any screen size be it mobile or desktop.
+- `sticky` column property, which causes frozen columns
+  to scroll off of the edge but come back upon scrolling
+  in the other direction to conserve the horizontal space when it's limited.
 - Lazily built fixed-height rows allowing for billions of rows
   to be in one table.
 - Support for a custom individual row widget wrapper allowing
