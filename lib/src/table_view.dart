@@ -123,6 +123,7 @@ class TableView extends StatefulWidget {
 
 class _TableViewState extends State<TableView> {
   late TableViewController _controller;
+  final _stickyHorizontalOffset = ValueNotifier<double>(.0);
 
   @override
   void initState() {
@@ -197,7 +198,7 @@ class _TableViewState extends State<TableView> {
           minScrollableWidthRatio: widget.minScrollableWidthRatio,
           columns: widget.columns,
           horizontalOffset: horizontalOffset,
-          stickyHorizontalOffset: _controller.stickyHorizontalOffset,
+          stickyHorizontalOffset: _stickyHorizontalOffset,
           minScrollableWidth: widget.minScrollableWidth,
           child: Builder(
             builder: (context) {
