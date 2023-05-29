@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:material_table_view/src/table_layout.dart';
 import 'package:material_table_view/src/table_layout_data.dart';
 import 'package:material_table_view/src/table_painting_context.dart';
+import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 
 /// The function that builds a row using a cell builder passed to it.
@@ -86,9 +87,7 @@ class _TableViewRow extends MultiChildRenderObjectWidget {
 }
 
 class _RenderTableViewRow extends RenderBox
-    with
-        ContainerRenderObjectMixin<RenderBox, _TableViewCellParentData>,
-        RenderBoxContainerDefaultsMixin<RenderBox, _TableViewCellParentData> {
+    with ContainerRenderObjectMixin<RenderBox, _TableViewCellParentData> {
   _RenderTableViewRow({required bool usePlaceholderLayers})
       : _usePlaceholderLayers = usePlaceholderLayers;
 
@@ -155,9 +154,44 @@ class _RenderTableViewRow extends RenderBox
     }
   }
 
+  RenderTableSection? get _nearestTableSectionAncestor {
+    var node = parent;
+    while (node != null) {
+      if (node is RenderTableSection) {
+        return node;
+      }
+
+      node = node.parent;
+    }
+
+    assert(false, 'No RenderTableSection ancestor found');
+    return null;
+  }
+
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
-    return defaultHitTestChildren(result, position: position);
+    final scrolledClipPath = _nearestTableSectionAncestor!.scrolledSectionClipPath;
+
+    RenderBox? child = lastChild;
+    while (child != null) {
+      final childParentData = child.parentData! as _TableViewCellParentData;
+      if ((!childParentData.scrollable ||
+              scrolledClipPath.contains(position)) &&
+          result.addWithPaintOffset(
+            offset: childParentData.offset,
+            position: position,
+            hitTest: (BoxHitTestResult result, Offset transformed) {
+              assert(transformed == position - childParentData.offset);
+              return child!.hitTest(result, position: transformed);
+            },
+          )) {
+        return true;
+      }
+
+      child = childParentData.previousSibling;
+    }
+
+    return false;
   }
 }
 
