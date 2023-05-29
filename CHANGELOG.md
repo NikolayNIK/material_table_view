@@ -1,3 +1,8 @@
+## 3.2.0
+
+- `sticky` property of a `TableColumn` implemented.
+- Table cell hit detection bug fixed.
+
 ## 3.1.3
 
 - Screenshots updated.
