@@ -53,7 +53,7 @@ class _TableSection extends SingleChildRenderObjectWidget {
   }) : super(child: child);
 
   @override
-  RenderObject createRenderObject(BuildContext context) => _RenderTableSection(
+  RenderObject createRenderObject(BuildContext context) => RenderTableSection(
       verticalOffset: verticalOffset,
       rowHeight: rowHeight,
       layoutData: layoutData,
@@ -62,7 +62,7 @@ class _TableSection extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, covariant _RenderTableSection renderObject) {
+      BuildContext context, covariant RenderTableSection renderObject) {
     super.updateRenderObject(context, renderObject);
 
     renderObject.verticalOffset = verticalOffset;
@@ -73,8 +73,8 @@ class _TableSection extends SingleChildRenderObjectWidget {
   }
 }
 
-class _RenderTableSection extends RenderProxyBox {
-  _RenderTableSection({
+class RenderTableSection extends RenderProxyBox {
+  RenderTableSection({
     required ViewportOffset? verticalOffset,
     required double rowHeight,
     required TableContentLayoutData layoutData,
@@ -95,19 +95,33 @@ class _RenderTableSection extends RenderProxyBox {
   double _dividerThickness;
   TablePlaceholderShade? _placeholderShade;
 
+  late Path _scrolledClipPath, _leftDividerPath, _rightDividerPath;
+
+  Path get scrolledSectionClipPath => _scrolledClipPath;
+
+  double get _verticalOffsetPixels {
+    final verticalOffset = _verticalOffset;
+    if (verticalOffset != null && verticalOffset.hasPixels) {
+      return verticalOffset.pixels;
+    } else {
+      return .0;
+    }
+  }
+
   set verticalOffset(ViewportOffset? verticalOffset) {
     if (identical(_verticalOffset, verticalOffset)) return;
 
     _verticalOffset?.removeListener(_verticalOffsetChanged);
     _verticalOffset = verticalOffset;
     _verticalOffset?.addListener(_verticalOffsetChanged);
-    markNeedsPaint();
+    _verticalOffsetChanged();
   }
 
   set rowHeight(double rowHeight) {
     // this comparison should be fine
     if (_rowHeight != rowHeight) {
       _rowHeight = rowHeight;
+      markNeedsLayout();
       markNeedsPaint();
     }
   }
@@ -115,6 +129,7 @@ class _RenderTableSection extends RenderProxyBox {
   set layoutData(TableContentLayoutData layoutData) {
     if (!identical(_layoutData, layoutData)) {
       _layoutData = layoutData;
+      markNeedsLayout();
       markNeedsPaint();
     }
   }
@@ -144,41 +159,39 @@ class _RenderTableSection extends RenderProxyBox {
     super.dispose();
   }
 
-  void _verticalOffsetChanged() => markNeedsPaint();
+  void _verticalOffsetChanged() {
+    markNeedsLayout();
+    markNeedsPaint();
+  }
 
   void _placeholderShaderChanged() => markNeedsPaint();
 
   @override
-  void paint(PaintingContext context, Offset offset) {
+  void performLayout() {
+    super.performLayout();
+
+    // not sure if this should go here but it works well enough for now
+
+    final clipPath = _scrolledClipPath = Path(),
+        leftDividerPath = _leftDividerPath = Path(),
+        rightDividerPath = _rightDividerPath = Path();
+
+    final verticalOffsetPixels = _verticalOffsetPixels;
     final layoutData = _layoutData;
-
-    final clipPath = Path(),
-        leftDividerPath = Path(),
-        rightDividerPath = Path();
-
-    final double verticalOffsetPixels;
 
     {
       final halfRowHeight = _rowHeight / 2;
-      {
-        final verticalOffset = _verticalOffset;
-        if (verticalOffset != null && verticalOffset.hasPixels) {
-          verticalOffsetPixels = verticalOffset.pixels;
-        } else {
-          verticalOffsetPixels = .0;
-        }
-      }
 
-      final top = offset.dy - (verticalOffsetPixels % _rowHeight);
+      final top = -(verticalOffsetPixels % _rowHeight);
       var bottom = size.height + _rowHeight;
-      bottom += offset.dy - ((bottom + verticalOffsetPixels) % _rowHeight);
+      bottom += -((bottom + verticalOffsetPixels) % _rowHeight);
 
       final halfDividerThickness = _dividerThickness / 2;
 
       {
         // left side
 
-        final wiggleEdge = offset.dx + layoutData.leftWidth;
+        final wiggleEdge = layoutData.leftWidth;
         final dividerWiggleEdge = wiggleEdge - halfDividerThickness;
         final wiggleMiddle = wiggleEdge + layoutData.leftDivider.wiggleOffset;
         final dividerWiggleMiddle = wiggleMiddle - halfDividerThickness;
@@ -200,8 +213,7 @@ class _RenderTableSection extends RenderProxyBox {
       {
         // right size
 
-        final wiggleEdge =
-            offset.dx + layoutData.leftWidth + layoutData.centerWidth;
+        final wiggleEdge = layoutData.leftWidth + layoutData.centerWidth;
         final dividerWiggleEdge = wiggleEdge + halfDividerThickness;
         final wiggleMiddle = wiggleEdge - layoutData.rightDivider.wiggleOffset;
         final dividerWiggleMiddle = wiggleMiddle + halfDividerThickness;
@@ -222,6 +234,23 @@ class _RenderTableSection extends RenderProxyBox {
     }
 
     clipPath.close();
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    assert(
+      offset.distanceSquared < .01,
+      'Hit testing logic assumes TableSection coordinates to be the origin.'
+      ' Got an offset of $offset, 0 assumed',
+    );
+
+    final layoutData = _layoutData;
+
+    final clipPath = _scrolledClipPath,
+        leftDividerPath = _leftDividerPath,
+        rightDividerPath = _rightDividerPath;
+
+    final verticalOffsetPixels = _verticalOffsetPixels;
 
     final TablePaintingContext innerContext;
     {
@@ -247,7 +276,7 @@ class _RenderTableSection extends RenderProxyBox {
       } else {
         final layer = ShaderMaskLayer()
           ..blendMode = placeholderShade.blendMode
-          ..maskRect = offset & size
+          ..maskRect = Offset.zero & size
           ..shader = placeholderShade.createShader(
             Offset.zero & size,
             verticalOffsetPixels,
