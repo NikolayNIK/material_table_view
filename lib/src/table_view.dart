@@ -34,6 +34,7 @@ class TableView extends StatefulWidget {
     this.minScrollableWidth,
     this.minScrollableWidthRatio = .6180339887498547,
     this.scrollPadding,
+    this.showHorizontalScrollBar = true,
   })  : assert(rowCount >= 0),
         assert(rowHeight > 0),
         assert(headerHeight == null || headerHeight > 0),
@@ -117,6 +118,10 @@ class TableView extends StatefulWidget {
   /// If null, predefined insets will be used based on a target platform.
   final EdgeInsets? scrollPadding;
 
+  /// Determines whether to add a horizontal scrollbar
+  /// Defaults to true
+  final bool showHorizontalScrollBar;
+
   @override
   State<TableView> createState() => _TableViewState();
 }
@@ -153,25 +158,29 @@ class _TableViewState extends State<TableView> {
           ? const SizedBox()
           : LayoutBuilder(
               builder: (context, constraints) {
-                return Transform.translate(
-                  offset: -horizontalScrollbarOffset,
-                  transformHitTests: false,
-                  child: Scrollbar(
+                final scrollable = Scrollable(
                     controller: _controller.horizontalScrollController,
-                    interactive: true,
-                    trackVisibility: true,
-                    thumbVisibility: true,
-                    child: Transform.translate(
-                      offset: horizontalScrollbarOffset,
-                      transformHitTests: false,
-                      child: Scrollable(
-                          controller: _controller.horizontalScrollController,
-                          clipBehavior: Clip.none,
-                          axisDirection: AxisDirection.right,
-                          viewportBuilder: _buildViewport),
+                    clipBehavior: Clip.none,
+                    axisDirection: AxisDirection.right,
+                    viewportBuilder: _buildViewport);
+                if (widget.showHorizontalScrollBar) {
+                  return Transform.translate(
+                    offset: -horizontalScrollbarOffset,
+                    transformHitTests: false,
+                    child: Scrollbar(
+                      controller: _controller.horizontalScrollController,
+                      interactive: true,
+                      trackVisibility: true,
+                      thumbVisibility: true,
+                      child: Transform.translate(
+                        offset: horizontalScrollbarOffset,
+                        transformHitTests: false,
+                        child: scrollable,
+                      ),
                     ),
-                  ),
-                );
+                  );
+                }
+                return scrollable;
               },
             ),
     );
