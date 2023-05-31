@@ -161,8 +161,7 @@ class _TableContentLayoutState extends State<TableContentLayout> {
     freezePriority = priority;
   }
 
-  @override
-  Widget build(BuildContext context) {
+  TableContentLayoutData calculateLayoutData() {
     // this is quickly becoming a mess...
 
     final dividerColor =
@@ -355,30 +354,33 @@ class _TableContentLayoutState extends State<TableContentLayout> {
           min(16.0, max(.0, rightDividerAnimationValue * _wiggleOffset));
     }
 
-    return _InheritedTableContentLayout(
-      data: TableContentLayoutData(
-          leftWidth: leftWidth,
-          centerWidth: centerWidth,
-          scrollableColumns: TableContentColumnData(
-              indices: columnsCenter,
-              positions: columnOffsetsCenter,
-              widths: columnsCenter
-                  .map((e) => widget.columns[e].width)
-                  .toList(growable: false)),
-          fixedColumns: TableContentColumnData(
-              indices: columnsFixed,
-              positions: columnOffsetsFixed,
-              widths: columnsFixed
-                  .map((e) => widget.columns[e].width)
-                  .toList(growable: false)),
-          leftDivider: TableContentDividerData(
-              color: leftDividerColor, wiggleOffset: leftDividerWiggleOffset),
-          rightDivider: TableContentDividerData(
-              color: rightDividerColor,
-              wiggleOffset: rightDividerWiggleOffset)),
-      child: widget.child,
+    return TableContentLayoutData(
+      leftWidth: leftWidth,
+      centerWidth: centerWidth,
+      scrollableColumns: TableContentColumnData(
+          indices: columnsCenter,
+          positions: columnOffsetsCenter,
+          widths: columnsCenter
+              .map((e) => widget.columns[e].width)
+              .toList(growable: false)),
+      fixedColumns: TableContentColumnData(
+          indices: columnsFixed,
+          positions: columnOffsetsFixed,
+          widths: columnsFixed
+              .map((e) => widget.columns[e].width)
+              .toList(growable: false)),
+      leftDivider: TableContentDividerData(
+          color: leftDividerColor, wiggleOffset: leftDividerWiggleOffset),
+      rightDivider: TableContentDividerData(
+          color: rightDividerColor, wiggleOffset: rightDividerWiggleOffset),
     );
   }
+
+  @override
+  Widget build(BuildContext context) => _InheritedTableContentLayout(
+        data: calculateLayoutData(),
+        child: widget.child,
+      );
 }
 
 class _InheritedTableContentLayout extends InheritedWidget {
