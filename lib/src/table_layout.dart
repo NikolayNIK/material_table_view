@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:material_table_view/src/iterator_extensions.dart';
 import 'package:material_table_view/src/table_column.dart';
 import 'package:material_table_view/src/table_layout_data.dart';
@@ -161,7 +162,7 @@ class _TableContentLayoutState extends State<TableContentLayout> {
     freezePriority = priority;
   }
 
-  TableContentLayoutData calculateLayoutData() {
+  TableContentLayoutData calculateLayoutData(double? stickyOffset) {
     // this is quickly becoming a mess...
 
     final dividerColor =
@@ -184,7 +185,7 @@ class _TableContentLayoutState extends State<TableContentLayout> {
     _minStickyHorizontalOffset = .0;
     _maxStickyHorizontalOffset = .0;
 
-    final stickyOffset = widget.stickyHorizontalOffset.value;
+    stickyOffset ??= widget.stickyHorizontalOffset.value;
     final stickyLeftOffset = (stickyOffset < 0 ? stickyOffset : 0);
     final stickyRightOffset = (stickyOffset > 0 ? stickyOffset : 0);
     for (var i = 0,
@@ -243,6 +244,21 @@ class _TableContentLayoutState extends State<TableContentLayout> {
 
         break;
       }
+    }
+
+    if (stickyOffset < _minStickyHorizontalOffset ||
+        stickyOffset > _maxStickyHorizontalOffset) {
+      stickyOffset = min(_maxStickyHorizontalOffset,
+          max(_minStickyHorizontalOffset, stickyOffset));
+
+      // we can't mutate the state here
+      SchedulerBinding.instance.addPostFrameCallback(
+        (timeStamp) => widget.stickyHorizontalOffset.value = stickyOffset!,
+      );
+
+      // restart the layout with the new sticky offset
+      // let's just hope there won't be an infinite recursion here
+      return calculateLayoutData(stickyOffset);
     }
 
     final leftWidth = columnsLeft.isEmpty
@@ -378,7 +394,7 @@ class _TableContentLayoutState extends State<TableContentLayout> {
 
   @override
   Widget build(BuildContext context) => _InheritedTableContentLayout(
-        data: calculateLayoutData(),
+        data: calculateLayoutData(null),
         child: widget.child,
       );
 }
