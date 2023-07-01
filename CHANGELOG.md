@@ -1,3 +1,7 @@
+## 3.2.1
+
+- Fixed: `SliverTableView`'s horizontal offset not resetting when using a sticky frozen column.
+
 ## 3.2.0
 
 - `sticky` property of a `TableColumn` implemented.

@@ -4,7 +4,7 @@ description: Flutter library providing a both horizontally and vertically scroll
 repository: 'https://github.com/NikolayNIK/material_table_view'
 issue_tracker: 'https://github.com/NikolayNIK/material_table_view/issues'
 
-version: 3.2.0
+version: 3.2.1
 
 environment:
   sdk: ">=2.17.1 <4.0.0"
