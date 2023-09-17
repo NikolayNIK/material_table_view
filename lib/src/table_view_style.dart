@@ -24,6 +24,7 @@ class TableViewStyle extends ThemeExtension<TableViewStyle> {
   }) =>
       TableViewStyle(
         dividers: dividers ?? this.dividers,
+        scrollbars: scrollbars ?? this.scrollbars,
       );
 
   @override
@@ -31,6 +32,9 @@ class TableViewStyle extends ThemeExtension<TableViewStyle> {
         dividers: dividers == null || other.dividers == null
             ? other.dividers
             : dividers!.lerp(other.dividers!, t),
+        scrollbars: scrollbars == null || other.scrollbars == null
+            ? other.scrollbars
+            : scrollbars!.lerp(other.scrollbars!, t),
       );
 }
 
