@@ -11,8 +11,8 @@ class TableScrollConfiguration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScrollConfiguration(
-        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-        child: child,
-      );
+      behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+      child: child,
+    );
   }
 }

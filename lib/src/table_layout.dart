@@ -305,8 +305,7 @@ class _TableContentLayoutState extends State<TableContentLayout> {
               min(
                   1.0,
                   (columnOffsetsCenter[toFreeze] - leftWidth) /
-                      widget.verticalDividersStyle.leading
-                          .wiggleOffset));
+                      widget.verticalDividersStyle.leading.wiggleOffset));
         }
 
         if (columnsLeft.isNotEmpty &&
@@ -319,22 +318,19 @@ class _TableContentLayoutState extends State<TableContentLayout> {
                   min(
                       1.0,
                       -(columnOffsetsCenter.first - leftWidth) /
-                          widget.verticalDividersStyle.leading
-                              .wiggleOffset)));
+                          widget.verticalDividersStyle.leading.wiggleOffset)));
         }
       }
 
-      leftDividerColor = widget.verticalDividersStyle.leading.color
-          .withOpacity(
-              widget.verticalDividersStyle.leading.color.opacity *
-                  Curves.easeIn.transform(leftDividerAnimationValue));
+      leftDividerColor = widget.verticalDividersStyle.leading.color.withOpacity(
+          widget.verticalDividersStyle.leading.color.opacity *
+              Curves.easeIn.transform(leftDividerAnimationValue));
       leftDividerWiggleOffset = min(
           widget.verticalDividersStyle.leading.wiggleOffset,
           max(
               .0,
               leftDividerAnimationValue *
-                  widget
-                      .verticalDividersStyle.leading.wiggleOffset));
+                  widget.verticalDividersStyle.leading.wiggleOffset));
 
       double rightDividerAnimationValue = .0;
       if (columnsRight.isNotEmpty) {
@@ -354,8 +350,7 @@ class _TableContentLayoutState extends State<TableContentLayout> {
                   (centerWidth -
                           (columnOffsetsCenter[toFreeze] - leftWidth) -
                           widget.columns[columnsCenter[toFreeze]].width) /
-                      widget.verticalDividersStyle.trailing
-                          .wiggleOffset));
+                      widget.verticalDividersStyle.trailing.wiggleOffset));
         }
 
         if (columnsRight.isNotEmpty &&
@@ -370,23 +365,19 @@ class _TableContentLayoutState extends State<TableContentLayout> {
                       (-centerWidth +
                               (columnOffsetsCenter.last - leftWidth) +
                               widget.columns[columnsCenter.last].width) /
-                          widget.verticalDividersStyle.trailing
-                              .wiggleOffset)));
+                          widget.verticalDividersStyle.trailing.wiggleOffset)));
         }
       }
 
-      rightDividerColor =
-          widget.verticalDividersStyle.trailing.color.withOpacity(
-              widget.verticalDividersStyle.trailing.color.opacity *
-                  Curves.easeIn.transform(rightDividerAnimationValue));
+      rightDividerColor = widget.verticalDividersStyle.trailing.color
+          .withOpacity(widget.verticalDividersStyle.trailing.color.opacity *
+              Curves.easeIn.transform(rightDividerAnimationValue));
       rightDividerWiggleOffset = min(
-          widget.verticalDividersStyle.trailing
-              .wiggleOffset,
+          widget.verticalDividersStyle.trailing.wiggleOffset,
           max(
               .0,
               rightDividerAnimationValue *
-                  widget.verticalDividersStyle.trailing
-                      .wiggleOffset));
+                  widget.verticalDividersStyle.trailing.wiggleOffset));
     }
 
     return TableContentLayoutData(
