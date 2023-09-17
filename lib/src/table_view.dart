@@ -8,6 +8,8 @@ import 'package:material_table_view/src/table_horizontal_divider.dart';
 import 'package:material_table_view/src/table_layout.dart';
 import 'package:material_table_view/src/table_placeholder_shade.dart';
 import 'package:material_table_view/src/table_row.dart';
+import 'package:material_table_view/src/table_scroll_configuration.dart';
+import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
@@ -153,36 +155,36 @@ class _TableViewState extends State<TableView> {
       widget.footerBuilder == null ? 0 : widget.footerHeight,
     );
 
-    return SizedBox(
-      width: double.infinity,
-      height: double.infinity,
-      child: widget.columns.isEmpty
-          ? const SizedBox()
-          : LayoutBuilder(
-              builder: (context, constraints) {
-                return Transform.translate(
-                  offset: -horizontalScrollbarOffset,
-                  transformHitTests: false,
-                  child: Scrollbar(
-                    controller: _controller.horizontalScrollController,
-                    interactive: true,
-                    trackVisibility: true,
-                    thumbVisibility: true,
-                    child: Transform.translate(
-                      offset: horizontalScrollbarOffset,
-                      transformHitTests: false,
-                      child: Scrollable(
-                        controller: _controller.horizontalScrollController,
-                        clipBehavior: Clip.none,
-                        axisDirection: AxisDirection.right,
-                        viewportBuilder: (context, position) =>
-                            _buildViewport(context, style, position),
+    return TableScrollConfiguration(
+      child: SizedBox(
+        width: double.infinity,
+        height: double.infinity,
+        child: widget.columns.isEmpty
+            ? const SizedBox()
+            : LayoutBuilder(
+                builder: (context, constraints) {
+                  return Transform.translate(
+                    offset: -horizontalScrollbarOffset,
+                    transformHitTests: false,
+                    child: TableScrollbar(
+                      controller: _controller.horizontalScrollController,
+                      style: style.scrollbars.horizontal,
+                      child: Transform.translate(
+                        offset: horizontalScrollbarOffset,
+                        transformHitTests: false,
+                        child: Scrollable(
+                          controller: _controller.horizontalScrollController,
+                          clipBehavior: Clip.none,
+                          axisDirection: AxisDirection.right,
+                          viewportBuilder: (context, position) =>
+                              _buildViewport(context, style, position),
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
+      ),
     );
   }
 
@@ -215,11 +217,9 @@ class _TableViewState extends State<TableView> {
                   child: NotificationListener<OverscrollNotification>(
                     // Suppress OverscrollNotification events that escape from the inner scrollable
                     onNotification: (notification) => true,
-                    child: Scrollbar(
+                    child: TableScrollbar(
                       controller: _controller.verticalScrollController,
-                      interactive: true,
-                      thumbVisibility: true,
-                      trackVisibility: true,
+                      style: style.scrollbars.vertical,
                       child: Scrollable(
                         controller: _controller.verticalScrollController,
                         clipBehavior: Clip.none,

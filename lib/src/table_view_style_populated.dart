@@ -6,10 +6,16 @@ class PopulatedTableViewStyle extends TableViewStyle {
   PopulatedTableViewDividersStyle get dividers =>
       super.dividers as PopulatedTableViewDividersStyle;
 
+  @override
+  PopulatedTableViewScrollbarsStyle get scrollbars =>
+      super.scrollbars as PopulatedTableViewScrollbarsStyle;
+
   PopulatedTableViewStyle({
     required PopulatedTableViewDividersStyle dividers,
+    required PopulatedTableViewScrollbarsStyle scrollbars,
   }) : super(
           dividers: dividers,
+          scrollbars: scrollbars,
         );
 
   factory PopulatedTableViewStyle.of(
@@ -18,11 +24,17 @@ class PopulatedTableViewStyle extends TableViewStyle {
   }) {
     final base = Theme.of(context).extension<TableViewStyle>();
     return PopulatedTableViewStyle(
-        dividers: PopulatedTableViewDividersStyle.of(
-      context,
-      base: base?.dividers,
-      style: style?.dividers,
-    ));
+      dividers: PopulatedTableViewDividersStyle.of(
+        context,
+        base: base?.dividers,
+        style: style?.dividers,
+      ),
+      scrollbars: PopulatedTableViewScrollbarsStyle.of(
+        context,
+        base: base?.scrollbars,
+        style: style?.scrollbars,
+      ),
+    );
   }
 }
 
@@ -199,6 +211,106 @@ class PopulatedTableViewVerticalDividerStyle
       thickness: style?.thickness ?? base?.thickness ?? borderStyle.width,
       wigglesPerRow: style?.wigglesPerRow ?? base?.wigglesPerRow ?? 1,
       wiggleOffset: style?.wiggleOffset ?? base?.wiggleOffset ?? 16.0,
+    );
+  }
+}
+
+class PopulatedTableViewScrollbarsStyle extends TableViewScrollbarsStyle {
+  @override
+  PopulatedTableViewScrollbarStyle get horizontal =>
+      super.horizontal as PopulatedTableViewScrollbarStyle;
+
+  @override
+  PopulatedTableViewScrollbarStyle get vertical =>
+      super.vertical as PopulatedTableViewScrollbarStyle;
+
+  PopulatedTableViewScrollbarsStyle({
+    required PopulatedTableViewScrollbarStyle horizontal,
+    required PopulatedTableViewScrollbarStyle vertical,
+  }) : super(
+          horizontal: horizontal,
+          vertical: vertical,
+        );
+
+  factory PopulatedTableViewScrollbarsStyle.of(
+    BuildContext context, {
+    required TableViewScrollbarsStyle? base,
+    required TableViewScrollbarsStyle? style,
+  }) =>
+      PopulatedTableViewScrollbarsStyle(
+        horizontal: PopulatedTableViewScrollbarStyle.of(
+          context,
+          base: base?.horizontal,
+          style: style?.horizontal,
+        ),
+        vertical: PopulatedTableViewScrollbarStyle.of(
+          context,
+          base: base?.vertical,
+          style: style?.vertical,
+        ),
+      );
+}
+
+bool _resolveEnabled(BuildContext context, TableViewScrollbarEnabled enabled) {
+  switch (enabled) {
+    case TableViewScrollbarEnabled.always:
+      return true;
+    case TableViewScrollbarEnabled.auto:
+      return [
+        TargetPlatform.linux,
+        TargetPlatform.macOS,
+        TargetPlatform.windows
+      ].contains(Theme.of(context).platform);
+    case TableViewScrollbarEnabled.never:
+      return false;
+  }
+}
+
+class PopulatedTableViewScrollbarStyle extends TableViewScrollbarStyle {
+  final bool effectivelyEnabled;
+
+  @override
+  TableViewScrollbarEnabled get enabled => super.enabled!;
+
+  @override
+  bool get thumbVisibility => super.thumbVisibility!;
+
+  @override
+  bool get trackVisibility => super.trackVisibility!;
+
+  @override
+  bool get interactive => super.interactive!;
+
+  const PopulatedTableViewScrollbarStyle({
+    required this.effectivelyEnabled,
+    required TableViewScrollbarEnabled enabled,
+    required bool thumbVisibility,
+    required bool trackVisibility,
+    super.thickness,
+    super.radius,
+    required bool interactive,
+  }) : super(
+          enabled: enabled,
+          thumbVisibility: thumbVisibility,
+          trackVisibility: trackVisibility,
+          interactive: interactive,
+        );
+
+  factory PopulatedTableViewScrollbarStyle.of(
+    BuildContext context, {
+    TableViewScrollbarStyle? base,
+    TableViewScrollbarStyle? style,
+  }) {
+    final enabled =
+        style?.enabled ?? base?.enabled ?? TableViewScrollbarEnabled.always;
+    return PopulatedTableViewScrollbarStyle(
+      enabled: enabled,
+      effectivelyEnabled: _resolveEnabled(context, enabled),
+      thumbVisibility: style?.thumbVisibility ?? base?.thumbVisibility ?? true,
+      trackVisibility: style?.trackVisibility ?? base?.trackVisibility ?? true,
+      thickness: style?.thickness ?? base?.thickness,
+      radius: style?.radius ?? base?.radius,
+      interactive: style?.interactive ?? base?.interactive ?? true,
     );
   }
 }

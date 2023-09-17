@@ -9,4 +9,7 @@ export './src/table_view_style.dart'
         TableViewHorizontalDividersStyle,
         TableViewHorizontalDividerStyle,
         TableViewVerticalDividersStyle,
-        TableViewVerticalDividerStyle;
+        TableViewVerticalDividerStyle,
+        TableViewScrollbarsStyle,
+        TableViewScrollbarEnabled,
+        TableViewScrollbarStyle;

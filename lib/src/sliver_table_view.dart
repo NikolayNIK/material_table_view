@@ -8,6 +8,7 @@ import 'package:material_table_view/src/sliver_table_view_body.dart';
 import 'package:material_table_view/src/table_horizontal_divider.dart';
 import 'package:material_table_view/src/table_layout.dart';
 import 'package:material_table_view/src/table_row.dart';
+import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_view.dart';
 import 'package:material_table_view/src/table_view_style_populated.dart';
@@ -94,11 +95,9 @@ class _SliverTableViewState extends State<SliverTableView> {
             Transform.translate(
           offset: scrollbarOffset,
           transformHitTests: false,
-          child: Scrollbar(
+          child: TableScrollbar(
             controller: _horizontalScrollController,
-            interactive: true,
-            trackVisibility: true,
-            thumbVisibility: true,
+            style: style.scrollbars.horizontal,
             child: Transform.translate(
               offset: -scrollbarOffset,
               transformHitTests: false,

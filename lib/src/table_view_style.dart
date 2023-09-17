@@ -2,14 +2,20 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+T _binaryLerp<T>(T a, T b, double t) => t > .5 ? b : a;
+
 /// Defines a display style of a table.
 @immutable
 class TableViewStyle extends ThemeExtension<TableViewStyle> {
   /// Display style of dividers in a table.
   final TableViewDividersStyle? dividers;
 
+  /// Display style of scrollbars in a table;
+  final TableViewScrollbarsStyle? scrollbars;
+
   const TableViewStyle({
     this.dividers,
+    this.scrollbars,
   });
 
   @override
@@ -228,5 +234,99 @@ class TableViewVerticalDividerStyle {
         wigglesPerRow: // not sure about that
             lerpDouble(wigglesPerRow, other.wigglesPerRow, t)?.toInt(),
         wiggleOffset: lerpDouble(wiggleOffset, other.wiggleOffset, t),
+      );
+}
+
+@immutable
+class TableViewScrollbarsStyle {
+  final TableViewScrollbarStyle? horizontal;
+  final TableViewScrollbarStyle? vertical;
+
+  const TableViewScrollbarsStyle({
+    this.horizontal,
+    this.vertical,
+  });
+
+  const TableViewScrollbarsStyle.symmetric(TableViewScrollbarStyle style)
+      : horizontal = style,
+        vertical = style;
+
+  TableViewScrollbarsStyle copyWith({
+    TableViewScrollbarStyle? horizontal,
+    TableViewScrollbarStyle? vertical,
+  }) =>
+      TableViewScrollbarsStyle(
+        horizontal: horizontal ?? this.horizontal,
+        vertical: vertical ?? this.vertical,
+      );
+
+  TableViewScrollbarsStyle lerp(TableViewScrollbarsStyle other, double t) =>
+      TableViewScrollbarsStyle(
+        horizontal: horizontal == null || other.horizontal == null
+            ? other.horizontal
+            : horizontal!.lerp(other.horizontal!, t),
+        vertical: vertical == null || other.vertical == null
+            ? other.vertical
+            : vertical!.lerp(other.vertical!, t),
+      );
+}
+
+enum TableViewScrollbarEnabled {
+  always,
+  auto,
+  never,
+}
+
+@immutable
+class TableViewScrollbarStyle {
+  final TableViewScrollbarEnabled? enabled;
+  final bool? thumbVisibility;
+  final bool? trackVisibility;
+  final double? thickness;
+  final Radius? radius;
+  final bool? interactive;
+
+  const TableViewScrollbarStyle.disabled()
+      : enabled = TableViewScrollbarEnabled.never,
+        thumbVisibility = null,
+        trackVisibility = null,
+        thickness = null,
+        radius = null,
+        interactive = null;
+
+  const TableViewScrollbarStyle({
+    this.enabled,
+    this.thumbVisibility,
+    this.trackVisibility,
+    this.thickness,
+    this.radius,
+    this.interactive,
+  });
+
+  TableViewScrollbarStyle copyWith({
+    TableViewScrollbarEnabled? enabled,
+    bool? thumbVisibility,
+    bool? trackVisibility,
+    double? thickness,
+    Radius? radius,
+    bool? interactive,
+  }) =>
+      TableViewScrollbarStyle(
+        enabled: enabled ?? this.enabled,
+        thumbVisibility: thumbVisibility ?? this.thumbVisibility,
+        trackVisibility: trackVisibility ?? this.trackVisibility,
+        thickness: thickness ?? this.thickness,
+        radius: radius ?? this.radius,
+        interactive: interactive ?? this.interactive,
+      );
+
+  TableViewScrollbarStyle lerp(TableViewScrollbarStyle other, double t) =>
+      TableViewScrollbarStyle(
+        enabled: _binaryLerp(enabled, other.enabled, t),
+        thumbVisibility: _binaryLerp(thumbVisibility, other.thumbVisibility, t),
+        trackVisibility: _binaryLerp(trackVisibility, other.trackVisibility, t),
+        thickness: lerpDouble(thickness, other.thickness, t),
+        radius: Radius.lerp(radius, other.radius, t),
+        interactive: _binaryLerp(interactive, other.interactive, t),
       );
 }
