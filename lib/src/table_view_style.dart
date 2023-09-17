@@ -368,7 +368,7 @@ class TableViewScrollbarStyle extends ScrollbarThemeData {
     bool? showTrackOnHover,
   }) =>
       TableViewScrollbarStyle(
-        enabled: enabled,
+        enabled: enabled ?? this.enabled,
         thumbVisibility: thumbVisibility ?? this.thumbVisibility,
         thickness: thickness ?? this.thickness,
         trackVisibility: trackVisibility ?? this.trackVisibility,
