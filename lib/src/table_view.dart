@@ -4,12 +4,15 @@ import 'package:material_table_view/src/determine_scroll_padding.dart';
 import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/sliver_table_view_body.dart';
 import 'package:material_table_view/src/table_column.dart';
+import 'package:material_table_view/src/table_horizontal_divider.dart';
 import 'package:material_table_view/src/table_layout.dart';
 import 'package:material_table_view/src/table_placeholder_shade.dart';
 import 'package:material_table_view/src/table_row.dart';
 import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
+import 'package:material_table_view/src/table_view_style.dart';
+import 'package:material_table_view/src/table_view_style_populated.dart';
 import 'package:material_table_view/src/table_viewport.dart';
 
 /// Material-style widget that displays its content in a both vertically and
@@ -19,6 +22,7 @@ import 'package:material_table_view/src/table_viewport.dart';
 class TableView extends StatefulWidget {
   const TableView.builder({
     super.key,
+    this.style,
     required this.rowCount,
     required this.rowHeight,
     required this.columns,
@@ -42,6 +46,8 @@ class TableView extends StatefulWidget {
         assert(minScrollableWidthRatio >= 0 && minScrollableWidthRatio <= 1),
         headerHeight = headerHeight ?? rowHeight,
         footerHeight = footerHeight ?? rowHeight;
+
+  final TableViewStyle? style;
 
   /// Count of fixed-height rows displayed in a table.
   final int rowCount;
@@ -141,6 +147,7 @@ class _TableViewState extends State<TableView> {
 
   @override
   Widget build(BuildContext context) {
+    final style = PopulatedTableViewStyle.of(context, style: widget.style);
     final horizontalScrollbarOffset = Offset(
       0,
       widget.footerBuilder == null ? 0 : widget.footerHeight,
@@ -165,10 +172,12 @@ class _TableViewState extends State<TableView> {
                       offset: horizontalScrollbarOffset,
                       transformHitTests: false,
                       child: Scrollable(
-                          controller: _controller.horizontalScrollController,
-                          clipBehavior: Clip.none,
-                          axisDirection: AxisDirection.right,
-                          viewportBuilder: _buildViewport),
+                        controller: _controller.horizontalScrollController,
+                        clipBehavior: Clip.none,
+                        axisDirection: AxisDirection.right,
+                        viewportBuilder: (context, position) =>
+                            _buildViewport(context, style, position),
+                      ),
                     ),
                   ),
                 );
@@ -177,13 +186,10 @@ class _TableViewState extends State<TableView> {
     );
   }
 
-  Widget _buildViewport(BuildContext context, ViewportOffset horizontalOffset) {
+  Widget _buildViewport(BuildContext context, PopulatedTableViewStyle style,
+      ViewportOffset horizontalOffset) {
     final scrollPadding =
         widget.scrollPadding ?? determineScrollPadding(context);
-
-    final dividerThickness = Theme.of(context).dividerTheme.thickness ?? 2.0;
-    final dividerColor =
-        Theme.of(context).dividerTheme.color ?? Theme.of(context).dividerColor;
 
     return ScrollDimensionsApplicator(
       position: _controller.horizontalScrollController.position,
@@ -193,6 +199,7 @@ class _TableViewState extends State<TableView> {
           scrollPadding.horizontal,
       child: LayoutBuilder(
         builder: (context, constraints) => TableContentLayout(
+          verticalDividersStyle: style.verticalDividersStyle,
           scrollPadding: scrollPadding,
           width: constraints.maxWidth,
           minScrollableWidthRatio: widget.minScrollableWidthRatio,
@@ -271,18 +278,14 @@ class _TableViewState extends State<TableView> {
                         child: headerBuilder(context, contentBuilder),
                       ),
                     ),
-                    Divider(
-                      color: dividerColor,
-                      height: dividerThickness,
-                      thickness: dividerThickness,
+                    TableHorizontalDivider(
+                      style: style.horizontalDividersStyle.headerDividerStyle,
                     ),
                   ],
                   Expanded(child: body),
                   if (footerBuilder != null) ...[
-                    Divider(
-                      color: dividerColor,
-                      height: dividerThickness,
-                      thickness: dividerThickness,
+                    TableHorizontalDivider(
+                      style: style.horizontalDividersStyle.footerDividerStyle,
                     ),
                     SizedBox(
                       width: double.infinity,

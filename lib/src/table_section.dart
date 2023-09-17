@@ -30,7 +30,6 @@ class TableSection extends StatelessWidget {
         verticalOffset: verticalOffset,
         rowHeight: rowHeight,
         layoutData: TableContentLayout.of(context),
-        dividerThickness: DividerTheme.of(context).thickness ?? 2.0,
         placeholderShade: placeholderShade,
         child: child,
       );
@@ -40,14 +39,12 @@ class _TableSection extends SingleChildRenderObjectWidget {
   final ViewportOffset? verticalOffset;
   final double rowHeight;
   final TableContentLayoutData layoutData;
-  final double dividerThickness;
   final TablePlaceholderShade? placeholderShade;
 
   _TableSection({
     required this.verticalOffset,
     required this.rowHeight,
     required this.layoutData,
-    required this.dividerThickness,
     required this.placeholderShade,
     required Widget child,
   }) : super(child: child);
@@ -57,7 +54,6 @@ class _TableSection extends SingleChildRenderObjectWidget {
       verticalOffset: verticalOffset,
       rowHeight: rowHeight,
       layoutData: layoutData,
-      dividerThickness: dividerThickness,
       placeholderShade: placeholderShade);
 
   @override
@@ -68,7 +64,6 @@ class _TableSection extends SingleChildRenderObjectWidget {
     renderObject.verticalOffset = verticalOffset;
     renderObject.rowHeight = rowHeight;
     renderObject.layoutData = layoutData;
-    renderObject.dividerThickness = dividerThickness;
     renderObject.placeholderShade = placeholderShade;
   }
 }
@@ -78,11 +73,9 @@ class RenderTableSection extends RenderProxyBox {
     required ViewportOffset? verticalOffset,
     required double rowHeight,
     required TableContentLayoutData layoutData,
-    required double dividerThickness,
     required TablePlaceholderShade? placeholderShade,
   })  : _rowHeight = rowHeight,
         _layoutData = layoutData,
-        _dividerThickness = dividerThickness,
         _placeholderShade = placeholderShade {
     _verticalOffset = verticalOffset;
     _verticalOffset?.addListener(_verticalOffsetChanged);
@@ -92,7 +85,6 @@ class RenderTableSection extends RenderProxyBox {
   ViewportOffset? _verticalOffset;
   double _rowHeight;
   TableContentLayoutData _layoutData;
-  double _dividerThickness;
   TablePlaceholderShade? _placeholderShade;
 
   late Path _scrolledClipPath, _leftDividerPath, _rightDividerPath;
@@ -130,14 +122,6 @@ class RenderTableSection extends RenderProxyBox {
     if (!identical(_layoutData, layoutData)) {
       _layoutData = layoutData;
       markNeedsLayout();
-      markNeedsPaint();
-    }
-  }
-
-  set dividerThickness(double dividerThickness) {
-    // this comparison should be fine
-    if (_dividerThickness != dividerThickness) {
-      _dividerThickness = dividerThickness;
       markNeedsPaint();
     }
   }
@@ -186,11 +170,10 @@ class RenderTableSection extends RenderProxyBox {
       var bottom = size.height + _rowHeight;
       bottom += -((bottom + verticalOffsetPixels) % _rowHeight);
 
-      final halfDividerThickness = _dividerThickness / 2;
-
       {
         // left side
 
+        final halfDividerThickness = layoutData.leftDivider.thickness / 2;
         final wiggleEdge = layoutData.leftWidth;
         final dividerWiggleEdge = wiggleEdge - halfDividerThickness;
         final wiggleMiddle = wiggleEdge + layoutData.leftDivider.wiggleOffset;
@@ -213,6 +196,7 @@ class RenderTableSection extends RenderProxyBox {
       {
         // right size
 
+        final halfDividerThickness = layoutData.rightDivider.thickness / 2;
         final wiggleEdge = layoutData.leftWidth + layoutData.centerWidth;
         final dividerWiggleEdge = wiggleEdge + halfDividerThickness;
         final wiggleMiddle = wiggleEdge - layoutData.rightDivider.wiggleOffset;
@@ -313,9 +297,7 @@ class RenderTableSection extends RenderProxyBox {
 
     innerContext.stopRecordingIfNeeded();
 
-    final dividerPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = _dividerThickness;
+    final dividerPaint = Paint()..style = PaintingStyle.stroke;
 
     // if we have vertical offset,
     // assume the dividers will get clipped
@@ -329,12 +311,16 @@ class RenderTableSection extends RenderProxyBox {
 
     context.canvas.drawPath(
       leftDividerPath,
-      dividerPaint..color = layoutData.leftDivider.color,
+      dividerPaint
+        ..color = layoutData.leftDivider.color
+        ..strokeWidth = layoutData.leftDivider.thickness,
     );
 
     context.canvas.drawPath(
       rightDividerPath,
-      dividerPaint..color = layoutData.rightDivider.color,
+      dividerPaint
+        ..color = layoutData.rightDivider.color
+        ..strokeWidth = layoutData.rightDivider.thickness,
     );
 
     if (clipDividers) {

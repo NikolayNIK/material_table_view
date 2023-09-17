@@ -6,8 +6,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:material_table_view/src/iterator_extensions.dart';
 import 'package:material_table_view/src/table_column.dart';
 import 'package:material_table_view/src/table_layout_data.dart';
-
-const double _wiggleOffset = 16.0;
+import 'package:material_table_view/src/table_view_style_populated.dart';
 
 /// This widget calculates the horizontal layout of the table using the width
 /// passed down to it, thus allowing it to be used in both box and sliver layout.
@@ -15,6 +14,7 @@ const double _wiggleOffset = 16.0;
 /// The [TableContentLayout.of] static method is used to retrieve layout data
 /// and depend on its updates.
 class TableContentLayout extends StatefulWidget {
+  final PopulatedTableViewVerticalDividersStyle verticalDividersStyle;
   final double width;
   final ViewportOffset horizontalOffset;
   final ValueNotifier<double> stickyHorizontalOffset;
@@ -26,6 +26,7 @@ class TableContentLayout extends StatefulWidget {
 
   const TableContentLayout({
     super.key,
+    required this.verticalDividersStyle,
     required this.width,
     required this.horizontalOffset,
     required this.stickyHorizontalOffset,
@@ -165,9 +166,6 @@ class _TableContentLayoutState extends State<TableContentLayout> {
   TableContentLayoutData calculateLayoutData(double? stickyOffset) {
     // this is quickly becoming a mess...
 
-    final dividerColor =
-        Theme.of(context).dividerTheme.color ?? Theme.of(context).dividerColor;
-
     final horizontalOffsetPixels = widget.horizontalOffset.pixels;
 
     double foldColumnsWidth(double previousValue, int index) =>
@@ -304,8 +302,11 @@ class _TableContentLayoutState extends State<TableContentLayout> {
         } else {
           leftDividerAnimationValue = max(
               0.0,
-              min(1.0,
-                  (columnOffsetsCenter[toFreeze] - leftWidth) / _wiggleOffset));
+              min(
+                  1.0,
+                  (columnOffsetsCenter[toFreeze] - leftWidth) /
+                      widget.verticalDividersStyle.leadingDividerStyle
+                          .wiggleOffset));
         }
 
         if (columnsLeft.isNotEmpty &&
@@ -318,14 +319,22 @@ class _TableContentLayoutState extends State<TableContentLayout> {
                   min(
                       1.0,
                       -(columnOffsetsCenter.first - leftWidth) /
-                          _wiggleOffset)));
+                          widget.verticalDividersStyle.leadingDividerStyle
+                              .wiggleOffset)));
         }
       }
 
-      leftDividerColor = dividerColor.withOpacity(dividerColor.opacity *
-          Curves.easeIn.transform(leftDividerAnimationValue));
+      leftDividerColor = widget.verticalDividersStyle.leadingDividerStyle.color
+          .withOpacity(
+              widget.verticalDividersStyle.leadingDividerStyle.color.opacity *
+                  Curves.easeIn.transform(leftDividerAnimationValue));
       leftDividerWiggleOffset = min(
-          _wiggleOffset, max(.0, leftDividerAnimationValue * _wiggleOffset));
+          widget.verticalDividersStyle.leadingDividerStyle.wiggleOffset,
+          max(
+              .0,
+              leftDividerAnimationValue *
+                  widget
+                      .verticalDividersStyle.leadingDividerStyle.wiggleOffset));
 
       double rightDividerAnimationValue = .0;
       if (columnsRight.isNotEmpty) {
@@ -345,7 +354,8 @@ class _TableContentLayoutState extends State<TableContentLayout> {
                   (centerWidth -
                           (columnOffsetsCenter[toFreeze] - leftWidth) -
                           widget.columns[columnsCenter[toFreeze]].width) /
-                      _wiggleOffset));
+                      widget.verticalDividersStyle.trailingDividerStyle
+                          .wiggleOffset));
         }
 
         if (columnsRight.isNotEmpty &&
@@ -360,14 +370,22 @@ class _TableContentLayoutState extends State<TableContentLayout> {
                       (-centerWidth +
                               (columnOffsetsCenter.last - leftWidth) +
                               widget.columns[columnsCenter.last].width) /
-                          _wiggleOffset)));
+                          widget.verticalDividersStyle.trailingDividerStyle
+                              .wiggleOffset)));
         }
       }
 
-      rightDividerColor = dividerColor.withOpacity(dividerColor.opacity *
-          Curves.easeIn.transform(rightDividerAnimationValue));
-      rightDividerWiggleOffset =
-          min(16.0, max(.0, rightDividerAnimationValue * _wiggleOffset));
+      rightDividerColor =
+          widget.verticalDividersStyle.trailingDividerStyle.color.withOpacity(
+              widget.verticalDividersStyle.trailingDividerStyle.color.opacity *
+                  Curves.easeIn.transform(rightDividerAnimationValue));
+      rightDividerWiggleOffset = min(
+          16.0,
+          max(
+              .0,
+              rightDividerAnimationValue *
+                  widget.verticalDividersStyle.trailingDividerStyle
+                      .wiggleOffset));
     }
 
     return TableContentLayoutData(
@@ -386,9 +404,15 @@ class _TableContentLayoutState extends State<TableContentLayout> {
               .map((e) => widget.columns[e].width)
               .toList(growable: false)),
       leftDivider: TableContentDividerData(
-          color: leftDividerColor, wiggleOffset: leftDividerWiggleOffset),
+        color: leftDividerColor,
+        thickness: widget.verticalDividersStyle.leadingDividerStyle.thickness,
+        wiggleOffset: leftDividerWiggleOffset,
+      ),
       rightDivider: TableContentDividerData(
-          color: rightDividerColor, wiggleOffset: rightDividerWiggleOffset),
+        color: rightDividerColor,
+        thickness: widget.verticalDividersStyle.trailingDividerStyle.thickness,
+        wiggleOffset: rightDividerWiggleOffset,
+      ),
     );
   }
 

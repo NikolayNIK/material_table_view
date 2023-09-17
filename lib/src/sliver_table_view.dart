@@ -5,10 +5,12 @@ import 'package:flutter/rendering.dart';
 import 'package:material_table_view/src/determine_scroll_padding.dart';
 import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/sliver_table_view_body.dart';
+import 'package:material_table_view/src/table_horizontal_divider.dart';
 import 'package:material_table_view/src/table_layout.dart';
 import 'package:material_table_view/src/table_row.dart';
 import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_view.dart';
+import 'package:material_table_view/src/table_view_style_populated.dart';
 
 /// This is a sliver variant of the [TableView] widget.
 /// This variant is scrolled vertically by an outside [Scrollable]
@@ -19,6 +21,7 @@ import 'package:material_table_view/src/table_view.dart';
 class SliverTableView extends TableView {
   SliverTableView.builder({
     super.key,
+    super.style,
     required super.rowCount,
     required super.rowHeight,
     required super.columns,
@@ -68,14 +71,17 @@ class _SliverTableViewState extends State<SliverTableView> {
   Widget build(BuildContext context) {
     final scrollPadding =
         widget.scrollPadding ?? determineScrollPadding(context);
-    final dividerThickness = Theme.of(context).dividerTheme.thickness ?? 2.0;
+
+    final style = PopulatedTableViewStyle.of(context, style: widget.style);
 
     final headerHeight = (widget.headerBuilder == null
         ? .0
-        : widget.headerHeight + dividerThickness);
+        : widget.headerHeight +
+            style.horizontalDividersStyle.headerDividerStyle.thickness);
     final footerHeight = (widget.footerBuilder == null
         ? .0
-        : widget.footerHeight + dividerThickness);
+        : widget.footerHeight +
+            style.horizontalDividersStyle.footerDividerStyle.thickness);
 
     final scrollbarOffset = Offset(0, -footerHeight);
 
@@ -111,6 +117,7 @@ class _SliverTableViewState extends State<SliverTableView> {
                               previousValue + element.width) +
                       scrollPadding.horizontal,
                   child: TableContentLayout(
+                    verticalDividersStyle: style.verticalDividersStyle,
                     width: constraints.crossAxisExtent,
                     columns: widget.columns,
                     horizontalOffset: position,
@@ -131,9 +138,9 @@ class _SliverTableViewState extends State<SliverTableView> {
                                   context, contentBuilder),
                             ),
                           ),
-                          Divider(
-                            height: dividerThickness,
-                            thickness: dividerThickness,
+                          TableHorizontalDivider(
+                            style: style
+                                .horizontalDividersStyle.headerDividerStyle,
                           ),
                         ],
                         Expanded(
@@ -162,9 +169,9 @@ class _SliverTableViewState extends State<SliverTableView> {
                           ),
                         ),
                         if (widget.footerBuilder != null) ...[
-                          Divider(
-                            height: dividerThickness,
-                            thickness: dividerThickness,
+                          TableHorizontalDivider(
+                            style: style
+                                .horizontalDividersStyle.footerDividerStyle,
                           ),
                           SizedBox(
                             height: widget.footerHeight,
@@ -205,8 +212,7 @@ class _SliverPassthrough extends StatelessWidget {
     BuildContext context,
     Widget Function({
       required Widget sliver,
-    })
-        sliverBuilder,
+    }) sliverBuilder,
     double verticalScrollOffsetPixels,
   ) builder;
 

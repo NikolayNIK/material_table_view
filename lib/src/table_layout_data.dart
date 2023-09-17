@@ -3,10 +3,12 @@ import 'package:flutter/widgets.dart';
 @immutable
 class TableContentDividerData {
   final Color color;
+  final double thickness;
   final double wiggleOffset;
 
   TableContentDividerData({
     required this.color,
+    required this.thickness,
     required this.wiggleOffset,
   });
 
