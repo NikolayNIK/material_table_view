@@ -11,7 +11,7 @@ import 'package:material_table_view/src/table_row.dart';
 import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_view.dart';
-import 'package:material_table_view/src/table_view_style_populated.dart';
+import 'package:material_table_view/src/table_view_style_resolved.dart';
 
 /// This is a sliver variant of the [TableView] widget.
 /// This variant is scrolled vertically by an outside [Scrollable]
@@ -73,7 +73,7 @@ class _SliverTableViewState extends State<SliverTableView> {
     final scrollPadding =
         widget.scrollPadding ?? determineScrollPadding(context);
 
-    final style = PopulatedTableViewStyle.of(context, style: widget.style);
+    final style = ResolvedTableViewStyle.of(context, style: widget.style);
 
     final headerHeight = (widget.headerBuilder == null
         ? .0

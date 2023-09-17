@@ -14,7 +14,7 @@ import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
 import 'package:material_table_view/src/table_view_style.dart';
-import 'package:material_table_view/src/table_view_style_populated.dart';
+import 'package:material_table_view/src/table_view_style_resolved.dart';
 import 'package:material_table_view/src/table_viewport.dart';
 
 /// Material-style widget that displays its content in a both vertically and
@@ -149,7 +149,7 @@ class _TableViewState extends State<TableView> {
 
   @override
   Widget build(BuildContext context) {
-    final style = PopulatedTableViewStyle.of(context, style: widget.style);
+    final style = ResolvedTableViewStyle.of(context, style: widget.style);
     final horizontalScrollbarOffset = Offset(
       0,
       widget.footerBuilder == null ? 0 : widget.footerHeight,
@@ -188,7 +188,7 @@ class _TableViewState extends State<TableView> {
     );
   }
 
-  Widget _buildViewport(BuildContext context, PopulatedTableViewStyle style,
+  Widget _buildViewport(BuildContext context, ResolvedTableViewStyle style,
       ViewportOffset horizontalOffset) {
     final scrollPadding =
         widget.scrollPadding ?? determineScrollPadding(context);

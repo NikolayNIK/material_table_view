@@ -1,35 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:material_table_view/src/table_view_style.dart';
 
-class PopulatedTableViewStyle extends TableViewStyle {
+class ResolvedTableViewStyle extends TableViewStyle {
   @override
-  PopulatedTableViewDividersStyle get dividers =>
-      super.dividers as PopulatedTableViewDividersStyle;
+  ResolvedTableViewDividersStyle get dividers =>
+      super.dividers as ResolvedTableViewDividersStyle;
 
   @override
-  PopulatedTableViewScrollbarsStyle get scrollbars =>
-      super.scrollbars as PopulatedTableViewScrollbarsStyle;
+  ResolvedTableViewScrollbarsStyle get scrollbars =>
+      super.scrollbars as ResolvedTableViewScrollbarsStyle;
 
-  PopulatedTableViewStyle({
-    required PopulatedTableViewDividersStyle dividers,
-    required PopulatedTableViewScrollbarsStyle scrollbars,
+  ResolvedTableViewStyle({
+    required ResolvedTableViewDividersStyle dividers,
+    required ResolvedTableViewScrollbarsStyle scrollbars,
   }) : super(
           dividers: dividers,
           scrollbars: scrollbars,
         );
 
-  factory PopulatedTableViewStyle.of(
+  factory ResolvedTableViewStyle.of(
     BuildContext context, {
     required TableViewStyle? style,
   }) {
     final base = Theme.of(context).extension<TableViewStyle>();
-    return PopulatedTableViewStyle(
-      dividers: PopulatedTableViewDividersStyle.of(
+    return ResolvedTableViewStyle(
+      dividers: ResolvedTableViewDividersStyle.of(
         context,
         base: base?.dividers,
         style: style?.dividers,
       ),
-      scrollbars: PopulatedTableViewScrollbarsStyle.of(
+      scrollbars: ResolvedTableViewScrollbarsStyle.of(
         context,
         base: base?.scrollbars,
         style: style?.scrollbars,
@@ -38,34 +38,34 @@ class PopulatedTableViewStyle extends TableViewStyle {
   }
 }
 
-class PopulatedTableViewDividersStyle extends TableViewDividersStyle {
+class ResolvedTableViewDividersStyle extends TableViewDividersStyle {
   @override
-  PopulatedTableViewHorizontalDividersStyle get horizontal =>
-      super.horizontal as PopulatedTableViewHorizontalDividersStyle;
+  ResolvedTableViewHorizontalDividersStyle get horizontal =>
+      super.horizontal as ResolvedTableViewHorizontalDividersStyle;
 
-  PopulatedTableViewVerticalDividersStyle get vertical =>
-      super.vertical as PopulatedTableViewVerticalDividersStyle;
+  ResolvedTableViewVerticalDividersStyle get vertical =>
+      super.vertical as ResolvedTableViewVerticalDividersStyle;
 
-  PopulatedTableViewDividersStyle({
-    required PopulatedTableViewHorizontalDividersStyle horizontalDividersStyle,
-    required PopulatedTableViewVerticalDividersStyle verticalDividersStyle,
+  ResolvedTableViewDividersStyle({
+    required ResolvedTableViewHorizontalDividersStyle horizontalDividersStyle,
+    required ResolvedTableViewVerticalDividersStyle verticalDividersStyle,
   }) : super(
           horizontal: horizontalDividersStyle,
           vertical: verticalDividersStyle,
         );
 
-  factory PopulatedTableViewDividersStyle.of(
+  factory ResolvedTableViewDividersStyle.of(
     BuildContext context, {
     required TableViewDividersStyle? base,
     required TableViewDividersStyle? style,
   }) =>
-      PopulatedTableViewDividersStyle(
-        horizontalDividersStyle: PopulatedTableViewHorizontalDividersStyle.of(
+      ResolvedTableViewDividersStyle(
+        horizontalDividersStyle: ResolvedTableViewHorizontalDividersStyle.of(
           context,
           base: base?.horizontal,
           style: style?.horizontal,
         ),
-        verticalDividersStyle: PopulatedTableViewVerticalDividersStyle.of(
+        verticalDividersStyle: ResolvedTableViewVerticalDividersStyle.of(
           context,
           base: base?.vertical,
           style: style?.vertical,
@@ -73,35 +73,35 @@ class PopulatedTableViewDividersStyle extends TableViewDividersStyle {
       );
 }
 
-class PopulatedTableViewHorizontalDividersStyle
+class ResolvedTableViewHorizontalDividersStyle
     extends TableViewHorizontalDividersStyle {
   @override
-  PopulatedTableViewHorizontalDividerStyle get header =>
-      super.header as PopulatedTableViewHorizontalDividerStyle;
+  ResolvedTableViewHorizontalDividerStyle get header =>
+      super.header as ResolvedTableViewHorizontalDividerStyle;
 
-  PopulatedTableViewHorizontalDividerStyle get footer =>
-      super.footer as PopulatedTableViewHorizontalDividerStyle;
+  ResolvedTableViewHorizontalDividerStyle get footer =>
+      super.footer as ResolvedTableViewHorizontalDividerStyle;
 
-  PopulatedTableViewHorizontalDividersStyle({
-    required PopulatedTableViewHorizontalDividerStyle headerDividerStyle,
-    required PopulatedTableViewHorizontalDividerStyle footerDividerStyle,
+  ResolvedTableViewHorizontalDividersStyle({
+    required ResolvedTableViewHorizontalDividerStyle headerDividerStyle,
+    required ResolvedTableViewHorizontalDividerStyle footerDividerStyle,
   }) : super(
           header: headerDividerStyle,
           footer: footerDividerStyle,
         );
 
-  factory PopulatedTableViewHorizontalDividersStyle.of(
+  factory ResolvedTableViewHorizontalDividersStyle.of(
     BuildContext context, {
     required TableViewHorizontalDividersStyle? base,
     required TableViewHorizontalDividersStyle? style,
   }) =>
-      PopulatedTableViewHorizontalDividersStyle(
-        headerDividerStyle: PopulatedTableViewHorizontalDividerStyle.of(
+      ResolvedTableViewHorizontalDividersStyle(
+        headerDividerStyle: ResolvedTableViewHorizontalDividerStyle.of(
           context,
           base: base?.header,
           style: style?.header,
         ),
-        footerDividerStyle: PopulatedTableViewHorizontalDividerStyle.of(
+        footerDividerStyle: ResolvedTableViewHorizontalDividerStyle.of(
           context,
           base: base?.footer,
           style: style?.footer,
@@ -109,7 +109,7 @@ class PopulatedTableViewHorizontalDividersStyle
       );
 }
 
-class PopulatedTableViewHorizontalDividerStyle
+class ResolvedTableViewHorizontalDividerStyle
     extends TableViewHorizontalDividerStyle {
   @override
   Color get color => super.color!;
@@ -117,7 +117,7 @@ class PopulatedTableViewHorizontalDividerStyle
   @override
   double get thickness => super.thickness!;
 
-  PopulatedTableViewHorizontalDividerStyle({
+  ResolvedTableViewHorizontalDividerStyle({
     required Color color,
     required double thickness,
   }) : super(
@@ -125,48 +125,48 @@ class PopulatedTableViewHorizontalDividerStyle
           thickness: thickness,
         );
 
-  factory PopulatedTableViewHorizontalDividerStyle.of(
+  factory ResolvedTableViewHorizontalDividerStyle.of(
     BuildContext context, {
     required TableViewHorizontalDividerStyle? base,
     required TableViewHorizontalDividerStyle? style,
   }) {
     late final borderStyle = Divider.createBorderSide(context);
-    return PopulatedTableViewHorizontalDividerStyle(
+    return ResolvedTableViewHorizontalDividerStyle(
       color: style?.color ?? base?.color ?? borderStyle.color,
       thickness: style?.thickness ?? base?.thickness ?? borderStyle.width,
     );
   }
 }
 
-class PopulatedTableViewVerticalDividersStyle
+class ResolvedTableViewVerticalDividersStyle
     extends TableViewVerticalDividersStyle {
   @override
-  PopulatedTableViewVerticalDividerStyle get leading =>
-      super.leading as PopulatedTableViewVerticalDividerStyle;
+  ResolvedTableViewVerticalDividerStyle get leading =>
+      super.leading as ResolvedTableViewVerticalDividerStyle;
 
-  PopulatedTableViewVerticalDividerStyle get trailing =>
-      super.trailing as PopulatedTableViewVerticalDividerStyle;
+  ResolvedTableViewVerticalDividerStyle get trailing =>
+      super.trailing as ResolvedTableViewVerticalDividerStyle;
 
-  PopulatedTableViewVerticalDividersStyle({
-    required PopulatedTableViewVerticalDividerStyle leadingDividerStyle,
-    required PopulatedTableViewVerticalDividerStyle trailingDividerStyle,
+  ResolvedTableViewVerticalDividersStyle({
+    required ResolvedTableViewVerticalDividerStyle leadingDividerStyle,
+    required ResolvedTableViewVerticalDividerStyle trailingDividerStyle,
   }) : super(
           leading: leadingDividerStyle,
           trailing: trailingDividerStyle,
         );
 
-  factory PopulatedTableViewVerticalDividersStyle.of(
+  factory ResolvedTableViewVerticalDividersStyle.of(
     BuildContext context, {
     required TableViewVerticalDividersStyle? base,
     required TableViewVerticalDividersStyle? style,
   }) =>
-      PopulatedTableViewVerticalDividersStyle(
-        leadingDividerStyle: PopulatedTableViewVerticalDividerStyle.of(
+      ResolvedTableViewVerticalDividersStyle(
+        leadingDividerStyle: ResolvedTableViewVerticalDividerStyle.of(
           context,
           base: base?.leading,
           style: style?.leading,
         ),
-        trailingDividerStyle: PopulatedTableViewVerticalDividerStyle.of(
+        trailingDividerStyle: ResolvedTableViewVerticalDividerStyle.of(
           context,
           base: base?.trailing,
           style: style?.trailing,
@@ -174,7 +174,7 @@ class PopulatedTableViewVerticalDividersStyle
       );
 }
 
-class PopulatedTableViewVerticalDividerStyle
+class ResolvedTableViewVerticalDividerStyle
     extends TableViewVerticalDividerStyle {
   @override
   Color get color => super.color!;
@@ -188,7 +188,7 @@ class PopulatedTableViewVerticalDividerStyle
   @override
   double get wiggleOffset => super.wiggleOffset!;
 
-  PopulatedTableViewVerticalDividerStyle({
+  ResolvedTableViewVerticalDividerStyle({
     required Color color,
     required double thickness,
     required int wigglesPerRow,
@@ -200,13 +200,13 @@ class PopulatedTableViewVerticalDividerStyle
           wiggleOffset: wiggleOffset,
         );
 
-  factory PopulatedTableViewVerticalDividerStyle.of(
+  factory ResolvedTableViewVerticalDividerStyle.of(
     BuildContext context, {
     required TableViewVerticalDividerStyle? base,
     required TableViewVerticalDividerStyle? style,
   }) {
     late final borderStyle = Divider.createBorderSide(context);
-    return PopulatedTableViewVerticalDividerStyle(
+    return ResolvedTableViewVerticalDividerStyle(
       color: style?.color ?? base?.color ?? borderStyle.color,
       thickness: style?.thickness ?? base?.thickness ?? borderStyle.width,
       wigglesPerRow: style?.wigglesPerRow ?? base?.wigglesPerRow ?? 1,
@@ -215,35 +215,35 @@ class PopulatedTableViewVerticalDividerStyle
   }
 }
 
-class PopulatedTableViewScrollbarsStyle extends TableViewScrollbarsStyle {
+class ResolvedTableViewScrollbarsStyle extends TableViewScrollbarsStyle {
   @override
-  PopulatedTableViewScrollbarStyle get horizontal =>
-      super.horizontal as PopulatedTableViewScrollbarStyle;
+  ResolvedTableViewScrollbarStyle get horizontal =>
+      super.horizontal as ResolvedTableViewScrollbarStyle;
 
   @override
-  PopulatedTableViewScrollbarStyle get vertical =>
-      super.vertical as PopulatedTableViewScrollbarStyle;
+  ResolvedTableViewScrollbarStyle get vertical =>
+      super.vertical as ResolvedTableViewScrollbarStyle;
 
-  PopulatedTableViewScrollbarsStyle({
-    required PopulatedTableViewScrollbarStyle horizontal,
-    required PopulatedTableViewScrollbarStyle vertical,
+  ResolvedTableViewScrollbarsStyle({
+    required ResolvedTableViewScrollbarStyle horizontal,
+    required ResolvedTableViewScrollbarStyle vertical,
   }) : super(
           horizontal: horizontal,
           vertical: vertical,
         );
 
-  factory PopulatedTableViewScrollbarsStyle.of(
+  factory ResolvedTableViewScrollbarsStyle.of(
     BuildContext context, {
     required TableViewScrollbarsStyle? base,
     required TableViewScrollbarsStyle? style,
   }) =>
-      PopulatedTableViewScrollbarsStyle(
-        horizontal: PopulatedTableViewScrollbarStyle.of(
+      ResolvedTableViewScrollbarsStyle(
+        horizontal: ResolvedTableViewScrollbarStyle.of(
           context,
           base: base?.horizontal,
           style: style?.horizontal,
         ),
-        vertical: PopulatedTableViewScrollbarStyle.of(
+        vertical: ResolvedTableViewScrollbarStyle.of(
           context,
           base: base?.vertical,
           style: style?.vertical,
@@ -266,7 +266,7 @@ bool _resolveEnabled(BuildContext context, TableViewScrollbarEnabled enabled) {
   }
 }
 
-class PopulatedTableViewScrollbarStyle extends TableViewScrollbarStyle {
+class ResolvedTableViewScrollbarStyle extends TableViewScrollbarStyle {
   final bool effectivelyEnabled;
 
   @override
@@ -281,7 +281,7 @@ class PopulatedTableViewScrollbarStyle extends TableViewScrollbarStyle {
   @override
   bool get interactive => super.interactive!;
 
-  const PopulatedTableViewScrollbarStyle({
+  const ResolvedTableViewScrollbarStyle({
     required this.effectivelyEnabled,
     required TableViewScrollbarEnabled enabled,
     required bool thumbVisibility,
@@ -296,14 +296,14 @@ class PopulatedTableViewScrollbarStyle extends TableViewScrollbarStyle {
           interactive: interactive,
         );
 
-  factory PopulatedTableViewScrollbarStyle.of(
+  factory ResolvedTableViewScrollbarStyle.of(
     BuildContext context, {
     TableViewScrollbarStyle? base,
     TableViewScrollbarStyle? style,
   }) {
     final enabled =
         style?.enabled ?? base?.enabled ?? TableViewScrollbarEnabled.always;
-    return PopulatedTableViewScrollbarStyle(
+    return ResolvedTableViewScrollbarStyle(
       enabled: enabled,
       effectivelyEnabled: _resolveEnabled(context, enabled),
       thumbVisibility: style?.thumbVisibility ?? base?.thumbVisibility ?? true,
