@@ -159,12 +159,27 @@ class ResolvedTableViewHorizontalDividerStyle
   @override
   double get thickness => super.thickness!;
 
+  @override
+  double get space => super.space!;
+
+  @override
+  double get indent => super.indent!;
+
+  @override
+  double get endIndent => super.endIndent!;
+
   ResolvedTableViewHorizontalDividerStyle({
     required Color color,
     required double thickness,
+    required double space,
+    required double indent,
+    required double endIndent,
   }) : super(
           color: color,
           thickness: thickness,
+          space: space,
+          indent: indent,
+          endIndent: endIndent,
         );
 
   factory ResolvedTableViewHorizontalDividerStyle.of(
@@ -173,9 +188,13 @@ class ResolvedTableViewHorizontalDividerStyle
     required TableViewHorizontalDividerStyle? style,
   }) {
     late final borderStyle = Divider.createBorderSide(context);
+    final thickness = style?.thickness ?? base?.thickness ?? borderStyle.width;
     return ResolvedTableViewHorizontalDividerStyle(
       color: style?.color ?? base?.color ?? borderStyle.color,
-      thickness: style?.thickness ?? base?.thickness ?? borderStyle.width,
+      thickness: thickness,
+      space: style?.space ?? base?.space ?? thickness,
+      indent: style?.indent ?? base?.indent ?? .0,
+      endIndent: style?.endIndent ?? base?.endIndent ?? .0,
     );
   }
 }

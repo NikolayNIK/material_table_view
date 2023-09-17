@@ -143,25 +143,31 @@ class TableViewHorizontalDividersStyle {
 
 /// Defines a display style of a particular horizontal divider of a table.
 @immutable
-class TableViewHorizontalDividerStyle {
-  /// Color of the divider displayed.
-  final Color? color;
-
-  /// Thickness of the divider displayed. Affects layout.
-  final double? thickness;
-
+class TableViewHorizontalDividerStyle extends DividerThemeData {
   const TableViewHorizontalDividerStyle({
-    this.color,
-    this.thickness,
-  }) : assert(thickness == null || thickness >= 0);
+    super.color,
+    super.thickness,
+    super.space,
+    super.indent,
+    super.endIndent,
+  })  : assert(thickness == null || thickness >= 0),
+        assert(space == null || space >= 0),
+        assert(indent == null || indent >= 0),
+        assert(endIndent == null || endIndent >= 0);
 
   TableViewHorizontalDividerStyle copyWith({
     Color? color,
     double? thickness,
+    double? space,
+    double? indent,
+    double? endIndent,
   }) =>
       TableViewHorizontalDividerStyle(
         color: color ?? this.color,
         thickness: thickness ?? this.thickness,
+        space: space ?? this.space,
+        indent: indent ?? this.indent,
+        endIndent: endIndent ?? this.endIndent,
       );
 
   TableViewHorizontalDividerStyle lerp(
@@ -169,6 +175,9 @@ class TableViewHorizontalDividerStyle {
       TableViewHorizontalDividerStyle(
         color: Color.lerp(color, other.color, t),
         thickness: lerpDouble(thickness, other.thickness, t),
+        space: lerpDouble(space, other.space, t),
+        indent: lerpDouble(indent, other.indent, t),
+        endIndent: lerpDouble(endIndent, other.endIndent, t),
       );
 }
 

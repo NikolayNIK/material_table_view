@@ -82,10 +82,10 @@ class _SliverTableViewState extends State<SliverTableView> {
 
     final headerHeight = (widget.headerBuilder == null
         ? .0
-        : widget.headerHeight + style.dividers.horizontal.header.thickness);
+        : widget.headerHeight + style.dividers.horizontal.header.space);
     final footerHeight = (widget.footerBuilder == null
         ? .0
-        : widget.footerHeight + style.dividers.horizontal.footer.thickness);
+        : widget.footerHeight + style.dividers.horizontal.footer.space);
 
     final scrollbarOffset = Offset(0, -footerHeight);
 

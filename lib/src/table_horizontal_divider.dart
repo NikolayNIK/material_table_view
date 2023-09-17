@@ -11,8 +11,10 @@ class TableHorizontalDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Divider(
-      height: style.thickness,
-      thickness: style.thickness,
-      color: style.color,
-    );
+        height: style.space,
+        thickness: style.thickness,
+        color: style.color,
+        endIndent: style.endIndent,
+        indent: style.indent,
+      );
 }
