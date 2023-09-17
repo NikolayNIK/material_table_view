@@ -85,13 +85,20 @@ class TableViewVerticalDividerStyle {
   /// Thickness of the divider displayed. Affects clipping.
   final double? thickness;
 
+  /// The amount of times per row the divider displayed is going to wiggle.
+  /// Increasing this value might worsen the performance.
+  /// Prefer setting it to 0 when not using wiggling dividers.
+  final int? wigglesPerRow;
+
   /// The amount of logical pixels the divider will wiggle horizontally.
   final double? wiggleOffset;
 
   const TableViewVerticalDividerStyle({
     this.color,
     this.thickness,
+    this.wigglesPerRow,
     this.wiggleOffset,
   })  : assert(thickness == null || thickness >= 0),
+        assert(wigglesPerRow == null || wigglesPerRow >= 0),
         assert(wiggleOffset == null || wiggleOffset >= 0);
 }

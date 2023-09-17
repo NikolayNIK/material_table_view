@@ -164,8 +164,6 @@ class RenderTableSection extends RenderProxyBox {
     final layoutData = _layoutData;
 
     {
-      final halfRowHeight = _rowHeight / 2;
-
       final top = -(verticalOffsetPixels % _rowHeight);
       var bottom = size.height + _rowHeight;
       bottom += -((bottom + verticalOffsetPixels) % _rowHeight);
@@ -176,20 +174,28 @@ class RenderTableSection extends RenderProxyBox {
         final halfDividerThickness = layoutData.leftDivider.thickness / 2;
         final wiggleEdge = layoutData.leftWidth;
         final dividerWiggleEdge = wiggleEdge - halfDividerThickness;
-        final wiggleMiddle = wiggleEdge + layoutData.leftDivider.wiggleOffset;
-        final dividerWiggleMiddle = wiggleMiddle - halfDividerThickness;
+        final wiggleOut = wiggleEdge + layoutData.leftDivider.wiggleOffset;
+        final dividerWiggleOut = wiggleOut - halfDividerThickness;
 
         leftDividerPath.moveTo(dividerWiggleEdge, top);
-        clipPath.moveTo(dividerWiggleEdge, top);
+        clipPath.moveTo(wiggleEdge, top);
 
-        for (var y = top + halfRowHeight; y <= bottom;) {
-          leftDividerPath.lineTo(dividerWiggleMiddle, y);
-          clipPath.lineTo(wiggleMiddle, y);
-          y += halfRowHeight;
+        if (layoutData.leftDivider.wigglesPerRow == 0) {
+          leftDividerPath.lineTo(dividerWiggleEdge, bottom);
+          clipPath.lineTo(wiggleEdge, bottom);
+        } else {
+          final wiggleStep =
+              _rowHeight / (2 * layoutData.leftDivider.wigglesPerRow);
 
-          leftDividerPath.lineTo(dividerWiggleEdge, y);
-          clipPath.lineTo(wiggleEdge, y);
-          y += halfRowHeight;
+          for (var y = top + wiggleStep; y <= bottom;) {
+            leftDividerPath.lineTo(dividerWiggleOut, y);
+            clipPath.lineTo(wiggleOut, y);
+            y += wiggleStep;
+
+            leftDividerPath.lineTo(dividerWiggleEdge, y);
+            clipPath.lineTo(wiggleEdge, y);
+            y += wiggleStep;
+          }
         }
       }
 
@@ -199,20 +205,28 @@ class RenderTableSection extends RenderProxyBox {
         final halfDividerThickness = layoutData.rightDivider.thickness / 2;
         final wiggleEdge = layoutData.leftWidth + layoutData.centerWidth;
         final dividerWiggleEdge = wiggleEdge + halfDividerThickness;
-        final wiggleMiddle = wiggleEdge - layoutData.rightDivider.wiggleOffset;
-        final dividerWiggleMiddle = wiggleMiddle + halfDividerThickness;
+        final wiggleOut = wiggleEdge - layoutData.rightDivider.wiggleOffset;
+        final dividerWiggleOut = wiggleOut + halfDividerThickness;
 
         rightDividerPath.moveTo(dividerWiggleEdge, bottom);
-        clipPath.lineTo(dividerWiggleEdge, bottom);
+        clipPath.lineTo(wiggleEdge, bottom);
 
-        for (var y = bottom - halfRowHeight; y >= top;) {
-          rightDividerPath.lineTo(dividerWiggleMiddle, y);
-          clipPath.lineTo(wiggleMiddle, y);
-          y -= halfRowHeight;
+        if (layoutData.rightDivider.wigglesPerRow == 0) {
+          rightDividerPath.lineTo(dividerWiggleEdge, top);
+          clipPath.lineTo(wiggleOut, top);
+        } else {
+          final wiggleStep =
+              _rowHeight / (2 * layoutData.rightDivider.wigglesPerRow);
 
-          rightDividerPath.lineTo(dividerWiggleEdge, y);
-          clipPath.lineTo(wiggleEdge, y);
-          y -= halfRowHeight;
+          for (var y = bottom - wiggleStep; y >= top;) {
+            rightDividerPath.lineTo(dividerWiggleOut, y);
+            clipPath.lineTo(wiggleOut, y);
+            y -= wiggleStep;
+
+            rightDividerPath.lineTo(dividerWiggleEdge, y);
+            clipPath.lineTo(wiggleEdge, y);
+            y -= wiggleStep;
+          }
         }
       }
     }

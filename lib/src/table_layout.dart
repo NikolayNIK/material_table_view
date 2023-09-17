@@ -407,11 +407,13 @@ class _TableContentLayoutState extends State<TableContentLayout> {
       leftDivider: TableContentDividerData(
         color: leftDividerColor,
         thickness: widget.verticalDividersStyle.leadingDividerStyle.thickness,
+        wigglesPerRow: widget.verticalDividersStyle.leadingDividerStyle.wigglesPerRow,
         wiggleOffset: leftDividerWiggleOffset,
       ),
       rightDivider: TableContentDividerData(
         color: rightDividerColor,
         thickness: widget.verticalDividersStyle.trailingDividerStyle.thickness,
+        wigglesPerRow: widget.verticalDividersStyle.trailingDividerStyle.wigglesPerRow,
         wiggleOffset: rightDividerWiggleOffset,
       ),
     );

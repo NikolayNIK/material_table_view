@@ -4,11 +4,13 @@ import 'package:flutter/widgets.dart';
 class TableContentDividerData {
   final Color color;
   final double thickness;
+  final int wigglesPerRow;
   final double wiggleOffset;
 
   TableContentDividerData({
     required this.color,
     required this.thickness,
+    required this.wigglesPerRow,
     required this.wiggleOffset,
   });
 

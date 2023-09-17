@@ -137,14 +137,19 @@ class PopulatedTableViewVerticalDividerStyle
   double get thickness => super.thickness!;
 
   @override
+  int get wigglesPerRow => super.wigglesPerRow!;
+
+  @override
   double get wiggleOffset => super.wiggleOffset!;
 
   PopulatedTableViewVerticalDividerStyle({
     required Color color,
     required double thickness,
+    required int wigglesPerRow,
     required double wiggleOffset,
   }) : super(
           color: color,
+          wigglesPerRow: wigglesPerRow,
           thickness: thickness,
           wiggleOffset: wiggleOffset,
         );
@@ -157,6 +162,7 @@ class PopulatedTableViewVerticalDividerStyle
     return PopulatedTableViewVerticalDividerStyle(
       color: style?.color ?? borderStyle.color,
       thickness: style?.thickness ?? borderStyle.width,
+      wigglesPerRow: style?.wigglesPerRow ?? 1,
       wiggleOffset: style?.wiggleOffset ?? 16.0,
     );
   }
