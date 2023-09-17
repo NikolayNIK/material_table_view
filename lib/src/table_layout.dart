@@ -380,7 +380,8 @@ class _TableContentLayoutState extends State<TableContentLayout> {
               widget.verticalDividersStyle.trailingDividerStyle.color.opacity *
                   Curves.easeIn.transform(rightDividerAnimationValue));
       rightDividerWiggleOffset = min(
-          16.0,
+          widget.verticalDividersStyle.trailingDividerStyle
+              .wiggleOffset,
           max(
               .0,
               rightDividerAnimationValue *
