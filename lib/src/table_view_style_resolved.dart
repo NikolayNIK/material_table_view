@@ -28,14 +28,19 @@ class ResolvedTableViewStyle extends TableViewStyle {
   @override
   EdgeInsets get scrollPadding => super.scrollPadding!;
 
+  @override
+  double get minScrollableWidthRatio => super.minScrollableWidthRatio!;
+
   ResolvedTableViewStyle({
     required ResolvedTableViewDividersStyle dividers,
     required ResolvedTableViewScrollbarsStyle scrollbars,
     required EdgeInsets scrollPadding,
+    required double minScrollableWidthRatio,
   }) : super(
           dividers: dividers,
           scrollbars: scrollbars,
           scrollPadding: scrollPadding,
+          minScrollableWidthRatio: minScrollableWidthRatio,
         );
 
   factory ResolvedTableViewStyle.of(
@@ -68,6 +73,9 @@ class ResolvedTableViewStyle extends TableViewStyle {
             bottom:
                 _guessScrollbarThickness(context, false, scrollbars.horizontal),
           ),
+      minScrollableWidthRatio: style?.minScrollableWidthRatio ??
+          base?.minScrollableWidthRatio ??
+          .6180339887498547,
     );
   }
 }

@@ -124,7 +124,8 @@ class _SliverTableViewState extends State<SliverTableView> {
                     columns: widget.columns,
                     horizontalOffset: position,
                     stickyHorizontalOffset: _horizontalStickyOffset,
-                    minScrollableWidthRatio: widget.minScrollableWidthRatio,
+                    minScrollableWidthRatio: widget.minScrollableWidthRatio ??
+                        style.minScrollableWidthRatio,
                     minScrollableWidth: widget.minScrollableWidth,
                     scrollPadding: scrollPadding,
                     child: Column(

@@ -37,7 +37,7 @@ class TableView extends StatefulWidget {
     this.footerBuilder,
     double? footerHeight,
     this.minScrollableWidth,
-    this.minScrollableWidthRatio = .6180339887498547,
+    this.minScrollableWidthRatio,
     @Deprecated(
         'Setting this property prevents default behavior of leaving space for scrollbars.'
         ' Use scrollPadding property of TableViewStyle instead.')
@@ -47,7 +47,8 @@ class TableView extends StatefulWidget {
         assert(headerHeight == null || headerHeight > 0),
         assert(footerHeight == null || footerHeight > 0),
         assert(minScrollableWidth == null || minScrollableWidth > 0),
-        assert(minScrollableWidthRatio >= 0 && minScrollableWidthRatio <= 1),
+        assert(minScrollableWidthRatio == null ||
+            (minScrollableWidthRatio >= 0 && minScrollableWidthRatio <= 1)),
         headerHeight = headerHeight ?? rowHeight,
         footerHeight = footerHeight ?? rowHeight;
 
@@ -120,7 +121,7 @@ class TableView extends StatefulWidget {
   /// Minimum scrollable width ratio in relation to the width of a table.
   /// Used to calculate [minScrollableWidth] depending on an overall table width
   /// if that property is null.
-  final double minScrollableWidthRatio;
+  final double? minScrollableWidthRatio;
 
   /// Padding for the scrollable part of the table.
   /// Primarily used to leave space for the scrollbars.
@@ -210,7 +211,8 @@ class _TableViewState extends State<TableView> {
           verticalDividersStyle: style.dividers.vertical,
           scrollPadding: scrollPadding,
           width: constraints.maxWidth,
-          minScrollableWidthRatio: widget.minScrollableWidthRatio,
+          minScrollableWidthRatio:
+              widget.minScrollableWidthRatio ?? style.minScrollableWidthRatio,
           columns: widget.columns,
           horizontalOffset: horizontalOffset,
           stickyHorizontalOffset: _stickyHorizontalOffset,

@@ -18,19 +18,33 @@ class TableViewStyle extends ThemeExtension<TableViewStyle> {
   /// [SliverTableView].
   final EdgeInsets? scrollPadding;
 
+  /// Minimum scrollable width ratio in relation to the width of a table.
+  /// Minimum scrollable width limits the space that can be taken up by
+  /// frozen columns. If a resulting scrollable width is less than
+  /// the minimum width, columns will be unfrozen according to freeze priority
+  /// until scrollable width is greater than or equal the minimum.
+  final double? minScrollableWidthRatio;
+
   const TableViewStyle({
     this.dividers,
     this.scrollbars,
     this.scrollPadding,
+    this.minScrollableWidthRatio,
   });
 
   @override
   TableViewStyle copyWith({
     TableViewDividersStyle? dividers,
+    TableViewScrollbarsStyle? scrollbars,
+    EdgeInsets? scrollPadding,
+    double? minScrollableWidthRatio,
   }) =>
       TableViewStyle(
         dividers: dividers ?? this.dividers,
         scrollbars: scrollbars ?? this.scrollbars,
+        scrollPadding: scrollPadding ?? this.scrollPadding,
+        minScrollableWidthRatio:
+            minScrollableWidthRatio ?? this.minScrollableWidthRatio,
       );
 
   @override
@@ -42,6 +56,8 @@ class TableViewStyle extends ThemeExtension<TableViewStyle> {
             ? other.scrollbars
             : scrollbars!.lerp(other.scrollbars!, t),
         scrollPadding: EdgeInsets.lerp(scrollPadding, other.scrollPadding, t),
+        minScrollableWidthRatio: lerpDouble(
+            minScrollableWidthRatio, other.minScrollableWidthRatio, t),
       );
 }
 
