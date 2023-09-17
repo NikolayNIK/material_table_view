@@ -52,6 +52,7 @@ class TableView extends StatefulWidget {
         headerHeight = headerHeight ?? rowHeight,
         footerHeight = footerHeight ?? rowHeight;
 
+  /// Display style of the table.
   final TableViewStyle? style;
 
   /// Count of fixed-height rows displayed in a table.
