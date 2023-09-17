@@ -5,39 +5,60 @@ import 'package:flutter/material.dart';
 /// Defines a display style of a table.
 @immutable
 class TableViewStyle extends ThemeExtension<TableViewStyle> {
-  /// Display style of horizontal dividers.
-  final TableViewHorizontalDividersStyle? horizontalDividersStyle;
-
-  /// Display style of vertical dividers.
-  final TableViewVerticalDividersStyle? verticalDividersStyle;
+  /// Display style of dividers in a table.
+  final TableViewDividersStyle? dividers;
 
   const TableViewStyle({
-    this.horizontalDividersStyle,
-    this.verticalDividersStyle,
+    this.dividers,
   });
 
   @override
   TableViewStyle copyWith({
-    TableViewHorizontalDividersStyle? horizontalDividersStyle,
-    TableViewVerticalDividersStyle? verticalDividersStyle,
+    TableViewDividersStyle? dividers,
   }) =>
       TableViewStyle(
-        horizontalDividersStyle:
-            horizontalDividersStyle ?? this.horizontalDividersStyle,
-        verticalDividersStyle:
-            verticalDividersStyle ?? this.verticalDividersStyle,
+        dividers: dividers ?? this.dividers,
       );
 
   @override
   TableViewStyle lerp(TableViewStyle other, double t) => TableViewStyle(
-        horizontalDividersStyle: horizontalDividersStyle == null ||
-                other.horizontalDividersStyle == null
-            ? other.horizontalDividersStyle
-            : horizontalDividersStyle!.lerp(other.horizontalDividersStyle!, t),
-        verticalDividersStyle:
-            verticalDividersStyle == null || other.verticalDividersStyle == null
-                ? other.verticalDividersStyle
-                : verticalDividersStyle!.lerp(other.verticalDividersStyle!, t),
+        dividers: dividers == null || other.dividers == null
+            ? other.dividers
+            : dividers!.lerp(other.dividers!, t),
+      );
+}
+
+/// Defines a display style of dividers in a table.
+@immutable
+class TableViewDividersStyle {
+  /// Display style of horizontal dividers.
+  final TableViewHorizontalDividersStyle? horizontal;
+
+  /// Display style of vertical dividers.
+  final TableViewVerticalDividersStyle? vertical;
+
+  const TableViewDividersStyle({
+    this.horizontal,
+    this.vertical,
+  });
+
+  TableViewDividersStyle copyWith({
+    TableViewHorizontalDividersStyle? horizontal,
+    TableViewVerticalDividersStyle? vertical,
+  }) =>
+      TableViewDividersStyle(
+        horizontal: horizontal ?? this.horizontal,
+        vertical: vertical ?? this.vertical,
+      );
+
+  TableViewDividersStyle lerp(TableViewDividersStyle other, double t) =>
+      TableViewDividersStyle(
+        horizontal: horizontal == null || other.horizontal == null
+            ? other.horizontal
+            : horizontal!.lerp(other.horizontal!, t),
+        vertical: vertical == null || other.vertical == null
+            ? other.vertical
+            : vertical!.lerp(other.vertical!, t),
       );
 }
 
@@ -45,43 +66,41 @@ class TableViewStyle extends ThemeExtension<TableViewStyle> {
 @immutable
 class TableViewHorizontalDividersStyle {
   /// Display style of a divider between a header row and the rest of a table.
-  final TableViewHorizontalDividerStyle? headerDividerStyle;
+  final TableViewHorizontalDividerStyle? header;
 
   /// Display style of a divider between a footer row and the rest of a table.
-  final TableViewHorizontalDividerStyle? footerDividerStyle;
+  final TableViewHorizontalDividerStyle? footer;
 
   const TableViewHorizontalDividersStyle({
-    this.headerDividerStyle,
-    this.footerDividerStyle,
+    this.header,
+    this.footer,
   });
 
-  /// Initializes [headerDividerStyle] and [footerDividerStyle] using
+  /// Initializes [header] and [footer] using
   /// the same [TableViewHorizontalDividerStyle].
   const TableViewHorizontalDividersStyle.symmetric(
     TableViewHorizontalDividerStyle style,
-  )   : headerDividerStyle = style,
-        footerDividerStyle = style;
+  )   : header = style,
+        footer = style;
 
   TableViewHorizontalDividersStyle copyWith({
-    TableViewHorizontalDividerStyle? headerDividerStyle,
-    TableViewHorizontalDividerStyle? footerDividerStyle,
+    TableViewHorizontalDividerStyle? header,
+    TableViewHorizontalDividerStyle? footer,
   }) =>
       TableViewHorizontalDividersStyle(
-        headerDividerStyle: headerDividerStyle ?? this.headerDividerStyle,
-        footerDividerStyle: footerDividerStyle ?? this.footerDividerStyle,
+        header: header ?? this.header,
+        footer: footer ?? this.footer,
       );
 
   TableViewHorizontalDividersStyle lerp(
           TableViewHorizontalDividersStyle other, double t) =>
       TableViewHorizontalDividersStyle(
-        headerDividerStyle:
-            headerDividerStyle == null || other.headerDividerStyle == null
-                ? other.headerDividerStyle
-                : headerDividerStyle!.lerp(other.headerDividerStyle!, t),
-        footerDividerStyle:
-            footerDividerStyle == null || other.footerDividerStyle == null
-                ? other.footerDividerStyle
-                : footerDividerStyle!.lerp(other.footerDividerStyle!, t),
+        header: header == null || other.header == null
+            ? other.header
+            : header!.lerp(other.header!, t),
+        footer: footer == null || other.footer == null
+            ? other.footer
+            : footer!.lerp(other.footer!, t),
       );
 }
 
@@ -122,45 +141,43 @@ class TableViewVerticalDividersStyle {
   /// Display style of a divider separating
   /// frozen on the leading (left in left-to-right) edge columns
   /// from the rest of the columns.
-  final TableViewVerticalDividerStyle? leadingDividerStyle;
+  final TableViewVerticalDividerStyle? leading;
 
   /// Display style of a divider separating
   /// frozen on the trailing (right in left-to-right) edge columns
   /// from the rest of the columns.
-  final TableViewVerticalDividerStyle? trailingDividerStyle;
+  final TableViewVerticalDividerStyle? trailing;
 
   const TableViewVerticalDividersStyle({
-    this.leadingDividerStyle,
-    this.trailingDividerStyle,
+    this.leading,
+    this.trailing,
   });
 
-  /// Initializes [leadingDividerStyle] and [trailingDividerStyle] using
+  /// Initializes [leading] and [trailing] using
   /// the same [TableViewVerticalDividerStyle].
   const TableViewVerticalDividersStyle.symmetric(
     TableViewVerticalDividerStyle style,
-  )   : leadingDividerStyle = style,
-        trailingDividerStyle = style;
+  )   : leading = style,
+        trailing = style;
 
   TableViewVerticalDividersStyle copyWith({
     TableViewVerticalDividerStyle? leadingDividerStyle,
     TableViewVerticalDividerStyle? trailingDividerStyle,
   }) =>
       TableViewVerticalDividersStyle(
-        leadingDividerStyle: leadingDividerStyle ?? this.leadingDividerStyle,
-        trailingDividerStyle: trailingDividerStyle ?? this.trailingDividerStyle,
+        leading: leadingDividerStyle ?? this.leading,
+        trailing: trailingDividerStyle ?? this.trailing,
       );
 
   TableViewVerticalDividersStyle lerp(
           TableViewVerticalDividersStyle other, double t) =>
       TableViewVerticalDividersStyle(
-        leadingDividerStyle:
-            leadingDividerStyle == null || other.leadingDividerStyle == null
-                ? other.leadingDividerStyle
-                : leadingDividerStyle!.lerp(other.leadingDividerStyle!, t),
-        trailingDividerStyle:
-            trailingDividerStyle == null || other.trailingDividerStyle == null
-                ? other.trailingDividerStyle
-                : trailingDividerStyle!.lerp(other.trailingDividerStyle!, t),
+        leading: leading == null || other.leading == null
+            ? other.leading
+            : leading!.lerp(other.leading!, t),
+        trailing: trailing == null || other.trailing == null
+            ? other.trailing
+            : trailing!.lerp(other.trailing!, t),
       );
 }
 

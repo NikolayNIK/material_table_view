@@ -5,6 +5,7 @@ export './src/table_view_controller.dart' show TableViewController;
 export './src/table_view_style.dart'
     show
         TableViewStyle,
+        TableViewDividersStyle,
         TableViewHorizontalDividersStyle,
         TableViewHorizontalDividerStyle,
         TableViewVerticalDividersStyle,

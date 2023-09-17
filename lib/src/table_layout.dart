@@ -305,7 +305,7 @@ class _TableContentLayoutState extends State<TableContentLayout> {
               min(
                   1.0,
                   (columnOffsetsCenter[toFreeze] - leftWidth) /
-                      widget.verticalDividersStyle.leadingDividerStyle
+                      widget.verticalDividersStyle.leading
                           .wiggleOffset));
         }
 
@@ -319,22 +319,22 @@ class _TableContentLayoutState extends State<TableContentLayout> {
                   min(
                       1.0,
                       -(columnOffsetsCenter.first - leftWidth) /
-                          widget.verticalDividersStyle.leadingDividerStyle
+                          widget.verticalDividersStyle.leading
                               .wiggleOffset)));
         }
       }
 
-      leftDividerColor = widget.verticalDividersStyle.leadingDividerStyle.color
+      leftDividerColor = widget.verticalDividersStyle.leading.color
           .withOpacity(
-              widget.verticalDividersStyle.leadingDividerStyle.color.opacity *
+              widget.verticalDividersStyle.leading.color.opacity *
                   Curves.easeIn.transform(leftDividerAnimationValue));
       leftDividerWiggleOffset = min(
-          widget.verticalDividersStyle.leadingDividerStyle.wiggleOffset,
+          widget.verticalDividersStyle.leading.wiggleOffset,
           max(
               .0,
               leftDividerAnimationValue *
                   widget
-                      .verticalDividersStyle.leadingDividerStyle.wiggleOffset));
+                      .verticalDividersStyle.leading.wiggleOffset));
 
       double rightDividerAnimationValue = .0;
       if (columnsRight.isNotEmpty) {
@@ -354,7 +354,7 @@ class _TableContentLayoutState extends State<TableContentLayout> {
                   (centerWidth -
                           (columnOffsetsCenter[toFreeze] - leftWidth) -
                           widget.columns[columnsCenter[toFreeze]].width) /
-                      widget.verticalDividersStyle.trailingDividerStyle
+                      widget.verticalDividersStyle.trailing
                           .wiggleOffset));
         }
 
@@ -370,22 +370,22 @@ class _TableContentLayoutState extends State<TableContentLayout> {
                       (-centerWidth +
                               (columnOffsetsCenter.last - leftWidth) +
                               widget.columns[columnsCenter.last].width) /
-                          widget.verticalDividersStyle.trailingDividerStyle
+                          widget.verticalDividersStyle.trailing
                               .wiggleOffset)));
         }
       }
 
       rightDividerColor =
-          widget.verticalDividersStyle.trailingDividerStyle.color.withOpacity(
-              widget.verticalDividersStyle.trailingDividerStyle.color.opacity *
+          widget.verticalDividersStyle.trailing.color.withOpacity(
+              widget.verticalDividersStyle.trailing.color.opacity *
                   Curves.easeIn.transform(rightDividerAnimationValue));
       rightDividerWiggleOffset = min(
-          widget.verticalDividersStyle.trailingDividerStyle
+          widget.verticalDividersStyle.trailing
               .wiggleOffset,
           max(
               .0,
               rightDividerAnimationValue *
-                  widget.verticalDividersStyle.trailingDividerStyle
+                  widget.verticalDividersStyle.trailing
                       .wiggleOffset));
     }
 
@@ -406,14 +406,14 @@ class _TableContentLayoutState extends State<TableContentLayout> {
               .toList(growable: false)),
       leftDivider: TableContentDividerData(
         color: leftDividerColor,
-        thickness: widget.verticalDividersStyle.leadingDividerStyle.thickness,
-        wigglesPerRow: widget.verticalDividersStyle.leadingDividerStyle.wigglesPerRow,
+        thickness: widget.verticalDividersStyle.leading.thickness,
+        wigglesPerRow: widget.verticalDividersStyle.leading.wigglesPerRow,
         wiggleOffset: leftDividerWiggleOffset,
       ),
       rightDivider: TableContentDividerData(
         color: rightDividerColor,
-        thickness: widget.verticalDividersStyle.trailingDividerStyle.thickness,
-        wigglesPerRow: widget.verticalDividersStyle.trailingDividerStyle.wigglesPerRow,
+        thickness: widget.verticalDividersStyle.trailing.thickness,
+        wigglesPerRow: widget.verticalDividersStyle.trailing.wigglesPerRow,
         wiggleOffset: rightDividerWiggleOffset,
       ),
     );

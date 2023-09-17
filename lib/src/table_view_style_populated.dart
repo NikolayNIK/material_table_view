@@ -3,19 +3,13 @@ import 'package:material_table_view/src/table_view_style.dart';
 
 class PopulatedTableViewStyle extends TableViewStyle {
   @override
-  PopulatedTableViewHorizontalDividersStyle get horizontalDividersStyle =>
-      super.horizontalDividersStyle
-          as PopulatedTableViewHorizontalDividersStyle;
-
-  PopulatedTableViewVerticalDividersStyle get verticalDividersStyle =>
-      super.verticalDividersStyle as PopulatedTableViewVerticalDividersStyle;
+  PopulatedTableViewDividersStyle get dividers =>
+      super.dividers as PopulatedTableViewDividersStyle;
 
   PopulatedTableViewStyle({
-    required PopulatedTableViewHorizontalDividersStyle horizontalDividersStyle,
-    required PopulatedTableViewVerticalDividersStyle verticalDividersStyle,
+    required PopulatedTableViewDividersStyle dividers,
   }) : super(
-          horizontalDividersStyle: horizontalDividersStyle,
-          verticalDividersStyle: verticalDividersStyle,
+          dividers: dividers,
         );
 
   factory PopulatedTableViewStyle.of(
@@ -24,35 +18,64 @@ class PopulatedTableViewStyle extends TableViewStyle {
   }) {
     final base = Theme.of(context).extension<TableViewStyle>();
     return PopulatedTableViewStyle(
-      horizontalDividersStyle: PopulatedTableViewHorizontalDividersStyle.of(
-        context,
-        base: base?.horizontalDividersStyle,
-        style: style?.horizontalDividersStyle,
-      ),
-      verticalDividersStyle: PopulatedTableViewVerticalDividersStyle.of(
-        context,
-        base: base?.verticalDividersStyle,
-        style: style?.verticalDividersStyle,
-      ),
-    );
+        dividers: PopulatedTableViewDividersStyle.of(
+      context,
+      base: base?.dividers,
+      style: style?.dividers,
+    ));
   }
+}
+
+class PopulatedTableViewDividersStyle extends TableViewDividersStyle {
+  @override
+  PopulatedTableViewHorizontalDividersStyle get horizontal =>
+      super.horizontal as PopulatedTableViewHorizontalDividersStyle;
+
+  PopulatedTableViewVerticalDividersStyle get vertical =>
+      super.vertical as PopulatedTableViewVerticalDividersStyle;
+
+  PopulatedTableViewDividersStyle({
+    required PopulatedTableViewHorizontalDividersStyle horizontalDividersStyle,
+    required PopulatedTableViewVerticalDividersStyle verticalDividersStyle,
+  }) : super(
+          horizontal: horizontalDividersStyle,
+          vertical: verticalDividersStyle,
+        );
+
+  factory PopulatedTableViewDividersStyle.of(
+    BuildContext context, {
+    required TableViewDividersStyle? base,
+    required TableViewDividersStyle? style,
+  }) =>
+      PopulatedTableViewDividersStyle(
+        horizontalDividersStyle: PopulatedTableViewHorizontalDividersStyle.of(
+          context,
+          base: base?.horizontal,
+          style: style?.horizontal,
+        ),
+        verticalDividersStyle: PopulatedTableViewVerticalDividersStyle.of(
+          context,
+          base: base?.vertical,
+          style: style?.vertical,
+        ),
+      );
 }
 
 class PopulatedTableViewHorizontalDividersStyle
     extends TableViewHorizontalDividersStyle {
   @override
-  PopulatedTableViewHorizontalDividerStyle get headerDividerStyle =>
-      super.headerDividerStyle as PopulatedTableViewHorizontalDividerStyle;
+  PopulatedTableViewHorizontalDividerStyle get header =>
+      super.header as PopulatedTableViewHorizontalDividerStyle;
 
-  PopulatedTableViewHorizontalDividerStyle get footerDividerStyle =>
-      super.footerDividerStyle as PopulatedTableViewHorizontalDividerStyle;
+  PopulatedTableViewHorizontalDividerStyle get footer =>
+      super.footer as PopulatedTableViewHorizontalDividerStyle;
 
   PopulatedTableViewHorizontalDividersStyle({
     required PopulatedTableViewHorizontalDividerStyle headerDividerStyle,
     required PopulatedTableViewHorizontalDividerStyle footerDividerStyle,
   }) : super(
-          headerDividerStyle: headerDividerStyle,
-          footerDividerStyle: footerDividerStyle,
+          header: headerDividerStyle,
+          footer: footerDividerStyle,
         );
 
   factory PopulatedTableViewHorizontalDividersStyle.of(
@@ -63,13 +86,13 @@ class PopulatedTableViewHorizontalDividersStyle
       PopulatedTableViewHorizontalDividersStyle(
         headerDividerStyle: PopulatedTableViewHorizontalDividerStyle.of(
           context,
-          base: base?.headerDividerStyle,
-          style: style?.headerDividerStyle,
+          base: base?.header,
+          style: style?.header,
         ),
         footerDividerStyle: PopulatedTableViewHorizontalDividerStyle.of(
           context,
-          base: base?.footerDividerStyle,
-          style: style?.footerDividerStyle,
+          base: base?.footer,
+          style: style?.footer,
         ),
       );
 }
@@ -106,18 +129,18 @@ class PopulatedTableViewHorizontalDividerStyle
 class PopulatedTableViewVerticalDividersStyle
     extends TableViewVerticalDividersStyle {
   @override
-  PopulatedTableViewVerticalDividerStyle get leadingDividerStyle =>
-      super.leadingDividerStyle as PopulatedTableViewVerticalDividerStyle;
+  PopulatedTableViewVerticalDividerStyle get leading =>
+      super.leading as PopulatedTableViewVerticalDividerStyle;
 
-  PopulatedTableViewVerticalDividerStyle get trailingDividerStyle =>
-      super.trailingDividerStyle as PopulatedTableViewVerticalDividerStyle;
+  PopulatedTableViewVerticalDividerStyle get trailing =>
+      super.trailing as PopulatedTableViewVerticalDividerStyle;
 
   PopulatedTableViewVerticalDividersStyle({
     required PopulatedTableViewVerticalDividerStyle leadingDividerStyle,
     required PopulatedTableViewVerticalDividerStyle trailingDividerStyle,
   }) : super(
-          leadingDividerStyle: leadingDividerStyle,
-          trailingDividerStyle: trailingDividerStyle,
+          leading: leadingDividerStyle,
+          trailing: trailingDividerStyle,
         );
 
   factory PopulatedTableViewVerticalDividersStyle.of(
@@ -128,13 +151,13 @@ class PopulatedTableViewVerticalDividersStyle
       PopulatedTableViewVerticalDividersStyle(
         leadingDividerStyle: PopulatedTableViewVerticalDividerStyle.of(
           context,
-          base: base?.leadingDividerStyle,
-          style: style?.leadingDividerStyle,
+          base: base?.leading,
+          style: style?.leading,
         ),
         trailingDividerStyle: PopulatedTableViewVerticalDividerStyle.of(
           context,
-          base: base?.trailingDividerStyle,
-          style: style?.trailingDividerStyle,
+          base: base?.trailing,
+          style: style?.trailing,
         ),
       );
 }

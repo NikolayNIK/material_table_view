@@ -76,12 +76,10 @@ class _SliverTableViewState extends State<SliverTableView> {
 
     final headerHeight = (widget.headerBuilder == null
         ? .0
-        : widget.headerHeight +
-            style.horizontalDividersStyle.headerDividerStyle.thickness);
+        : widget.headerHeight + style.dividers.horizontal.header.thickness);
     final footerHeight = (widget.footerBuilder == null
         ? .0
-        : widget.footerHeight +
-            style.horizontalDividersStyle.footerDividerStyle.thickness);
+        : widget.footerHeight + style.dividers.horizontal.footer.thickness);
 
     final scrollbarOffset = Offset(0, -footerHeight);
 
@@ -117,7 +115,7 @@ class _SliverTableViewState extends State<SliverTableView> {
                               previousValue + element.width) +
                       scrollPadding.horizontal,
                   child: TableContentLayout(
-                    verticalDividersStyle: style.verticalDividersStyle,
+                    verticalDividersStyle: style.dividers.vertical,
                     width: constraints.crossAxisExtent,
                     columns: widget.columns,
                     horizontalOffset: position,
@@ -139,8 +137,7 @@ class _SliverTableViewState extends State<SliverTableView> {
                             ),
                           ),
                           TableHorizontalDivider(
-                            style: style
-                                .horizontalDividersStyle.headerDividerStyle,
+                            style: style.dividers.horizontal.header,
                           ),
                         ],
                         Expanded(
@@ -170,8 +167,7 @@ class _SliverTableViewState extends State<SliverTableView> {
                         ),
                         if (widget.footerBuilder != null) ...[
                           TableHorizontalDivider(
-                            style: style
-                                .horizontalDividersStyle.footerDividerStyle,
+                            style: style.dividers.horizontal.footer,
                           ),
                           SizedBox(
                             height: widget.footerHeight,

@@ -199,7 +199,7 @@ class _TableViewState extends State<TableView> {
           scrollPadding.horizontal,
       child: LayoutBuilder(
         builder: (context, constraints) => TableContentLayout(
-          verticalDividersStyle: style.verticalDividersStyle,
+          verticalDividersStyle: style.dividers.vertical,
           scrollPadding: scrollPadding,
           width: constraints.maxWidth,
           minScrollableWidthRatio: widget.minScrollableWidthRatio,
@@ -279,13 +279,13 @@ class _TableViewState extends State<TableView> {
                       ),
                     ),
                     TableHorizontalDivider(
-                      style: style.horizontalDividersStyle.headerDividerStyle,
+                      style: style.dividers.horizontal.header,
                     ),
                   ],
                   Expanded(child: body),
                   if (footerBuilder != null) ...[
                     TableHorizontalDivider(
-                      style: style.horizontalDividersStyle.footerDividerStyle,
+                      style: style.dividers.horizontal.footer,
                     ),
                     SizedBox(
                       width: double.infinity,
