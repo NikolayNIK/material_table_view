@@ -48,6 +48,7 @@ class ResolvedTableViewStyle extends TableViewStyle {
       context,
       base: base?.scrollbars,
       style: style?.scrollbars,
+      sliver: sliver,
     );
 
     return ResolvedTableViewStyle(
@@ -259,7 +260,7 @@ class ResolvedTableViewScrollbarsStyle extends TableViewScrollbarsStyle {
 
   ResolvedTableViewScrollbarsStyle({
     required ResolvedTableViewScrollbarStyle horizontal,
-    required ResolvedTableViewScrollbarStyle vertical,
+    required ResolvedTableViewScrollbarStyle? vertical,
   }) : super(
           horizontal: horizontal,
           vertical: vertical,
@@ -269,6 +270,7 @@ class ResolvedTableViewScrollbarsStyle extends TableViewScrollbarsStyle {
     BuildContext context, {
     required TableViewScrollbarsStyle? base,
     required TableViewScrollbarsStyle? style,
+    required bool sliver,
   }) =>
       ResolvedTableViewScrollbarsStyle(
         horizontal: ResolvedTableViewScrollbarStyle.of(
@@ -276,11 +278,13 @@ class ResolvedTableViewScrollbarsStyle extends TableViewScrollbarsStyle {
           base: base?.horizontal,
           style: style?.horizontal,
         ),
-        vertical: ResolvedTableViewScrollbarStyle.of(
-          context,
-          base: base?.vertical,
-          style: style?.vertical,
-        ),
+        vertical: sliver
+            ? null
+            : ResolvedTableViewScrollbarStyle.of(
+                context,
+                base: base?.vertical,
+                style: style?.vertical,
+              ),
       );
 }
 
