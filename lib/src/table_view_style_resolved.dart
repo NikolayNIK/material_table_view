@@ -3,7 +3,7 @@ import 'package:material_table_view/src/table_view_style.dart';
 
 double _guessScrollbarThickness(BuildContext context, bool vertical,
     ResolvedTableViewScrollbarStyle style) {
-  if (!style.effectivelyEnabled) return .0;
+  if (!style.scrollPadding) return .0;
 
   // TODO determining paddings for the scrollbars based on a target platform seems stupid
   switch (Theme.of(context).platform) {
@@ -314,9 +314,13 @@ bool _resolveEnabled(BuildContext context, TableViewScrollbarEnabled enabled) {
 class ResolvedTableViewScrollbarStyle extends TableViewScrollbarStyle {
   final bool effectivelyEnabled;
 
+  @override
+  bool get scrollPadding => super.scrollPadding!;
+
   const ResolvedTableViewScrollbarStyle({
     required this.effectivelyEnabled,
     super.enabled,
+    required bool scrollPadding,
     super.crossAxisMargin,
     super.interactive,
     super.mainAxisMargin,
@@ -329,7 +333,9 @@ class ResolvedTableViewScrollbarStyle extends TableViewScrollbarStyle {
     super.trackBorderColor,
     super.trackColor,
     super.trackVisibility,
-  });
+  }) : super(
+          scrollPadding: scrollPadding,
+        );
 
   factory ResolvedTableViewScrollbarStyle.of(
     BuildContext context, {
@@ -338,9 +344,12 @@ class ResolvedTableViewScrollbarStyle extends TableViewScrollbarStyle {
   }) {
     final enabled =
         style?.enabled ?? base?.enabled ?? TableViewScrollbarEnabled.always;
+    final effectivelyEnabled = _resolveEnabled(context, enabled);
     return ResolvedTableViewScrollbarStyle(
       enabled: enabled,
-      effectivelyEnabled: _resolveEnabled(context, enabled),
+      effectivelyEnabled: effectivelyEnabled,
+      scrollPadding: effectivelyEnabled &&
+          (style?.scrollPadding ?? base?.scrollPadding ?? true),
       thumbVisibility: style?.thumbVisibility ??
           base?.thumbVisibility ??
           MaterialStatePropertyAll(true),

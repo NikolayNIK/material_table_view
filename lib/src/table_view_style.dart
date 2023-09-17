@@ -324,15 +324,21 @@ class TableViewScrollbarStyle extends ScrollbarThemeData {
   /// to state loss and possibly to runtime errors.
   final TableViewScrollbarEnabled? enabled;
 
+  /// If true, the corresponding scrollPadding value will be increased to allow
+  /// the content to scroll out from underneath the scrollbar when it's shown.
+  final bool? scrollPadding;
+
   /// Shorthand constructor for disabled scrollbar.
   /// Note that enabling/disabling scrollbar for a currently alive widget
   /// will lead to state loss and possibly to runtime errors.
   const TableViewScrollbarStyle.disabled()
       : enabled = TableViewScrollbarEnabled.never,
+        scrollPadding = null,
         super();
 
   const TableViewScrollbarStyle({
     this.enabled,
+    this.scrollPadding,
     super.crossAxisMargin,
     super.interactive,
     super.mainAxisMargin,
@@ -350,6 +356,7 @@ class TableViewScrollbarStyle extends ScrollbarThemeData {
   @override
   TableViewScrollbarStyle copyWith({
     TableViewScrollbarEnabled? enabled,
+    bool? scrollPadding,
     MaterialStateProperty<bool?>? thumbVisibility,
     MaterialStateProperty<double?>? thickness,
     MaterialStateProperty<bool?>? trackVisibility,
@@ -369,6 +376,7 @@ class TableViewScrollbarStyle extends ScrollbarThemeData {
   }) =>
       TableViewScrollbarStyle(
         enabled: enabled ?? this.enabled,
+        scrollPadding: scrollPadding ?? this.scrollPadding,
         thumbVisibility: thumbVisibility ?? this.thumbVisibility,
         thickness: thickness ?? this.thickness,
         trackVisibility: trackVisibility ?? this.trackVisibility,
