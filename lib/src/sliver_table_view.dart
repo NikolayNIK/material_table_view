@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:material_table_view/src/determine_scroll_padding.dart';
 import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/sliver_table_view_body.dart';
 import 'package:material_table_view/src/table_horizontal_divider.dart';
@@ -37,6 +36,9 @@ class SliverTableView extends TableView {
     super.footerHeight,
     super.minScrollableWidth,
     super.minScrollableWidthRatio,
+    @Deprecated(
+        'Setting this property prevents default behavior of leaving space for scrollbars.'
+        ' Use scrollPadding property of TableViewStyle instead.')
     super.scrollPadding,
   }) : super.builder();
 
@@ -70,10 +72,13 @@ class _SliverTableViewState extends State<SliverTableView> {
 
   @override
   Widget build(BuildContext context) {
-    final scrollPadding =
-        widget.scrollPadding ?? determineScrollPadding(context);
+    final style = ResolvedTableViewStyle.of(
+      context,
+      style: widget.style,
+      sliver: true,
+    );
 
-    final style = ResolvedTableViewStyle.of(context, style: widget.style);
+    final scrollPadding = widget.scrollPadding ?? style.scrollPadding;
 
     final headerHeight = (widget.headerBuilder == null
         ? .0

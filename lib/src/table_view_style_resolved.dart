@@ -1,6 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:material_table_view/src/table_view_style.dart';
 
+double _guessScrollbarThickness(BuildContext context, bool vertical,
+    ResolvedTableViewScrollbarStyle style) {
+  if (!style.effectivelyEnabled) return .0;
+
+  // TODO determining paddings for the scrollbars based on a target platform seems stupid
+  switch (Theme.of(context).platform) {
+    case TargetPlatform.android:
+      return 4.0;
+    case TargetPlatform.iOS:
+      return 6.0;
+    default:
+      return vertical ? 14.0 : 10.0;
+  }
+}
+
 class ResolvedTableViewStyle extends TableViewStyle {
   @override
   ResolvedTableViewDividersStyle get dividers =>
@@ -10,30 +25,48 @@ class ResolvedTableViewStyle extends TableViewStyle {
   ResolvedTableViewScrollbarsStyle get scrollbars =>
       super.scrollbars as ResolvedTableViewScrollbarsStyle;
 
+  @override
+  EdgeInsets get scrollPadding => super.scrollPadding!;
+
   ResolvedTableViewStyle({
     required ResolvedTableViewDividersStyle dividers,
     required ResolvedTableViewScrollbarsStyle scrollbars,
+    required EdgeInsets scrollPadding,
   }) : super(
           dividers: dividers,
           scrollbars: scrollbars,
+          scrollPadding: scrollPadding,
         );
 
   factory ResolvedTableViewStyle.of(
     BuildContext context, {
     required TableViewStyle? style,
+    required bool sliver,
   }) {
     final base = Theme.of(context).extension<TableViewStyle>();
+    final scrollbars = ResolvedTableViewScrollbarsStyle.of(
+      context,
+      base: base?.scrollbars,
+      style: style?.scrollbars,
+    );
+
     return ResolvedTableViewStyle(
       dividers: ResolvedTableViewDividersStyle.of(
         context,
         base: base?.dividers,
         style: style?.dividers,
       ),
-      scrollbars: ResolvedTableViewScrollbarsStyle.of(
-        context,
-        base: base?.scrollbars,
-        style: style?.scrollbars,
-      ),
+      scrollbars: scrollbars,
+      scrollPadding: (style?.scrollPadding ??
+              base?.scrollPadding ??
+              EdgeInsets.zero) +
+          EdgeInsets.only(
+            right: sliver // we have no way of knowing the size of a scrollbar
+                ? .0 // so we just give up
+                : _guessScrollbarThickness(context, true, scrollbars.vertical),
+            bottom:
+                _guessScrollbarThickness(context, false, scrollbars.horizontal),
+          ),
     );
   }
 }

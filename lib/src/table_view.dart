@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:material_table_view/src/determine_scroll_padding.dart';
 import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/sliver_table_view_body.dart';
 import 'package:material_table_view/src/table_column.dart';
@@ -39,6 +38,9 @@ class TableView extends StatefulWidget {
     double? footerHeight,
     this.minScrollableWidth,
     this.minScrollableWidthRatio = .6180339887498547,
+    @Deprecated(
+        'Setting this property prevents default behavior of leaving space for scrollbars.'
+        ' Use scrollPadding property of TableViewStyle instead.')
     this.scrollPadding,
   })  : assert(rowCount >= 0),
         assert(rowHeight > 0),
@@ -149,7 +151,12 @@ class _TableViewState extends State<TableView> {
 
   @override
   Widget build(BuildContext context) {
-    final style = ResolvedTableViewStyle.of(context, style: widget.style);
+    final style = ResolvedTableViewStyle.of(
+      context,
+      style: widget.style,
+      sliver: false,
+    );
+
     final horizontalScrollbarOffset = Offset(
       0,
       widget.footerBuilder == null ? 0 : widget.footerHeight,
@@ -190,8 +197,7 @@ class _TableViewState extends State<TableView> {
 
   Widget _buildViewport(BuildContext context, ResolvedTableViewStyle style,
       ViewportOffset horizontalOffset) {
-    final scrollPadding =
-        widget.scrollPadding ?? determineScrollPadding(context);
+    final scrollPadding = widget.scrollPadding ?? style.scrollPadding;
 
     return ScrollDimensionsApplicator(
       position: _controller.horizontalScrollController.position,

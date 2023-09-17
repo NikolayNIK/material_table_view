@@ -13,9 +13,12 @@ class TableViewStyle extends ThemeExtension<TableViewStyle> {
   /// Display style of scrollbars in a table;
   final TableViewScrollbarsStyle? scrollbars;
 
+  final EdgeInsets? scrollPadding;
+
   const TableViewStyle({
     this.dividers,
     this.scrollbars,
+    this.scrollPadding,
   });
 
   @override
@@ -35,6 +38,7 @@ class TableViewStyle extends ThemeExtension<TableViewStyle> {
         scrollbars: scrollbars == null || other.scrollbars == null
             ? other.scrollbars
             : scrollbars!.lerp(other.scrollbars!, t),
+        scrollPadding: EdgeInsets.lerp(scrollPadding, other.scrollPadding, t),
       );
 }
 
