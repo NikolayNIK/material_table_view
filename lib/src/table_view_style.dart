@@ -1,8 +1,10 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 /// Defines a display style of a table.
 @immutable
-class TableViewStyle {
+class TableViewStyle extends ThemeExtension<TableViewStyle> {
   /// Display style of horizontal dividers.
   final TableViewHorizontalDividersStyle? horizontalDividersStyle;
 
@@ -13,6 +15,30 @@ class TableViewStyle {
     this.horizontalDividersStyle,
     this.verticalDividersStyle,
   });
+
+  @override
+  TableViewStyle copyWith({
+    TableViewHorizontalDividersStyle? horizontalDividersStyle,
+    TableViewVerticalDividersStyle? verticalDividersStyle,
+  }) =>
+      TableViewStyle(
+        horizontalDividersStyle:
+            horizontalDividersStyle ?? this.horizontalDividersStyle,
+        verticalDividersStyle:
+            verticalDividersStyle ?? this.verticalDividersStyle,
+      );
+
+  @override
+  TableViewStyle lerp(TableViewStyle other, double t) => TableViewStyle(
+        horizontalDividersStyle: horizontalDividersStyle == null ||
+                other.horizontalDividersStyle == null
+            ? other.horizontalDividersStyle
+            : horizontalDividersStyle!.lerp(other.horizontalDividersStyle!, t),
+        verticalDividersStyle:
+            verticalDividersStyle == null || other.verticalDividersStyle == null
+                ? other.verticalDividersStyle
+                : verticalDividersStyle!.lerp(other.verticalDividersStyle!, t),
+      );
 }
 
 /// Defines a display style of horizontal dividers of a table.
@@ -29,10 +55,34 @@ class TableViewHorizontalDividersStyle {
     this.footerDividerStyle,
   });
 
+  /// Initializes [headerDividerStyle] and [footerDividerStyle] using
+  /// the same [TableViewHorizontalDividerStyle].
   const TableViewHorizontalDividersStyle.symmetric(
     TableViewHorizontalDividerStyle style,
   )   : headerDividerStyle = style,
         footerDividerStyle = style;
+
+  TableViewHorizontalDividersStyle copyWith({
+    TableViewHorizontalDividerStyle? headerDividerStyle,
+    TableViewHorizontalDividerStyle? footerDividerStyle,
+  }) =>
+      TableViewHorizontalDividersStyle(
+        headerDividerStyle: headerDividerStyle ?? this.headerDividerStyle,
+        footerDividerStyle: footerDividerStyle ?? this.footerDividerStyle,
+      );
+
+  TableViewHorizontalDividersStyle lerp(
+          TableViewHorizontalDividersStyle other, double t) =>
+      TableViewHorizontalDividersStyle(
+        headerDividerStyle:
+            headerDividerStyle == null || other.headerDividerStyle == null
+                ? other.headerDividerStyle
+                : headerDividerStyle!.lerp(other.headerDividerStyle!, t),
+        footerDividerStyle:
+            footerDividerStyle == null || other.footerDividerStyle == null
+                ? other.footerDividerStyle
+                : footerDividerStyle!.lerp(other.footerDividerStyle!, t),
+      );
 }
 
 /// Defines a display style of a particular horizontal divider of a table.
@@ -48,6 +98,22 @@ class TableViewHorizontalDividerStyle {
     this.color,
     this.thickness,
   }) : assert(thickness == null || thickness >= 0);
+
+  TableViewHorizontalDividerStyle copyWith({
+    Color? color,
+    double? thickness,
+  }) =>
+      TableViewHorizontalDividerStyle(
+        color: color ?? this.color,
+        thickness: thickness ?? this.thickness,
+      );
+
+  TableViewHorizontalDividerStyle lerp(
+          TableViewHorizontalDividerStyle other, double t) =>
+      TableViewHorizontalDividerStyle(
+        color: Color.lerp(color, other.color, t),
+        thickness: lerpDouble(thickness, other.thickness, t),
+      );
 }
 
 /// Defines a display style of vertical dividers of a table.
@@ -74,6 +140,28 @@ class TableViewVerticalDividersStyle {
     TableViewVerticalDividerStyle style,
   )   : leadingDividerStyle = style,
         trailingDividerStyle = style;
+
+  TableViewVerticalDividersStyle copyWith({
+    TableViewVerticalDividerStyle? leadingDividerStyle,
+    TableViewVerticalDividerStyle? trailingDividerStyle,
+  }) =>
+      TableViewVerticalDividersStyle(
+        leadingDividerStyle: leadingDividerStyle ?? this.leadingDividerStyle,
+        trailingDividerStyle: trailingDividerStyle ?? this.trailingDividerStyle,
+      );
+
+  TableViewVerticalDividersStyle lerp(
+          TableViewVerticalDividersStyle other, double t) =>
+      TableViewVerticalDividersStyle(
+        leadingDividerStyle:
+            leadingDividerStyle == null || other.leadingDividerStyle == null
+                ? other.leadingDividerStyle
+                : leadingDividerStyle!.lerp(other.leadingDividerStyle!, t),
+        trailingDividerStyle:
+            trailingDividerStyle == null || other.trailingDividerStyle == null
+                ? other.trailingDividerStyle
+                : trailingDividerStyle!.lerp(other.trailingDividerStyle!, t),
+      );
 }
 
 /// Defines a display style of a particular vertical divider of a table.
@@ -101,4 +189,27 @@ class TableViewVerticalDividerStyle {
   })  : assert(thickness == null || thickness >= 0),
         assert(wigglesPerRow == null || wigglesPerRow >= 0),
         assert(wiggleOffset == null || wiggleOffset >= 0);
+
+  TableViewVerticalDividerStyle copyWith({
+    Color? color,
+    double? thickness,
+    int? wigglesPerRow,
+    double? wiggleOffset,
+  }) =>
+      TableViewVerticalDividerStyle(
+        color: color ?? this.color,
+        thickness: thickness ?? this.thickness,
+        wigglesPerRow: wigglesPerRow ?? this.wigglesPerRow,
+        wiggleOffset: wiggleOffset ?? this.wiggleOffset,
+      );
+
+  TableViewVerticalDividerStyle lerp(
+          TableViewVerticalDividerStyle other, double t) =>
+      TableViewVerticalDividerStyle(
+        color: Color.lerp(color, other.color, t),
+        thickness: lerpDouble(thickness, other.thickness, t),
+        wigglesPerRow: // not sure about that
+            lerpDouble(wigglesPerRow, other.wigglesPerRow, t)?.toInt(),
+        wiggleOffset: lerpDouble(wiggleOffset, other.wiggleOffset, t),
+      );
 }

@@ -21,17 +21,21 @@ class PopulatedTableViewStyle extends TableViewStyle {
   factory PopulatedTableViewStyle.of(
     BuildContext context, {
     required TableViewStyle? style,
-  }) =>
-      PopulatedTableViewStyle(
-        horizontalDividersStyle: PopulatedTableViewHorizontalDividersStyle.of(
-          context,
-          style: style?.horizontalDividersStyle,
-        ),
-        verticalDividersStyle: PopulatedTableViewVerticalDividersStyle.of(
-          context,
-          style: style?.verticalDividersStyle,
-        ),
-      );
+  }) {
+    final base = Theme.of(context).extension<TableViewStyle>();
+    return PopulatedTableViewStyle(
+      horizontalDividersStyle: PopulatedTableViewHorizontalDividersStyle.of(
+        context,
+        base: base?.horizontalDividersStyle,
+        style: style?.horizontalDividersStyle,
+      ),
+      verticalDividersStyle: PopulatedTableViewVerticalDividersStyle.of(
+        context,
+        base: base?.verticalDividersStyle,
+        style: style?.verticalDividersStyle,
+      ),
+    );
+  }
 }
 
 class PopulatedTableViewHorizontalDividersStyle
@@ -53,15 +57,18 @@ class PopulatedTableViewHorizontalDividersStyle
 
   factory PopulatedTableViewHorizontalDividersStyle.of(
     BuildContext context, {
+    required TableViewHorizontalDividersStyle? base,
     required TableViewHorizontalDividersStyle? style,
   }) =>
       PopulatedTableViewHorizontalDividersStyle(
         headerDividerStyle: PopulatedTableViewHorizontalDividerStyle.of(
           context,
+          base: base?.headerDividerStyle,
           style: style?.headerDividerStyle,
         ),
         footerDividerStyle: PopulatedTableViewHorizontalDividerStyle.of(
           context,
+          base: base?.footerDividerStyle,
           style: style?.footerDividerStyle,
         ),
       );
@@ -85,12 +92,13 @@ class PopulatedTableViewHorizontalDividerStyle
 
   factory PopulatedTableViewHorizontalDividerStyle.of(
     BuildContext context, {
+    required TableViewHorizontalDividerStyle? base,
     required TableViewHorizontalDividerStyle? style,
   }) {
     late final borderStyle = Divider.createBorderSide(context);
     return PopulatedTableViewHorizontalDividerStyle(
-      color: style?.color ?? borderStyle.color,
-      thickness: style?.thickness ?? borderStyle.width,
+      color: style?.color ?? base?.color ?? borderStyle.color,
+      thickness: style?.thickness ?? base?.thickness ?? borderStyle.width,
     );
   }
 }
@@ -114,15 +122,18 @@ class PopulatedTableViewVerticalDividersStyle
 
   factory PopulatedTableViewVerticalDividersStyle.of(
     BuildContext context, {
+    required TableViewVerticalDividersStyle? base,
     required TableViewVerticalDividersStyle? style,
   }) =>
       PopulatedTableViewVerticalDividersStyle(
         leadingDividerStyle: PopulatedTableViewVerticalDividerStyle.of(
           context,
+          base: base?.leadingDividerStyle,
           style: style?.leadingDividerStyle,
         ),
         trailingDividerStyle: PopulatedTableViewVerticalDividerStyle.of(
           context,
+          base: base?.trailingDividerStyle,
           style: style?.trailingDividerStyle,
         ),
       );
@@ -156,14 +167,15 @@ class PopulatedTableViewVerticalDividerStyle
 
   factory PopulatedTableViewVerticalDividerStyle.of(
     BuildContext context, {
+    required TableViewVerticalDividerStyle? base,
     required TableViewVerticalDividerStyle? style,
   }) {
     late final borderStyle = Divider.createBorderSide(context);
     return PopulatedTableViewVerticalDividerStyle(
-      color: style?.color ?? borderStyle.color,
-      thickness: style?.thickness ?? borderStyle.width,
-      wigglesPerRow: style?.wigglesPerRow ?? 1,
-      wiggleOffset: style?.wiggleOffset ?? 16.0,
+      color: style?.color ?? base?.color ?? borderStyle.color,
+      thickness: style?.thickness ?? base?.thickness ?? borderStyle.width,
+      wigglesPerRow: style?.wigglesPerRow ?? base?.wigglesPerRow ?? 1,
+      wiggleOffset: style?.wiggleOffset ?? base?.wiggleOffset ?? 16.0,
     );
   }
 }
