@@ -1,3 +1,11 @@
+## 3.3.0
+
+- BREAKING VISUALS: TableView is not using divider style inferred from the `Divider` widget by default.
+- New: `TableView`s and `SliverTableView`s constructor argument `style` that allows granular customization of how
+  a table is displayed.
+- Deprecated: `TableView`s and `SliverTableView`s constructor argument `scrollPadding` has been deprecated in favor
+  of analogous attribute in the style.
+
 ## 3.2.1
 
 - Fixed: `SliverTableView`'s horizontal offset not resetting when using a sticky frozen column.
