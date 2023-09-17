@@ -13,6 +13,9 @@ class TableViewStyle extends ThemeExtension<TableViewStyle> {
   /// Display style of scrollbars in a table;
   final TableViewScrollbarsStyle? scrollbars;
 
+  /// Padding for the scrollable part of the table.
+  /// Primarily used to leave space for vertical scrollbars when using
+  /// [SliverTableView].
   final EdgeInsets? scrollPadding;
 
   const TableViewStyle({
@@ -245,9 +248,13 @@ class TableViewVerticalDividerStyle {
       );
 }
 
+/// Defines a display style of scrollbars of a table.
 @immutable
 class TableViewScrollbarsStyle {
+  /// Display style of a horizontal scrollbar.
   final TableViewScrollbarStyle? horizontal;
+
+  /// Display style of a vertical scrollbar.
   final TableViewScrollbarStyle? vertical;
 
   const TableViewScrollbarsStyle({
@@ -255,6 +262,8 @@ class TableViewScrollbarsStyle {
     this.vertical,
   });
 
+  /// Initializes both [horizontal] and [vertical] styles using
+  /// the same [TableViewScrollbarStyle].
   const TableViewScrollbarsStyle.symmetric(TableViewScrollbarStyle style)
       : horizontal = style,
         vertical = style;
@@ -279,62 +288,103 @@ class TableViewScrollbarsStyle {
       );
 }
 
+/// Defines a need to add a scrollbar.
 enum TableViewScrollbarEnabled {
+  /// Scrollbar is always displayed.
   always,
+
+  /// Scrollbar is displayed only when the target platform is set to
+  /// a desktop one.
   auto,
+
+  /// Scrollbar is never displayed.
   never,
 }
 
 @immutable
-class TableViewScrollbarStyle {
+class TableViewScrollbarStyle extends ScrollbarThemeData {
+  /// Controls whether or not the scrollbar is displayed.
+  /// Note that changing this property for a currently alive widget will lead
+  /// to state loss and possibly to runtime errors.
   final TableViewScrollbarEnabled? enabled;
-  final bool? thumbVisibility;
-  final bool? trackVisibility;
-  final double? thickness;
-  final Radius? radius;
-  final bool? interactive;
 
+  /// Shorthand constructor for disabled scrollbar.
+  /// Note that enabling/disabling scrollbar for a currently alive widget
+  /// will lead to state loss and possibly to runtime errors.
   const TableViewScrollbarStyle.disabled()
       : enabled = TableViewScrollbarEnabled.never,
-        thumbVisibility = null,
-        trackVisibility = null,
-        thickness = null,
-        radius = null,
-        interactive = null;
+        super();
 
   const TableViewScrollbarStyle({
     this.enabled,
-    this.thumbVisibility,
-    this.trackVisibility,
-    this.thickness,
-    this.radius,
-    this.interactive,
-  });
+    super.crossAxisMargin,
+    super.interactive,
+    super.mainAxisMargin,
+    super.minThumbLength,
+    super.radius,
+    super.showTrackOnHover,
+    super.thickness,
+    super.thumbColor,
+    super.thumbVisibility,
+    super.trackBorderColor,
+    super.trackColor,
+    super.trackVisibility,
+  }) : assert(showTrackOnHover == null);
 
+  @override
   TableViewScrollbarStyle copyWith({
     TableViewScrollbarEnabled? enabled,
-    bool? thumbVisibility,
-    bool? trackVisibility,
-    double? thickness,
-    Radius? radius,
+    MaterialStateProperty<bool?>? thumbVisibility,
+    MaterialStateProperty<double?>? thickness,
+    MaterialStateProperty<bool?>? trackVisibility,
     bool? interactive,
+    Radius? radius,
+    MaterialStateProperty<Color?>? thumbColor,
+    MaterialStateProperty<Color?>? trackColor,
+    MaterialStateProperty<Color?>? trackBorderColor,
+    double? crossAxisMargin,
+    double? mainAxisMargin,
+    double? minThumbLength,
+    @Deprecated(
+      'Use ScrollbarThemeData.trackVisibility to resolve based on the current state instead. '
+      'This feature was deprecated after v3.4.0-19.0.pre.',
+    )
+    bool? showTrackOnHover,
   }) =>
       TableViewScrollbarStyle(
-        enabled: enabled ?? this.enabled,
+        enabled: enabled,
         thumbVisibility: thumbVisibility ?? this.thumbVisibility,
-        trackVisibility: trackVisibility ?? this.trackVisibility,
         thickness: thickness ?? this.thickness,
-        radius: radius ?? this.radius,
+        trackVisibility: trackVisibility ?? this.trackVisibility,
         interactive: interactive ?? this.interactive,
+        radius: radius ?? this.radius,
+        thumbColor: thumbColor ?? this.thumbColor,
+        trackColor: trackColor ?? this.trackColor,
+        trackBorderColor: trackBorderColor ?? this.trackBorderColor,
+        crossAxisMargin: crossAxisMargin ?? this.crossAxisMargin,
+        mainAxisMargin: mainAxisMargin ?? this.mainAxisMargin,
+        minThumbLength: minThumbLength ?? this.minThumbLength,
       );
 
   TableViewScrollbarStyle lerp(TableViewScrollbarStyle other, double t) =>
       TableViewScrollbarStyle(
         enabled: _binaryLerp(enabled, other.enabled, t),
-        thumbVisibility: _binaryLerp(thumbVisibility, other.thumbVisibility, t),
-        trackVisibility: _binaryLerp(trackVisibility, other.trackVisibility, t),
-        thickness: lerpDouble(thickness, other.thickness, t),
-        radius: Radius.lerp(radius, other.radius, t),
+        thumbVisibility: MaterialStateProperty.lerp<bool?>(
+            thumbVisibility, other.thumbVisibility, t, _binaryLerp),
+        thickness: MaterialStateProperty.lerp<double?>(
+            thickness, other.thickness, t, lerpDouble),
+        trackVisibility: MaterialStateProperty.lerp<bool?>(
+            trackVisibility, other.trackVisibility, t, _binaryLerp),
         interactive: _binaryLerp(interactive, other.interactive, t),
+        radius: Radius.lerp(radius, other.radius, t),
+        thumbColor: MaterialStateProperty.lerp<Color?>(
+            thumbColor, other.thumbColor, t, Color.lerp),
+        trackColor: MaterialStateProperty.lerp<Color?>(
+            trackColor, other.trackColor, t, Color.lerp),
+        trackBorderColor: MaterialStateProperty.lerp<Color?>(
+            trackBorderColor, other.trackBorderColor, t, Color.lerp),
+        crossAxisMargin: lerpDouble(crossAxisMargin, other.crossAxisMargin, t),
+        mainAxisMargin: lerpDouble(mainAxisMargin, other.mainAxisMargin, t),
+        minThumbLength: lerpDouble(minThumbLength, other.minThumbLength, t),
       );
 }

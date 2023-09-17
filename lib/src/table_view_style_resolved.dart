@@ -306,32 +306,22 @@ bool _resolveEnabled(BuildContext context, TableViewScrollbarEnabled enabled) {
 class ResolvedTableViewScrollbarStyle extends TableViewScrollbarStyle {
   final bool effectivelyEnabled;
 
-  @override
-  TableViewScrollbarEnabled get enabled => super.enabled!;
-
-  @override
-  bool get thumbVisibility => super.thumbVisibility!;
-
-  @override
-  bool get trackVisibility => super.trackVisibility!;
-
-  @override
-  bool get interactive => super.interactive!;
-
   const ResolvedTableViewScrollbarStyle({
     required this.effectivelyEnabled,
-    required TableViewScrollbarEnabled enabled,
-    required bool thumbVisibility,
-    required bool trackVisibility,
-    super.thickness,
+    super.enabled,
+    super.crossAxisMargin,
+    super.interactive,
+    super.mainAxisMargin,
+    super.minThumbLength,
     super.radius,
-    required bool interactive,
-  }) : super(
-          enabled: enabled,
-          thumbVisibility: thumbVisibility,
-          trackVisibility: trackVisibility,
-          interactive: interactive,
-        );
+    super.showTrackOnHover,
+    super.thickness,
+    super.thumbColor,
+    super.thumbVisibility,
+    super.trackBorderColor,
+    super.trackColor,
+    super.trackVisibility,
+  });
 
   factory ResolvedTableViewScrollbarStyle.of(
     BuildContext context, {
@@ -343,11 +333,21 @@ class ResolvedTableViewScrollbarStyle extends TableViewScrollbarStyle {
     return ResolvedTableViewScrollbarStyle(
       enabled: enabled,
       effectivelyEnabled: _resolveEnabled(context, enabled),
-      thumbVisibility: style?.thumbVisibility ?? base?.thumbVisibility ?? true,
-      trackVisibility: style?.trackVisibility ?? base?.trackVisibility ?? true,
+      thumbVisibility: style?.thumbVisibility ??
+          base?.thumbVisibility ??
+          MaterialStatePropertyAll(true),
       thickness: style?.thickness ?? base?.thickness,
-      radius: style?.radius ?? base?.radius,
+      trackVisibility: style?.trackVisibility ??
+          base?.trackVisibility ??
+          MaterialStatePropertyAll(true),
       interactive: style?.interactive ?? base?.interactive ?? true,
+      radius: style?.radius ?? base?.radius,
+      thumbColor: style?.thumbColor ?? base?.thumbColor,
+      trackColor: style?.trackColor ?? base?.trackColor,
+      trackBorderColor: style?.trackBorderColor ?? base?.trackBorderColor,
+      crossAxisMargin: style?.crossAxisMargin ?? base?.crossAxisMargin,
+      mainAxisMargin: style?.mainAxisMargin ?? base?.mainAxisMargin,
+      minThumbLength: style?.minThumbLength ?? base?.minThumbLength,
     );
   }
 }

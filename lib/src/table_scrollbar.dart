@@ -20,14 +20,12 @@ class TableScrollbar extends StatelessWidget {
       return child;
     }
 
-    return Scrollbar(
-      controller: controller,
-      thickness: style.thickness,
-      thumbVisibility: style.thumbVisibility,
-      interactive: style.interactive,
-      radius: style.radius,
-      trackVisibility: style.trackVisibility,
-      child: child,
+    return ScrollbarTheme(
+      data: style,
+      child: Scrollbar(
+        controller: controller,
+        child: child,
+      ),
     );
   }
 }
