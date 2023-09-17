@@ -1,4 +1,5 @@
 # material_table_view
+
 [![pub package](https://img.shields.io/pub/v/material_table_view.svg)](https://pub.dev/packages/material_table_view)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/NikolayNIK/material_table_view/blob/master/LICENSE)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/1e81dcb6-9a0d-4fa1-9f70-fca006e8f122/deploy-status)](https://app.netlify.com/sites/visionary-chimera-cb5753/deploys)
@@ -37,8 +38,8 @@ above all else.
   This helps the user not to lose a row-identifying information
   while scrolling horizontally. Columns will automatically
   be unfrozen in case of insufficient horizontal space based
-  on a developer-defined freeze priorities meaning that
-  table will adjust to any screen size be it mobile or desktop.
+  on a developer-defined freeze priorities enabling a responsive design
+  when the table will adjust to any screen size be it mobile or desktop.
 - `sticky` column property, which causes frozen columns
   to scroll off of the edge but come back upon scrolling
   in the other direction to conserve the horizontal space when it's limited.
@@ -59,6 +60,8 @@ above all else.
   including scroll physics, overscroll effects, etc.
   It means that the platform-default scrolling behaviour
   will be used by default if you haven't overridden it.
+- Customizable vertical and horizontal scrollbar.
+- Customizable wiggly dividers separating frozen and scrolled columns.
 - Divider animations: when a column gets scrolled under
   another column that become frozen at the edge of a screen,
   a wiggly divider will animate in indicating to the user that
@@ -143,6 +146,9 @@ a table widget painting used for optimization purposes.
   horizontal scroll that is default on Android causing the
   scrollbar to stretch off the screen on overscroll.
 - No support for RTL layout.
+- Enabling/disabling either horizontal or vertical scrollbar
+  for currently active tables will lead to a state loss
+  and to possible runtime errors.
 
 ## Getting help
 
