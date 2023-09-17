@@ -48,17 +48,21 @@ class TableViewStyle extends ThemeExtension<TableViewStyle> {
       );
 
   @override
-  TableViewStyle lerp(TableViewStyle other, double t) => TableViewStyle(
-        dividers: dividers == null || other.dividers == null
-            ? other.dividers
-            : dividers!.lerp(other.dividers!, t),
-        scrollbars: scrollbars == null || other.scrollbars == null
-            ? other.scrollbars
-            : scrollbars!.lerp(other.scrollbars!, t),
-        scrollPadding: EdgeInsets.lerp(scrollPadding, other.scrollPadding, t),
-        minScrollableWidthRatio: lerpDouble(
-            minScrollableWidthRatio, other.minScrollableWidthRatio, t),
-      );
+  TableViewStyle lerp(TableViewStyle? other, double t) {
+    if (other == null) return this;
+
+    return TableViewStyle(
+      dividers: dividers == null || other.dividers == null
+          ? other.dividers
+          : dividers!.lerp(other.dividers!, t),
+      scrollbars: scrollbars == null || other.scrollbars == null
+          ? other.scrollbars
+          : scrollbars!.lerp(other.scrollbars!, t),
+      scrollPadding: EdgeInsets.lerp(scrollPadding, other.scrollPadding, t),
+      minScrollableWidthRatio:
+          lerpDouble(minScrollableWidthRatio, other.minScrollableWidthRatio, t),
+    );
+  }
 }
 
 /// Defines a display style of dividers in a table.
