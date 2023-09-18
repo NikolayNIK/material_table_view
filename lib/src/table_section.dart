@@ -254,9 +254,10 @@ class RenderTableSection extends RenderProxyBox {
     {
       // layer creation
       final mainLayer = ContainerLayer();
-      final regularFixed = mainLayer;
+      final regularFixed = ContainerLayer();
       final regularScrolled = ClipPathLayer(clipPath: clipPath);
 
+      context.addLayer(mainLayer);
       context.addLayer(regularFixed);
       context.addLayer(regularScrolled);
 
