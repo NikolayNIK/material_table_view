@@ -1,3 +1,7 @@
+## 3.3.1
+
+- Improved compatibility with different versions of Flutter.
+
 ## 3.3.0
 
 - BREAKING VISUALS: TableView is not using divider style inferred from the `Divider` widget by default.
