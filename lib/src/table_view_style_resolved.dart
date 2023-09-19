@@ -5,6 +5,9 @@ double _guessScrollbarThickness(BuildContext context, bool vertical,
     ResolvedTableViewScrollbarStyle style) {
   if (!style.scrollPadding) return .0;
 
+  final thickness = style.thickness?.resolve(const {});
+  if (thickness != null) return thickness;
+
   // TODO determining paddings for the scrollbars based on a target platform seems stupid
   switch (Theme.of(context).platform) {
     case TargetPlatform.android:
