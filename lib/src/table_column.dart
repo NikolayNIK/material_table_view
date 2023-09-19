@@ -26,4 +26,15 @@ class TableColumn {
 
   /// Check whether or not the column is frozen at a given priority.
   bool frozenAt(int priority) => freezePriority > priority;
+
+  TableColumn copyWith({
+    double? width,
+    int? freezePriority,
+    bool? sticky,
+  }) =>
+      TableColumn(
+        width: width ?? this.width,
+        freezePriority: freezePriority ?? this.freezePriority,
+        sticky: sticky ?? this.sticky,
+      );
 }
