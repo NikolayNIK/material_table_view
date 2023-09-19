@@ -32,7 +32,8 @@ class TableViewStyle extends ThemeExtension<TableViewStyle> {
     this.scrollbars,
     this.scrollPadding,
     this.minScrollableWidthRatio,
-  });
+  }) : assert(minScrollableWidthRatio == null ||
+            (minScrollableWidthRatio >= .0 && minScrollableWidthRatio <= 1.0));
 
   @override
   TableViewStyle copyWith({
