@@ -23,6 +23,8 @@ class TableViewStyle extends ThemeExtension<TableViewStyle> {
   /// frozen columns. If a resulting scrollable width is less than
   /// the minimum width, columns will be unfrozen according to freeze priority
   /// until scrollable width is greater than or equal the minimum.
+  ///
+  /// Defaults to the inverse of the golden ratio.
   final double? minScrollableWidthRatio;
 
   const TableViewStyle({
@@ -231,17 +233,25 @@ class TableViewVerticalDividersStyle {
 @immutable
 class TableViewVerticalDividerStyle {
   /// Color of the divider displayed.
+  ///
+  /// Defaults to the value defined by the material theme.
   final Color? color;
 
   /// Thickness of the divider displayed. Affects clipping.
+  ///
+  /// Defaults to the value defined by the material theme.
   final double? thickness;
 
   /// The amount of times per row the divider displayed is going to wiggle.
   /// Increasing this value might worsen the performance.
   /// Prefer setting it to 0 when not using wiggling dividers.
+  ///
+  /// Defaults to `1`.
   final int? wigglesPerRow;
 
   /// The amount of logical pixels the divider will wiggle horizontally.
+  ///
+  /// Defaults to `16.0`.
   final double? wiggleOffset;
 
   const TableViewVerticalDividerStyle({
@@ -335,10 +345,14 @@ class TableViewScrollbarStyle extends ScrollbarThemeData {
   /// Controls whether or not the scrollbar is displayed.
   /// Note that changing this property for a currently alive widget will lead
   /// to state loss and possibly to runtime errors.
+  ///
+  /// Defaults to [TableViewScrollbarEnabled.always].
   final TableViewScrollbarEnabled? enabled;
 
   /// If true, the corresponding scrollPadding value will be increased to allow
   /// the content to scroll out from underneath the scrollbar when it's shown.
+  ///
+  /// Defaults to `true`.
   final bool? scrollPadding;
 
   /// Shorthand constructor for disabled scrollbar.
