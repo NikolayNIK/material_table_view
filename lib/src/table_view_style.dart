@@ -383,12 +383,14 @@ class TableViewScrollbarStyle extends ScrollbarThemeData {
     double? minThumbLength,
     @Deprecated(
       'Use thumbVisibility instead. '
-          'This feature was deprecated after v2.9.0-1.0.pre.',
+      'This feature was deprecated after v2.9.0-1.0.pre. '
+      'The attribute is ignored by the material_table_view library.',
     )
     bool? isAlwaysShown,
     @Deprecated(
       'Use ScrollbarThemeData.trackVisibility to resolve based on the current state instead. '
-      'This feature was deprecated after v3.4.0-19.0.pre.',
+      'This feature was deprecated after v3.4.0-19.0.pre. '
+      'The attribute is ignored by the material_table_view library.',
     )
     bool? showTrackOnHover,
   }) =>
