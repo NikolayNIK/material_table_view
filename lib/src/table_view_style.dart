@@ -252,29 +252,63 @@ class TableViewVerticalDividerStyle {
 
   /// The amount of logical pixels the divider will wiggle horizontally.
   ///
+  /// Note that setting this value higher than the width of any column next
+  /// to a freezable one will lead to inconsistent animations.
+  ///
   /// Defaults to `16.0`.
   final double? wiggleOffset;
+
+  /// Determines amount of horizontal scrolling required for the divider to
+  /// fully appear and to start disappearing again.
+  ///
+  /// Note that setting this value higher than the width of any column next
+  /// to a freezable one will lead to inconsistent animations.
+  ///
+  /// Defaults to the resolved value of the [wiggleOffset].
+  final double? revealOffset;
+
+  /// Controls the rate of change to dividers opacity as it appears
+  /// and disappears.
+  ///
+  /// Defaults to [Curves.easeIn].
+  final Curve? opacityRevealCurve;
+
+  /// Controls the rate of change to wiggle offset of the divider as it appears
+  /// and disappears.
+  ///
+  /// Defaults to [Curves.linear].
+  final Curve? wiggleRevealCurve;
 
   const TableViewVerticalDividerStyle({
     this.color,
     this.thickness,
     this.wigglesPerRow,
     this.wiggleOffset,
+    this.revealOffset,
+    this.opacityRevealCurve,
+    this.wiggleRevealCurve,
   })  : assert(thickness == null || thickness >= 0),
         assert(wigglesPerRow == null || wigglesPerRow >= 0),
-        assert(wiggleOffset == null || wiggleOffset >= 0);
+        assert(wiggleOffset == null || wiggleOffset >= 0),
+        assert(revealOffset == null || revealOffset >= 0);
 
   TableViewVerticalDividerStyle copyWith({
     Color? color,
     double? thickness,
     int? wigglesPerRow,
     double? wiggleOffset,
+    double? revealOffset,
+    Curve? opacityRevealCurve,
+    Curve? wiggleRevealCurve,
   }) =>
       TableViewVerticalDividerStyle(
         color: color ?? this.color,
         thickness: thickness ?? this.thickness,
         wigglesPerRow: wigglesPerRow ?? this.wigglesPerRow,
         wiggleOffset: wiggleOffset ?? this.wiggleOffset,
+        revealOffset: revealOffset ?? this.revealOffset,
+        opacityRevealCurve: opacityRevealCurve ?? this.opacityRevealCurve,
+        wiggleRevealCurve: wiggleRevealCurve ?? this.wiggleRevealCurve,
       );
 
   TableViewVerticalDividerStyle lerp(
@@ -285,6 +319,11 @@ class TableViewVerticalDividerStyle {
         wigglesPerRow: // not sure about that
             lerpDouble(wigglesPerRow, other.wigglesPerRow, t)?.toInt(),
         wiggleOffset: lerpDouble(wiggleOffset, other.wiggleOffset, t),
+        revealOffset: lerpDouble(revealOffset, other.revealOffset, t),
+        opacityRevealCurve:
+            _binaryLerp(opacityRevealCurve, other.opacityRevealCurve, t),
+        wiggleRevealCurve:
+            _binaryLerp(wiggleRevealCurve, other.wiggleRevealCurve, t),
       );
 }
 

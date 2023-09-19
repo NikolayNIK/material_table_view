@@ -252,16 +252,31 @@ class ResolvedTableViewVerticalDividerStyle
   @override
   double get wiggleOffset => super.wiggleOffset!;
 
+  @override
+  double get revealOffset => super.revealOffset!;
+
+  @override
+  Curve get opacityRevealCurve => super.opacityRevealCurve!;
+
+  @override
+  Curve get wiggleRevealCurve => super.wiggleRevealCurve!;
+
   ResolvedTableViewVerticalDividerStyle({
     required Color color,
     required double thickness,
     required int wigglesPerRow,
     required double wiggleOffset,
+    required double revealOffset,
+    required Curve opacityRevealCurve,
+    required Curve wiggleRevealCurve,
   }) : super(
           color: color,
           wigglesPerRow: wigglesPerRow,
           thickness: thickness,
           wiggleOffset: wiggleOffset,
+          revealOffset: revealOffset,
+          opacityRevealCurve: opacityRevealCurve,
+          wiggleRevealCurve: wiggleRevealCurve,
         );
 
   factory ResolvedTableViewVerticalDividerStyle.of(
@@ -270,11 +285,18 @@ class ResolvedTableViewVerticalDividerStyle
     required TableViewVerticalDividerStyle? style,
   }) {
     late final borderStyle = Divider.createBorderSide(context);
+    final wiggleOffset = style?.wiggleOffset ?? base?.wiggleOffset ?? 16.0;
     return ResolvedTableViewVerticalDividerStyle(
       color: style?.color ?? base?.color ?? borderStyle.color,
       thickness: style?.thickness ?? base?.thickness ?? borderStyle.width,
       wigglesPerRow: style?.wigglesPerRow ?? base?.wigglesPerRow ?? 1,
-      wiggleOffset: style?.wiggleOffset ?? base?.wiggleOffset ?? 16.0,
+      wiggleOffset: wiggleOffset,
+      revealOffset: style?.revealOffset ?? base?.revealOffset ?? wiggleOffset,
+      opacityRevealCurve: style?.opacityRevealCurve ??
+          base?.opacityRevealCurve ??
+          Curves.easeIn,
+      wiggleRevealCurve:
+          style?.wiggleRevealCurve ?? base?.wiggleRevealCurve ?? Curves.linear,
     );
   }
 }
