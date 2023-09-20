@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/sliver_table_view_body.dart';
 import 'package:material_table_view/src/table_column.dart';
+import 'package:material_table_view/src/table_column_resolve_layout_extension.dart';
 import 'package:material_table_view/src/table_horizontal_divider.dart';
 import 'package:material_table_view/src/table_layout.dart';
 import 'package:material_table_view/src/table_placeholder_shade.dart';
@@ -170,149 +171,156 @@ class _TableViewState extends State<TableView> {
         height: double.infinity,
         child: widget.columns.isEmpty
             ? const SizedBox()
-            : LayoutBuilder(
-                builder: (context, constraints) {
-                  return Transform.translate(
-                    offset: -horizontalScrollbarOffset,
+            : Transform.translate(
+                offset: -horizontalScrollbarOffset,
+                transformHitTests: false,
+                child: TableScrollbar(
+                  controller: _controller.horizontalScrollController,
+                  style: style.scrollbars.horizontal,
+                  child: Transform.translate(
+                    offset: horizontalScrollbarOffset,
                     transformHitTests: false,
-                    child: TableScrollbar(
+                    child: Scrollable(
                       controller: _controller.horizontalScrollController,
-                      style: style.scrollbars.horizontal,
-                      child: Transform.translate(
-                        offset: horizontalScrollbarOffset,
-                        transformHitTests: false,
-                        child: Scrollable(
-                          controller: _controller.horizontalScrollController,
-                          clipBehavior: Clip.none,
-                          axisDirection: AxisDirection.right,
-                          viewportBuilder: (context, position) =>
-                              _buildViewport(context, style, position),
-                        ),
-                      ),
+                      clipBehavior: Clip.none,
+                      axisDirection: AxisDirection.right,
+                      viewportBuilder: (context, position) =>
+                          _buildViewport(context, style, position),
                     ),
-                  );
-                },
+                  ),
+                ),
               ),
       ),
     );
   }
 
-  Widget _buildViewport(BuildContext context, ResolvedTableViewStyle style,
-      ViewportOffset horizontalOffset) {
+  Widget _buildViewport(
+    BuildContext context,
+    ResolvedTableViewStyle style,
+    ViewportOffset horizontalOffset,
+  ) {
     final scrollPadding = widget.scrollPadding ?? style.scrollPadding;
 
-    return ScrollDimensionsApplicator(
-      position: _controller.horizontalScrollController.position,
-      axis: Axis.horizontal,
-      scrollExtent: widget.columns.fold<double>(
-              .0, (previousValue, element) => previousValue + element.width) +
-          scrollPadding.horizontal,
-      child: LayoutBuilder(
-        builder: (context, constraints) => TableContentLayout(
-          verticalDividersStyle: style.dividers.vertical,
-          scrollPadding: scrollPadding,
-          width: constraints.maxWidth,
-          minScrollableWidthRatio:
-              widget.minScrollableWidthRatio ?? style.minScrollableWidthRatio,
-          columns: widget.columns,
-          horizontalOffset: horizontalOffset,
-          stickyHorizontalOffset: _stickyHorizontalOffset,
-          minScrollableWidth: widget.minScrollableWidth,
-          child: Builder(
-            builder: (context) {
-              final body = widget.bodyContainerBuilder(
-                context,
-                ClipRect(
-                  child: NotificationListener<OverscrollNotification>(
-                    // Suppress OverscrollNotification events that escape from the inner scrollable
-                    onNotification: (notification) => true,
-                    child: TableScrollbar(
-                      controller: _controller.verticalScrollController,
-                      style: style.scrollbars.vertical,
-                      child: Scrollable(
-                        controller: _controller.verticalScrollController,
-                        clipBehavior: Clip.none,
-                        axisDirection: AxisDirection.down,
-                        viewportBuilder: (context, verticalOffset) =>
-                            TableSection(
-                          verticalOffset: verticalOffset,
-                          rowHeight: widget.rowHeight,
-                          placeholderShade: widget.placeholderShade,
-                          child: TableViewport(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = widget.columns
+            .resolveLayout(constraints.maxWidth - scrollPadding.horizontal);
+
+        return ScrollDimensionsApplicator(
+          position: _controller.horizontalScrollController.position,
+          axis: Axis.horizontal,
+          scrollExtent: columns.fold<double>(.0,
+                  (previousValue, element) => previousValue + element.width) +
+              scrollPadding.horizontal,
+          child: LayoutBuilder(
+            builder: (context, constraints) => TableContentLayout(
+              verticalDividersStyle: style.dividers.vertical,
+              scrollPadding: scrollPadding,
+              width: constraints.maxWidth,
+              minScrollableWidthRatio: widget.minScrollableWidthRatio ??
+                  style.minScrollableWidthRatio,
+              columns: columns,
+              horizontalOffset: horizontalOffset,
+              stickyHorizontalOffset: _stickyHorizontalOffset,
+              minScrollableWidth: widget.minScrollableWidth,
+              child: Builder(
+                builder: (context) {
+                  final body = widget.bodyContainerBuilder(
+                    context,
+                    ClipRect(
+                      child: NotificationListener<OverscrollNotification>(
+                        // Suppress OverscrollNotification events that escape from the inner scrollable
+                        onNotification: (notification) => true,
+                        child: TableScrollbar(
+                          controller: _controller.verticalScrollController,
+                          style: style.scrollbars.vertical,
+                          child: Scrollable(
+                            controller: _controller.verticalScrollController,
                             clipBehavior: Clip.none,
-                            offset: verticalOffset,
-                            slivers: [
-                              SliverPadding(
-                                padding: EdgeInsets.only(
-                                  top: scrollPadding.top,
-                                  bottom: scrollPadding.bottom,
-                                ),
-                                sliver: SliverTableViewBody(
-                                  rowCount: widget.rowCount,
-                                  rowHeight: widget.rowHeight,
-                                  rowBuilder: widget.rowBuilder,
-                                  placeholderBuilder: widget.placeholderBuilder,
-                                ),
+                            axisDirection: AxisDirection.down,
+                            viewportBuilder: (context, verticalOffset) =>
+                                TableSection(
+                              verticalOffset: verticalOffset,
+                              rowHeight: widget.rowHeight,
+                              placeholderShade: widget.placeholderShade,
+                              child: TableViewport(
+                                clipBehavior: Clip.none,
+                                offset: verticalOffset,
+                                slivers: [
+                                  SliverPadding(
+                                    padding: EdgeInsets.only(
+                                      top: scrollPadding.top,
+                                      bottom: scrollPadding.bottom,
+                                    ),
+                                    sliver: SliverTableViewBody(
+                                      rowCount: widget.rowCount,
+                                      rowHeight: widget.rowHeight,
+                                      rowBuilder: widget.rowBuilder,
+                                      placeholderBuilder:
+                                          widget.placeholderBuilder,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-              );
+                  );
 
-              final headerBuilder = widget.headerBuilder;
-              final footerBuilder = widget.footerBuilder;
-              if (headerBuilder == null && footerBuilder == null) {
-                return SizedBox(
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: body,
-                );
-              }
+                  final headerBuilder = widget.headerBuilder;
+                  final footerBuilder = widget.footerBuilder;
+                  if (headerBuilder == null && footerBuilder == null) {
+                    return SizedBox(
+                      width: double.infinity,
+                      height: double.infinity,
+                      child: body,
+                    );
+                  }
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (headerBuilder != null) ...[
-                    SizedBox(
-                      width: double.infinity,
-                      height: widget.headerHeight,
-                      child: TableSection(
-                        verticalOffset: null,
-                        rowHeight: widget.headerHeight,
-                        placeholderShade: null,
-                        child: headerBuilder(context, contentBuilder),
-                      ),
-                    ),
-                    TableHorizontalDivider(
-                      style: style.dividers.horizontal.header,
-                    ),
-                  ],
-                  Expanded(child: body),
-                  if (footerBuilder != null) ...[
-                    TableHorizontalDivider(
-                      style: style.dividers.horizontal.footer,
-                    ),
-                    SizedBox(
-                      width: double.infinity,
-                      height: widget.footerHeight,
-                      child: TableSection(
-                        verticalOffset: null,
-                        rowHeight: widget.footerHeight,
-                        placeholderShade: null,
-                        child: footerBuilder(context, contentBuilder),
-                      ),
-                    ),
-                  ],
-                ],
-              );
-            },
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (headerBuilder != null) ...[
+                        SizedBox(
+                          width: double.infinity,
+                          height: widget.headerHeight,
+                          child: TableSection(
+                            verticalOffset: null,
+                            rowHeight: widget.headerHeight,
+                            placeholderShade: null,
+                            child: headerBuilder(context, contentBuilder),
+                          ),
+                        ),
+                        TableHorizontalDivider(
+                          style: style.dividers.horizontal.header,
+                        ),
+                      ],
+                      Expanded(child: body),
+                      if (footerBuilder != null) ...[
+                        TableHorizontalDivider(
+                          style: style.dividers.horizontal.footer,
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          height: widget.footerHeight,
+                          child: TableSection(
+                            verticalOffset: null,
+                            rowHeight: widget.footerHeight,
+                            placeholderShade: null,
+                            child: footerBuilder(context, contentBuilder),
+                          ),
+                        ),
+                      ],
+                    ],
+                  );
+                },
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

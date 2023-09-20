@@ -7,9 +7,13 @@ class TableColumn {
     required this.width,
     this.freezePriority = 0,
     this.sticky = false,
+    this.flex = 0,
   })  : assert(freezePriority >= 0),
-        assert(freezePriority != 0 || !sticky,
-            'Only freezable columns can be sticky');
+        assert(
+          freezePriority != 0 || !sticky,
+          'Only freezable columns can be sticky',
+        ),
+        assert(flex >= 0);
 
   /// Width of a column in a logical pixels.
   final double width;
@@ -24,6 +28,10 @@ class TableColumn {
   /// but will come back upon scrolling in the other direction.
   final bool sticky;
 
+  /// When set higher than zero, column will expand to fill the remaining
+  /// width in proportion to the total flex of all columns.
+  final int flex;
+
   /// Check whether or not the column is frozen at a given priority.
   bool frozenAt(int priority) => freezePriority > priority;
 
@@ -31,10 +39,12 @@ class TableColumn {
     double? width,
     int? freezePriority,
     bool? sticky,
+    int? flex,
   }) =>
       TableColumn(
         width: width ?? this.width,
         freezePriority: freezePriority ?? this.freezePriority,
         sticky: sticky ?? this.sticky,
+        flex: flex ?? this.flex,
       );
 }
