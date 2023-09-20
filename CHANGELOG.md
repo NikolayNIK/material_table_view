@@ -1,3 +1,9 @@
+## 3.4.0
+
+- New `flex` property of the `TableColumn` implemented.
+- New vertical divider reveal animation customization options implemented.
+- Other minor fixes and improvements,
+
 ## 3.3.1
 
 - Improved compatibility with different versions of Flutter.
