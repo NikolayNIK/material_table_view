@@ -170,22 +170,22 @@ class RenderTableSection extends RenderProxyBox {
 
       {
         // left side
+        final dividerData = layoutData.leftDivider;
 
-        final halfDividerThickness = layoutData.leftDivider.thickness / 2;
+        final halfDividerThickness = dividerData.thickness / 2;
         final wiggleEdge = layoutData.leftWidth;
         final dividerWiggleEdge = wiggleEdge - halfDividerThickness;
-        final wiggleOut = wiggleEdge + layoutData.leftDivider.wiggleOffset;
+        final wiggleOut = wiggleEdge + dividerData.wiggleOffset;
         final dividerWiggleOut = wiggleOut - halfDividerThickness;
 
         leftDividerPath.moveTo(dividerWiggleEdge, top);
         clipPath.moveTo(wiggleEdge, top);
 
-        if (layoutData.leftDivider.wigglesPerRow == 0) {
+        if (dividerData.wigglesPerRow == 0 || dividerData.wiggleOffset == .0) {
           leftDividerPath.lineTo(dividerWiggleEdge, bottom);
           clipPath.lineTo(wiggleEdge, bottom);
         } else {
-          final wiggleStep =
-              _rowHeight / (2 * layoutData.leftDivider.wigglesPerRow);
+          final wiggleStep = _rowHeight / (2 * dividerData.wigglesPerRow);
 
           for (var y = top + wiggleStep; y <= bottom;) {
             leftDividerPath.lineTo(dividerWiggleOut, y);
@@ -202,21 +202,22 @@ class RenderTableSection extends RenderProxyBox {
       {
         // right size
 
-        final halfDividerThickness = layoutData.rightDivider.thickness / 2;
+        final dividerData = layoutData.rightDivider;
+
+        final halfDividerThickness = dividerData.thickness / 2;
         final wiggleEdge = layoutData.leftWidth + layoutData.centerWidth;
         final dividerWiggleEdge = wiggleEdge + halfDividerThickness;
-        final wiggleOut = wiggleEdge - layoutData.rightDivider.wiggleOffset;
+        final wiggleOut = wiggleEdge - dividerData.wiggleOffset;
         final dividerWiggleOut = wiggleOut + halfDividerThickness;
 
         rightDividerPath.moveTo(dividerWiggleEdge, bottom);
         clipPath.lineTo(wiggleEdge, bottom);
 
-        if (layoutData.rightDivider.wigglesPerRow == 0) {
+        if (dividerData.wigglesPerRow == 0 || dividerData.wiggleOffset == 0) {
           rightDividerPath.lineTo(dividerWiggleEdge, top);
           clipPath.lineTo(wiggleOut, top);
         } else {
-          final wiggleStep =
-              _rowHeight / (2 * layoutData.rightDivider.wigglesPerRow);
+          final wiggleStep = _rowHeight / (2 * dividerData.wigglesPerRow);
 
           for (var y = bottom - wiggleStep; y >= top;) {
             rightDividerPath.lineTo(dividerWiggleOut, y);
