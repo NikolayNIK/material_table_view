@@ -46,7 +46,7 @@ class TableContentLayoutData {
   final TableContentColumnData scrollableColumns, fixedColumns;
 
   final TableContentDividerData leftDivider, rightDivider;
-  final double leftWidth, centerWidth;
+  final double leftWidth, centerWidth, rightWidth;
 
   TableContentLayoutData({
     required this.scrollableColumns,
@@ -55,5 +55,6 @@ class TableContentLayoutData {
     required this.rightDivider,
     required this.leftWidth,
     required this.centerWidth,
+    required this.rightWidth,
   });
 }

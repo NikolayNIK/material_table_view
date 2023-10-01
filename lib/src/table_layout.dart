@@ -45,13 +45,18 @@ class TableContentLayout extends StatefulWidget {
   }
 
   @override
-  State<TableContentLayout> createState() => _TableContentLayoutState();
+  State<TableContentLayout> createState() => TableContentLayoutState();
 }
 
-class _TableContentLayoutState extends State<TableContentLayout> {
+class TableContentLayoutState extends State<TableContentLayout>
+    with ChangeNotifier {
+  late TableContentLayoutData _lastLayoutData;
+
   double _minStickyHorizontalOffset = .0;
   double _maxStickyHorizontalOffset = .0;
   int freezePriority = 0;
+
+  TableContentLayoutData get lastLayoutData => _lastLayoutData;
 
   @override
   void initState() {
@@ -388,9 +393,10 @@ class _TableContentLayoutState extends State<TableContentLayout> {
                   .transform(rightDividerAnimationValue);
     }
 
-    return TableContentLayoutData(
+    return _lastLayoutData = TableContentLayoutData(
       leftWidth: leftWidth,
       centerWidth: centerWidth,
+      rightWidth: rightWidth,
       scrollableColumns: TableContentColumnData(
           indices: columnsCenter,
           positions: columnOffsetsCenter,
