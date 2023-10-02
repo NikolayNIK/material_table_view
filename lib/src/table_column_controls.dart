@@ -227,6 +227,9 @@ class _WidgetState extends State<_Widget> {
   late double minColumnWidth;
   bool popped = false;
 
+  double leadingResizeHandleCorrection = .0,
+      trailingResizeHandleCorrection = .0;
+
   ScrollHoldController? scrollHold;
 
   @override
@@ -287,6 +290,12 @@ class _WidgetState extends State<_Widget> {
       return SizedBox();
     }
 
+    final leadingResizeHandleCorrection = this.leadingResizeHandleCorrection;
+    final trailingResizeHandleCorrection = this.trailingResizeHandleCorrection;
+
+    this.leadingResizeHandleCorrection = .0;
+    this.trailingResizeHandleCorrection = .0;
+
     final leadingResizeHandle = widget.columnIndex == 0
         ? null
         : widget.tableColumnControls.resizeHandleBuilder
@@ -311,7 +320,9 @@ class _WidgetState extends State<_Widget> {
         children: [
           if (leadingResizeHandle != null)
             Positioned(
-              left: offset.dx - leadingResizeHandle.preferredSize.width / 2,
+              left: offset.dx +
+                  leadingResizeHandleCorrection -
+                  leadingResizeHandle.preferredSize.width / 2,
               top: offset.dy +
                   widget.cellRenderObject.size.height -
                   leadingResizeHandle.preferredSize.height / 2,
@@ -327,6 +338,7 @@ class _WidgetState extends State<_Widget> {
           if (trailingResizeHandle != null)
             Positioned(
               left: offset.dx +
+                  trailingResizeHandleCorrection +
                   widget.cellRenderObject.size.width -
                   trailingResizeHandle.preferredSize.width / 2,
               top: offset.dy +
@@ -355,6 +367,8 @@ class _WidgetState extends State<_Widget> {
   void _resizeUpdateLeading(DragUpdateDetails details) {
     final delta = _resizeUpdate(-details.delta.dx);
 
+    leadingResizeHandleCorrection -= delta;
+
     final scrollPosition = widget.tableColumnControls.scrollController.position;
     scrollPosition.jumpTo(scrollPosition.pixels + delta);
 
@@ -364,7 +378,9 @@ class _WidgetState extends State<_Widget> {
   }
 
   void _resizeUpdateTrailing(DragUpdateDetails details) {
-    _resizeUpdate(details.delta.dx);
+    final delta = _resizeUpdate(details.delta.dx);
+
+    trailingResizeHandleCorrection += delta;
   }
 
   double _resizeUpdate(double delta) {
