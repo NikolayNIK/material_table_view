@@ -54,12 +54,21 @@ PreferredSizeWidget _defaultResizeHandleBuilder(
   );
 }
 
+typedef void ColumnResizeCallback(int index, TableColumn newColumn);
+
 class TableColumnControls extends StatefulWidget {
   final List<TableColumn> columns;
+
   final ScrollController scrollController;
-  final void Function(List<TableColumn> columns) onColumnsChange;
+
+  final void Function(List<TableColumn> columns)? onColumnsChange;
+
+  final ColumnResizeCallback onColumnResize;
+
   final Widget child;
+
   final Color? barrierColor;
+
   final PreferredSizeWidget Function(
     BuildContext context,
     bool leading,
@@ -67,15 +76,25 @@ class TableColumnControls extends StatefulWidget {
     Animation<double> secondaryAnimation,
   )? resizeHandleBuilder;
 
-  const TableColumnControls({
+  TableColumnControls({
     super.key,
     required this.scrollController,
     required this.columns,
-    required this.onColumnsChange,
+    this.onColumnsChange,
     required this.child,
+    ColumnResizeCallback? onColumnResize,
     this.barrierColor,
     this.resizeHandleBuilder = _defaultResizeHandleBuilder,
-  });
+  }) : onColumnResize = onColumnResize ??
+            (onColumnsChange == null
+                ? _defaultOnColumnResize
+                : (index, column) {
+                    final list = columns.toList(growable: false);
+                    list[index] = column;
+                    onColumnsChange(list);
+                  });
+
+  static void _defaultOnColumnResize(int _, TableColumn __) {}
 
   @override
   State<StatefulWidget> createState() => _TableColumnControlsState();
@@ -397,14 +416,10 @@ class _WidgetState extends State<_Widget> {
     return delta;
   }
 
-  void _resizeUpdateColumns() {
-    final columns = widget.tableColumnControls.columns.toList(growable: false);
-    columns[widget.columnIndex] = widget
-        .tableColumnControls.columns[widget.columnIndex]
-        .copyWith(width: width);
-
-    widget.tableColumnControls.onColumnsChange(columns);
-  }
+  void _resizeUpdateColumns() => widget.tableColumnControls.onColumnResize(
+      widget.columnIndex,
+      widget.tableColumnControls.columns[widget.columnIndex]
+          .copyWith(width: width));
 
   void _resizeEnd(DragEndDetails details) {
     scrollHold?.cancel();
