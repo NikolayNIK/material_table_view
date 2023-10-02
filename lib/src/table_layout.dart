@@ -393,7 +393,7 @@ class TableContentLayoutState extends State<TableContentLayout>
                   .transform(rightDividerAnimationValue);
     }
 
-    return _lastLayoutData = TableContentLayoutData(
+    final data = _lastLayoutData = TableContentLayoutData(
       leftWidth: leftWidth,
       centerWidth: centerWidth,
       rightWidth: rightWidth,
@@ -422,6 +422,10 @@ class TableContentLayoutState extends State<TableContentLayout>
         wiggleOffset: rightDividerWiggleOffset,
       ),
     );
+
+    notifyListeners();
+
+    return data;
   }
 
   @override
