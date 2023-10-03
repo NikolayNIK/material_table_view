@@ -206,7 +206,7 @@ class TableContentLayoutState extends State<TableContentLayout>
         }
 
         columnsLeft.add(i);
-        columnOffsetsLeft.add(leftOffset);
+        columnOffsetsLeft.add(leftOffset + column.translation);
         leftOffset += column.width;
       } else if (leftOffset +
               centerOffset +
@@ -216,7 +216,7 @@ class TableContentLayoutState extends State<TableContentLayout>
           widget.width) {
         if (centerOffset >= -column.width) {
           columnsCenter.add(i);
-          columnOffsetsCenter.add(centerOffset);
+          columnOffsetsCenter.add(centerOffset + column.translation);
         }
         centerOffset += column.width;
       } else {
@@ -233,7 +233,7 @@ class TableContentLayoutState extends State<TableContentLayout>
 
             columnsRight.add(j);
             rightOffset -= column.width;
-            columnOffsetsRight.add(rightOffset);
+            columnOffsetsRight.add(rightOffset + column.translation);
 
             final maxVisibleOffset = widget.width - leftOffset + rightOffset;
             while (columnsCenter.isNotEmpty &&

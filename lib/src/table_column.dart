@@ -8,6 +8,7 @@ class TableColumn {
     this.freezePriority = 0,
     this.sticky = false,
     this.flex = 0,
+    this.translation = 0,
   })  : assert(freezePriority >= 0),
         assert(
           freezePriority != 0 || !sticky,
@@ -32,6 +33,10 @@ class TableColumn {
   /// width in proportion to the total flex of all columns.
   final int flex;
 
+  /// Horizontal (x) translation of the column. Does not affect the layout
+  /// of other columns. Primarily used for animations.
+  final double translation;
+
   /// Check whether or not the column is frozen at a given priority.
   bool frozenAt(int priority) => freezePriority > priority;
 
@@ -40,11 +45,13 @@ class TableColumn {
     int? freezePriority,
     bool? sticky,
     int? flex,
+    double? translation,
   }) =>
       TableColumn(
         width: width ?? this.width,
         freezePriority: freezePriority ?? this.freezePriority,
         sticky: sticky ?? this.sticky,
         flex: flex ?? this.flex,
+        translation: translation ?? this.translation,
       );
 }
