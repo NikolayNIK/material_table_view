@@ -47,9 +47,10 @@ class ShimmerPlaceholderShadeProvider extends StatefulWidget {
 class _ShimmerPlaceholderShadeProviderState
     extends State<ShimmerPlaceholderShadeProvider>
     with
-        ChangeNotifier,
         SingleTickerProviderStateMixin<ShimmerPlaceholderShadeProvider>,
-        TablePlaceholderShade {
+        TablePlaceholderShade
+    implements Listenable {
+  final _listeners = <VoidCallback>[];
   late Ticker _ticker;
   bool _ticking = false;
   double _position = .0;
@@ -62,8 +63,19 @@ class _ShimmerPlaceholderShadeProviderState
   }
 
   @override
+  void addListener(VoidCallback listener) {
+    _listeners.add(listener);
+  }
+
+  @override
+  void removeListener(VoidCallback listener) {
+    _listeners.remove(listener);
+  }
+
+  @override
   void dispose() {
     _ticker.dispose();
+    _listeners.clear();
 
     super.dispose();
   }
@@ -90,7 +102,9 @@ class _ShimmerPlaceholderShadeProviderState
     _position = _position - _position.toInt();
     _position = 2 * _position - 1;
 
-    notifyListeners();
+    for (final listener in _listeners) {
+      listener();
+    }
   }
 
   @override
