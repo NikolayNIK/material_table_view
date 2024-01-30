@@ -33,7 +33,9 @@ typedef TableFooterBuilder = TableHeaderBuilder;
 
 /// Function used to wrap the body of a table.
 typedef TableBodyContainerBuilder = Widget Function(
-    BuildContext context, Widget bodyContainer);
+  BuildContext context,
+  Widget bodyContainer,
+);
 
 /// Function used to wrap a given placeholder widget containing all visible
 /// placeholders in order to achieve some custom behaviour.
