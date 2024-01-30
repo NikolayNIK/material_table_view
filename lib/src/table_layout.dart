@@ -49,14 +49,14 @@ class TableContentLayout extends StatefulWidget {
 }
 
 class TableContentLayoutState extends State<TableContentLayout>
-    with ChangeNotifier {
-  late TableContentLayoutData _lastLayoutData;
+    implements Listenable {
+  final _lastLayoutData = ValueNotifier<TableContentLayoutData?>(null);
 
   double _minStickyHorizontalOffset = .0;
   double _maxStickyHorizontalOffset = .0;
   int freezePriority = 0;
 
-  TableContentLayoutData get lastLayoutData => _lastLayoutData;
+  TableContentLayoutData get lastLayoutData => _lastLayoutData.value!;
 
   @override
   void initState() {
@@ -393,7 +393,7 @@ class TableContentLayoutState extends State<TableContentLayout>
                   .transform(rightDividerAnimationValue);
     }
 
-    final data = _lastLayoutData = TableContentLayoutData(
+    final data = TableContentLayoutData(
       leftWidth: leftWidth,
       centerWidth: centerWidth,
       rightWidth: rightWidth,
@@ -433,7 +433,7 @@ class TableContentLayoutState extends State<TableContentLayout>
       ),
     );
 
-    notifyListeners();
+    _lastLayoutData.value = data;
 
     return data;
   }
@@ -443,6 +443,14 @@ class TableContentLayoutState extends State<TableContentLayout>
         data: calculateLayoutData(null),
         child: widget.child,
       );
+
+  @override
+  void addListener(VoidCallback listener) =>
+      _lastLayoutData.addListener(listener);
+
+  @override
+  void removeListener(VoidCallback listener) =>
+      _lastLayoutData.removeListener(listener);
 }
 
 class _InheritedTableContentLayout extends InheritedWidget {
