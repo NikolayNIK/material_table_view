@@ -31,11 +31,13 @@ class TableContentColumnData {
   final List<int> indices;
   final List<double> positions;
   final List<double> widths;
+  final List<Key> keys;
 
   TableContentColumnData({
     required this.indices,
     required this.positions,
     required this.widths,
+    required this.keys,
   });
 }
 
@@ -43,13 +45,18 @@ class TableContentColumnData {
 /// a table.
 @immutable
 class TableContentLayoutData {
-  final TableContentColumnData scrollableColumns, fixedColumns;
+  final TableContentColumnData scrollableColumns,
+      fixedColumns;
+
+  final List<int> leadingColumnIndices, trailingColumnIndices;
 
   final TableContentDividerData leftDivider, rightDivider;
   final double leftWidth, centerWidth, rightWidth;
 
   TableContentLayoutData({
     required this.scrollableColumns,
+    required this.leadingColumnIndices,
+    required this.trailingColumnIndices,
     required this.fixedColumns,
     required this.leftDivider,
     required this.rightDivider,

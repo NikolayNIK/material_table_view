@@ -40,6 +40,14 @@ class TableColumn {
   /// Check whether or not the column is frozen at a given priority.
   bool frozenAt(int priority) => freezePriority > priority;
 
+  /// A key to identify the column. By default the column is identified by its
+  /// index.
+  ///
+  /// A need to identify the column in a more concrete way may arise when
+  /// the column is being moved around as its index changes but the column
+  /// itself doesn't.
+  Key? get key => null;
+
   TableColumn copyWith({
     double? width,
     int? freezePriority,

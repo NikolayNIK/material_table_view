@@ -45,7 +45,7 @@ class TableViewRow extends StatelessWidget {
             Iterable.generate(columnData.indices.length).map((i) {
               final columnIndex = columnData.indices[i];
               return _TableViewCell(
-                key: ValueKey<int>(columnIndex),
+                key: columnData.keys[i],
                 width: columnData.widths[i],
                 // height: data.rowHeight,
                 position: columnData.positions[i],
