@@ -5,11 +5,11 @@ import 'package:flutter/scheduler.dart';
 import 'package:material_table_view/src/table_column.dart';
 import 'package:material_table_view/src/table_layout.dart';
 
-PreferredSizeWidget _defaultResizeHandleBuilder(
+PreferredSizeWidget _buildAnimatedIconButton(
   BuildContext context,
-  bool leading,
   Animation<double> animation,
   Animation<double> secondaryAnimation,
+  IconData icon,
 ) {
   final density = Theme.of(context).visualDensity;
 
@@ -42,7 +42,7 @@ PreferredSizeWidget _defaultResizeHandleBuilder(
               child: Center(
                 child: FittedBox(
                   child: Icon(
-                    leading ? Icons.switch_right : Icons.switch_left,
+                    icon,
                   ),
                 ),
               ),
@@ -54,7 +54,36 @@ PreferredSizeWidget _defaultResizeHandleBuilder(
   );
 }
 
+PreferredSizeWidget _defaultResizeHandleBuilder(
+  BuildContext context,
+  bool leading,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+) =>
+    _buildAnimatedIconButton(
+      context,
+      animation,
+      secondaryAnimation,
+      leading ? Icons.switch_right : Icons.switch_left,
+    );
+
+PreferredSizeWidget _defaultDragHandleBuilder(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+) =>
+    _buildAnimatedIconButton(
+      context,
+      animation,
+      secondaryAnimation,
+      Icons.drag_indicator,
+    );
+
 typedef void ColumnResizeCallback(int index, TableColumn newColumn);
+
+typedef void ColumnMoveCallback(int oldIndex, int newIndex);
+
+typedef void ColumnTranslateCallback(int index, TableColumn newColumn);
 
 class TableColumnControls extends StatefulWidget {
   final List<TableColumn> columns;
@@ -64,6 +93,10 @@ class TableColumnControls extends StatefulWidget {
   final void Function(List<TableColumn> columns)? onColumnsChange;
 
   final ColumnResizeCallback onColumnResize;
+
+  final ColumnMoveCallback onColumnMove;
+
+  final ColumnTranslateCallback onColumnTranslate;
 
   final Widget child;
 
@@ -76,6 +109,12 @@ class TableColumnControls extends StatefulWidget {
     Animation<double> secondaryAnimation,
   )? resizeHandleBuilder;
 
+  final PreferredSizeWidget Function(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  )? dragHandleBuilder;
+
   TableColumnControls({
     super.key,
     required this.scrollController,
@@ -83,18 +122,40 @@ class TableColumnControls extends StatefulWidget {
     this.onColumnsChange,
     required this.child,
     ColumnResizeCallback? onColumnResize,
+    ColumnMoveCallback? onColumnMove,
+    ColumnTranslateCallback? onColumnTranslate,
     this.barrierColor,
     this.resizeHandleBuilder = _defaultResizeHandleBuilder,
-  }) : onColumnResize = onColumnResize ??
+    this.dragHandleBuilder = _defaultDragHandleBuilder,
+  })  : onColumnResize = onColumnResize ??
             (onColumnsChange == null
                 ? _defaultOnColumnResize
                 : (index, column) {
                     final list = columns.toList(growable: false);
                     list[index] = column;
                     onColumnsChange(list);
-                  });
+                  }),
+        onColumnMove = onColumnMove ??
+            (onColumnsChange == null
+                ? _defaultOnColumnMove
+                : ((oldIndex, newIndex) {
+                    final list = columns.toList();
+                    list.insert(newIndex, list.removeAt(oldIndex));
+                    print('$oldIndex $newIndex');
+                    onColumnsChange(list);
+                  })),
+        onColumnTranslate = onColumnTranslate ??
+            (onColumnsChange == null
+                ? _defaultOnColumnResize
+                : ((index, column) {
+                    final list = columns.toList(growable: false);
+                    list[index] = column;
+                    onColumnsChange(list);
+                  }));
 
   static void _defaultOnColumnResize(int _, TableColumn __) {}
+
+  static void _defaultOnColumnMove(int _, int __) {}
 
   @override
   State<StatefulWidget> createState() => _TableColumnControlsState();
@@ -246,6 +307,11 @@ class _WidgetState extends State<_Widget> {
   late double minColumnWidth;
   bool popped = false;
 
+  late int columnIndex;
+  late double dragValue;
+  late List<int> movingColumnsIndices;
+  late int movingColumnsTargetIndex;
+
   double leadingResizeHandleCorrection = .0,
       trailingResizeHandleCorrection = .0;
 
@@ -255,6 +321,7 @@ class _WidgetState extends State<_Widget> {
   void initState() {
     super.initState();
 
+    columnIndex = widget.columnIndex;
     widget.tableContentLayoutState.addListener(_parentDataChanged);
     widget.tableColumnControls.scrollController
         .addListener(_horizontalScrollChanged);
@@ -295,16 +362,20 @@ class _WidgetState extends State<_Widget> {
         if (mounted) setState(() {});
       });
 
+  void abort() {
+    if (!popped) {
+      popped = true;
+      SchedulerBinding.instance
+          .addPostFrameCallback((timeStamp) => Navigator.pop(context));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!widget.cellRenderObject.attached ||
         !widget.tableColumnControlsRenderObject.attached ||
         !widget.tableContentLayoutState.mounted) {
-      if (!popped) {
-        popped = true;
-        SchedulerBinding.instance
-            .addPostFrameCallback((timeStamp) => Navigator.pop(context));
-      }
+      abort();
 
       return SizedBox();
     }
@@ -315,23 +386,27 @@ class _WidgetState extends State<_Widget> {
     this.leadingResizeHandleCorrection = .0;
     this.trailingResizeHandleCorrection = .0;
 
-    final leadingResizeHandle = widget.columnIndex == 0
+    final leadingResizeHandle = columnIndex == 0
         ? null
         : widget.tableColumnControls.resizeHandleBuilder
             ?.call(context, true, widget.animation, widget.secondaryAnimation);
 
-    final trailingResizeHandle = widget.columnIndex + 1 ==
+    final trailingResizeHandle = columnIndex + 1 ==
             widget.tableColumnControls.columns.length
         ? null
         : widget.tableColumnControls.resizeHandleBuilder
             ?.call(context, false, widget.animation, widget.secondaryAnimation);
 
+    final dragHandle = widget.tableColumnControls.dragHandleBuilder
+        ?.call(context, widget.animation, widget.secondaryAnimation);
+
     final offset = widget.tableColumnControlsRenderObject
         .globalToLocal(widget.cellRenderObject.localToGlobal(Offset.zero));
 
-    minColumnWidth = .5 *
-        ((leadingResizeHandle?.preferredSize.width ?? .0) +
-            (trailingResizeHandle?.preferredSize.height ?? .0));
+    minColumnWidth = (dragHandle?.preferredSize.width ?? .0) +
+        (((leadingResizeHandle?.preferredSize.width ?? .0) +
+                (trailingResizeHandle?.preferredSize.height ?? .0))) /
+            2;
 
     return LayoutBuilder(
       builder: (context, constraints) => Stack(
@@ -352,6 +427,23 @@ class _WidgetState extends State<_Widget> {
                 onHorizontalDragUpdate: _resizeUpdateLeading,
                 onHorizontalDragEnd: _resizeEnd,
                 child: leadingResizeHandle,
+              ),
+            ),
+          if (dragHandle != null)
+            Positioned(
+              left: offset.dx +
+                  widget.cellRenderObject.size.width / 2 -
+                  dragHandle.preferredSize.width / 2,
+              top: offset.dy +
+                  widget.cellRenderObject.size.height -
+                  dragHandle.preferredSize.height / 2,
+              width: dragHandle.preferredSize.width,
+              height: dragHandle.preferredSize.height,
+              child: GestureDetector(
+                onHorizontalDragStart: _dragStart,
+                onHorizontalDragUpdate: _dragUpdate,
+                onHorizontalDragEnd: _dragEnd,
+                child: dragHandle,
               ),
             ),
           if (trailingResizeHandle != null)
@@ -378,7 +470,7 @@ class _WidgetState extends State<_Widget> {
   }
 
   void _resizeStart(DragStartDetails details) {
-    width = widget.tableColumnControls.columns[widget.columnIndex].width;
+    width = widget.tableColumnControls.columns[columnIndex].width;
     scrollHold =
         widget.tableColumnControls.scrollController.position.hold(() {});
   }
@@ -417,12 +509,73 @@ class _WidgetState extends State<_Widget> {
   }
 
   void _resizeUpdateColumns() => widget.tableColumnControls.onColumnResize(
-      widget.columnIndex,
-      widget.tableColumnControls.columns[widget.columnIndex]
-          .copyWith(width: width));
+      columnIndex,
+      widget.tableColumnControls.columns[columnIndex].copyWith(width: width));
 
   void _resizeEnd(DragEndDetails details) {
     scrollHold?.cancel();
     scrollHold = null;
   }
+
+  void _dragStart(DragStartDetails details) {
+    dragValue = 0;
+
+    for (final list in [
+      widget.tableContentLayoutState.lastLayoutData.leadingColumnIndices,
+      widget.tableContentLayoutState.lastLayoutData.scrollableColumns.indices,
+      widget.tableContentLayoutState.lastLayoutData.trailingColumnIndices
+    ]) {
+      movingColumnsTargetIndex = list.indexOf(columnIndex);
+      if (movingColumnsTargetIndex != -1) {
+        movingColumnsIndices = list;
+        break;
+      }
+    }
+
+    assert(
+      movingColumnsTargetIndex != -1,
+      'Could not find the column moved in the layout.'
+      ' TableColumnControls should\'ve been popped by now.',
+    );
+  }
+
+  void _dragUpdate(DragUpdateDetails details) {
+    dragValue += details.delta.dx;
+
+    if (dragValue > 0) {
+      final nextIndex = movingColumnsTargetIndex + 1;
+      if (nextIndex >= movingColumnsIndices.length) {
+        return;
+      }
+
+      final nextWidth = widget
+          .tableColumnControls.columns[movingColumnsIndices[nextIndex]].width;
+      if (dragValue > nextWidth / 2) {
+        widget.tableColumnControls
+            .onColumnMove(columnIndex, movingColumnsIndices[nextIndex]);
+        dragValue -= nextWidth;
+        columnIndex++;
+        movingColumnsTargetIndex++;
+        return;
+      }
+    } else if (dragValue < 0) {
+      final nextIndex = movingColumnsTargetIndex - 1;
+      if (nextIndex < 0) {
+        return;
+      }
+
+      final nextWidth = widget
+          .tableColumnControls.columns[movingColumnsIndices[nextIndex]].width;
+      if (dragValue < -nextWidth / 2) {
+        widget.tableColumnControls
+            .onColumnMove(columnIndex, movingColumnsIndices[nextIndex]);
+        dragValue += nextWidth;
+        columnIndex--;
+        movingColumnsTargetIndex--;
+        return;
+      }
+    }
+  }
+
+  void _dragEnd(DragEndDetails details) {}
 }
