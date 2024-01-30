@@ -398,17 +398,27 @@ class TableContentLayoutState extends State<TableContentLayout>
       centerWidth: centerWidth,
       rightWidth: rightWidth,
       scrollableColumns: TableContentColumnData(
-          indices: columnsCenter,
-          positions: columnOffsetsCenter,
-          widths: columnsCenter
-              .map((e) => widget.columns[e].width)
-              .toList(growable: false)),
+        indices: columnsCenter,
+        positions: columnOffsetsCenter,
+        widths: columnsCenter
+            .map((e) => widget.columns[e].width)
+            .toList(growable: false),
+        keys: columnsCenter
+            .map((e) => widget.columns[e].key ?? ValueKey(e))
+            .toList(growable: false),
+      ),
+      leadingColumnIndices: columnsLeft,
+      trailingColumnIndices: columnsRight,
       fixedColumns: TableContentColumnData(
-          indices: columnsFixed,
-          positions: columnOffsetsFixed,
-          widths: columnsFixed
-              .map((e) => widget.columns[e].width)
-              .toList(growable: false)),
+        indices: columnsFixed,
+        positions: columnOffsetsFixed,
+        widths: columnsFixed
+            .map((e) => widget.columns[e].width)
+            .toList(growable: false),
+        keys: columnsFixed
+            .map((e) => widget.columns[e].key ?? ValueKey(e))
+            .toList(growable: false),
+      ),
       leftDivider: TableContentDividerData(
         color: leftDividerColor,
         thickness: widget.verticalDividersStyle.leading.thickness,
