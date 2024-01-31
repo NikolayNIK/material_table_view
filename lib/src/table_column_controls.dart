@@ -206,7 +206,8 @@ class _TableColumnControlsState extends State<TableColumnControls> {
 
     final ScrollController horizontalScrollController;
     {
-      final state = context.findAncestorStateOfType<TableViewHorizontalScrollControllerProvider>();
+      final state = context.findAncestorStateOfType<
+          TableViewHorizontalScrollControllerProvider>();
       assert(state != null, 'No TableView ancestor found');
       horizontalScrollController = state!.horizontalScrollController;
     }
@@ -332,8 +333,7 @@ class _WidgetState extends State<_Widget> {
 
     columnIndex = widget.columnIndex;
     widget.tableContentLayoutState.addListener(_parentDataChanged);
-    widget.horizontalScrollController
-        .addListener(_horizontalScrollChanged);
+    widget.horizontalScrollController.addListener(_horizontalScrollChanged);
   }
 
   @override
@@ -357,8 +357,7 @@ class _WidgetState extends State<_Widget> {
   @override
   void dispose() {
     widget.tableContentLayoutState.removeListener(_parentDataChanged);
-    widget.horizontalScrollController
-        .removeListener(_horizontalScrollChanged);
+    widget.horizontalScrollController.removeListener(_horizontalScrollChanged);
     scrollHold?.cancel();
 
     super.dispose();
@@ -480,8 +479,7 @@ class _WidgetState extends State<_Widget> {
 
   void _resizeStart(DragStartDetails details) {
     width = widget.tableColumnControls.columns[columnIndex].width;
-    scrollHold =
-        widget.horizontalScrollController.position.hold(() {});
+    scrollHold = widget.horizontalScrollController.position.hold(() {});
   }
 
   void _resizeUpdateLeading(DragUpdateDetails details) {
@@ -493,8 +491,7 @@ class _WidgetState extends State<_Widget> {
     scrollPosition.jumpTo(scrollPosition.pixels + delta);
 
     scrollHold?.cancel();
-    scrollHold =
-        widget.horizontalScrollController.position.hold(() {});
+    scrollHold = widget.horizontalScrollController.position.hold(() {});
   }
 
   void _resizeUpdateTrailing(DragUpdateDetails details) {
