@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:material_table_view/material_table_view.dart';
 import 'package:material_table_view/src/table_column.dart';
 import 'package:material_table_view/src/table_layout.dart';
+import 'package:material_table_view/src/table_view_horizontal_scroll_controller_provider.dart';
 
 PreferredSizeWidget _buildAnimatedIconButton(
   BuildContext context,
@@ -88,8 +90,6 @@ typedef void ColumnTranslateCallback(int index, TableColumn newColumn);
 class TableColumnControls extends StatefulWidget {
   final List<TableColumn> columns;
 
-  final ScrollController scrollController;
-
   final void Function(List<TableColumn> columns)? onColumnsChange;
 
   final ColumnResizeCallback onColumnResize;
@@ -117,7 +117,6 @@ class TableColumnControls extends StatefulWidget {
 
   TableColumnControls({
     super.key,
-    required this.scrollController,
     required this.columns,
     this.onColumnsChange,
     required this.child,
@@ -205,12 +204,20 @@ class _TableColumnControlsState extends State<TableColumnControls> {
       ro = obj as RenderBox;
     }
 
+    final ScrollController horizontalScrollController;
+    {
+      final state = context.findAncestorStateOfType<TableViewHorizontalScrollControllerProvider>();
+      assert(state != null, 'No TableView ancestor found');
+      horizontalScrollController = state!.horizontalScrollController;
+    }
+
     await Navigator.of(context).push(
       _ControlsPopupRoute(
         barrierColor: widget.barrierColor,
         builder: (context, animation, secondaryAnimation) => _Widget(
           animation: animation,
           secondaryAnimation: secondaryAnimation,
+          horizontalScrollController: horizontalScrollController,
           tableColumnControlsRenderObject:
               this.context.findRenderObject() as RenderBox,
           tableContentLayoutState: tableContentLayoutState,
@@ -282,6 +289,7 @@ class _ControlsPopupRoute extends ModalRoute<void> {
 
 class _Widget extends StatefulWidget {
   final Animation<double> animation, secondaryAnimation;
+  final ScrollController horizontalScrollController;
   final TableColumnControls tableColumnControls;
   final RenderBox tableColumnControlsRenderObject;
   final TableContentLayoutState tableContentLayoutState;
@@ -291,6 +299,7 @@ class _Widget extends StatefulWidget {
   const _Widget({
     required this.animation,
     required this.secondaryAnimation,
+    required this.horizontalScrollController,
     required this.tableColumnControls,
     required this.tableColumnControlsRenderObject,
     required this.tableContentLayoutState,
@@ -323,7 +332,7 @@ class _WidgetState extends State<_Widget> {
 
     columnIndex = widget.columnIndex;
     widget.tableContentLayoutState.addListener(_parentDataChanged);
-    widget.tableColumnControls.scrollController
+    widget.horizontalScrollController
         .addListener(_horizontalScrollChanged);
   }
 
@@ -336,11 +345,11 @@ class _WidgetState extends State<_Widget> {
       widget.tableContentLayoutState.addListener(_parentDataChanged);
     }
 
-    if (oldWidget.tableColumnControls.scrollController !=
-        oldWidget.tableColumnControls.scrollController) {
-      oldWidget.tableColumnControls.scrollController
+    if (oldWidget.horizontalScrollController !=
+        oldWidget.horizontalScrollController) {
+      oldWidget.horizontalScrollController
           .removeListener(_horizontalScrollChanged);
-      oldWidget.tableColumnControls.scrollController
+      oldWidget.horizontalScrollController
           .addListener(_horizontalScrollChanged);
     }
   }
@@ -348,7 +357,7 @@ class _WidgetState extends State<_Widget> {
   @override
   void dispose() {
     widget.tableContentLayoutState.removeListener(_parentDataChanged);
-    widget.tableColumnControls.scrollController
+    widget.horizontalScrollController
         .removeListener(_horizontalScrollChanged);
     scrollHold?.cancel();
 
@@ -472,7 +481,7 @@ class _WidgetState extends State<_Widget> {
   void _resizeStart(DragStartDetails details) {
     width = widget.tableColumnControls.columns[columnIndex].width;
     scrollHold =
-        widget.tableColumnControls.scrollController.position.hold(() {});
+        widget.horizontalScrollController.position.hold(() {});
   }
 
   void _resizeUpdateLeading(DragUpdateDetails details) {
@@ -480,12 +489,12 @@ class _WidgetState extends State<_Widget> {
 
     leadingResizeHandleCorrection -= delta;
 
-    final scrollPosition = widget.tableColumnControls.scrollController.position;
+    final scrollPosition = widget.horizontalScrollController.position;
     scrollPosition.jumpTo(scrollPosition.pixels + delta);
 
     scrollHold?.cancel();
     scrollHold =
-        widget.tableColumnControls.scrollController.position.hold(() {});
+        widget.horizontalScrollController.position.hold(() {});
   }
 
   void _resizeUpdateTrailing(DragUpdateDetails details) {

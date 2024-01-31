@@ -11,6 +11,7 @@ import 'package:material_table_view/src/table_row.dart';
 import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_view.dart';
+import 'package:material_table_view/src/table_view_horizontal_scroll_controller_provider.dart';
 import 'package:material_table_view/src/table_view_style_resolved.dart';
 
 /// This is a sliver variant of the [TableView] widget.
@@ -50,9 +51,14 @@ class SliverTableView extends TableView {
   State<TableView> createState() => _SliverTableViewState();
 }
 
-class _SliverTableViewState extends State<SliverTableView> {
+class _SliverTableViewState extends State<SliverTableView>
+    implements TableViewHorizontalScrollControllerProvider<SliverTableView> {
   late ScrollController _horizontalScrollController;
   late ValueNotifier<double> _horizontalStickyOffset;
+
+  @override
+  ScrollController get horizontalScrollController =>
+      _horizontalScrollController;
 
   @override
   void initState() {

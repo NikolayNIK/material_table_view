@@ -13,6 +13,7 @@ import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
+import 'package:material_table_view/src/table_view_horizontal_scroll_controller_provider.dart';
 import 'package:material_table_view/src/table_view_style.dart';
 import 'package:material_table_view/src/table_view_style_resolved.dart';
 import 'package:material_table_view/src/table_viewport.dart';
@@ -134,9 +135,14 @@ class TableView extends StatefulWidget {
   State<TableView> createState() => _TableViewState();
 }
 
-class _TableViewState extends State<TableView> {
+class _TableViewState extends State<TableView>
+    implements TableViewHorizontalScrollControllerProvider<TableView> {
   late TableViewController _controller;
   final _stickyHorizontalOffset = ValueNotifier<double>(.0);
+
+  @override
+  ScrollController get horizontalScrollController =>
+      _controller.horizontalScrollController;
 
   @override
   void initState() {
