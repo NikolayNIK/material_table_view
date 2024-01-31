@@ -312,7 +312,8 @@ class _Widget extends StatefulWidget {
   State<_Widget> createState() => _WidgetState();
 }
 
-class _WidgetState extends State<_Widget> {
+class _WidgetState extends State<_Widget>
+    with TickerProviderStateMixin<_Widget> {
   late double width;
   late double minColumnWidth;
   bool popped = false;
@@ -548,6 +549,8 @@ class _WidgetState extends State<_Widget> {
   void _dragUpdate(DragUpdateDetails details) {
     dragValue += details.delta.dx;
 
+    late final width = widget.tableColumnControls.columns[columnIndex].width;
+
     if (dragValue > 0) {
       final nextIndex = movingColumnsTargetIndex + 1;
       if (nextIndex >= movingColumnsIndices.length) {
@@ -557,6 +560,8 @@ class _WidgetState extends State<_Widget> {
       final nextWidth = widget
           .tableColumnControls.columns[movingColumnsIndices[nextIndex]].width;
       if (dragValue > nextWidth / 2) {
+        _animateColumnTranslation(columnIndex, -nextWidth);
+        _animateColumnTranslation(movingColumnsIndices[nextIndex], width);
         widget.tableColumnControls
             .onColumnMove(columnIndex, movingColumnsIndices[nextIndex]);
         dragValue -= nextWidth;
@@ -573,8 +578,11 @@ class _WidgetState extends State<_Widget> {
       final nextWidth = widget
           .tableColumnControls.columns[movingColumnsIndices[nextIndex]].width;
       if (dragValue < -nextWidth / 2) {
+        _animateColumnTranslation(columnIndex, nextWidth);
+        _animateColumnTranslation(movingColumnsIndices[nextIndex], -width);
         widget.tableColumnControls
             .onColumnMove(columnIndex, movingColumnsIndices[nextIndex]);
+
         dragValue += nextWidth;
         columnIndex--;
         movingColumnsTargetIndex--;
@@ -584,4 +592,76 @@ class _WidgetState extends State<_Widget> {
   }
 
   void _dragEnd(DragEndDetails details) {}
+
+  void _animateColumnTranslation(int globalIndex, double translation) {
+    final ticker = <Ticker>[];
+
+    void stop() {
+      ticker[0]
+        ..stop()
+        ..dispose();
+    }
+
+    final Key key;
+    {
+      final column = widget.tableColumnControls.columns[globalIndex];
+      key = column.key!;
+      widget.tableColumnControls.onColumnTranslate(globalIndex,
+          column.copyWith(translation: column.translation + translation));
+    }
+
+    final currentGlobalIndex = <int>[globalIndex];
+    final translationLeft = <double>[-translation];
+    final lastElapsed = <Duration>[Duration.zero];
+
+    const animationDuration = Duration(milliseconds: 200);
+
+    ticker.add(createTicker((elapsed) {
+      final columns = widget.tableColumnControls.columns;
+
+      var index = currentGlobalIndex[0];
+      TableColumn? column;
+      if (index > columns.length ||
+          (column = columns[currentGlobalIndex[0]]).key != key) {
+        for (var i = 0; i < columns.length; i++) {
+          if (columns[i].key == key) {
+            column = columns[i];
+            index = currentGlobalIndex[0] = i;
+            break;
+          }
+        }
+      }
+
+      if (column == null) {
+        stop();
+        return;
+      }
+
+      if (elapsed >= animationDuration) {
+        widget.tableColumnControls.onColumnTranslate(
+            index,
+            column.copyWith(
+                translation: column.translation + translationLeft[0]));
+        stop();
+        return;
+      }
+
+      final valuePrev =
+          lastElapsed[0].inMicroseconds / animationDuration.inMicroseconds;
+
+      final valueNext =
+          elapsed.inMicroseconds / animationDuration.inMicroseconds;
+
+      const curve = Curves.fastOutSlowIn;
+      final deltaTranslation = -translation *
+          (curve.transform(valueNext) - curve.transform(valuePrev));
+
+      lastElapsed[0] = elapsed;
+
+      translationLeft[0] -= deltaTranslation;
+      widget.tableColumnControls.onColumnTranslate(index,
+          column.copyWith(translation: column.translation + deltaTranslation));
+    })
+      ..start());
+  }
 }
