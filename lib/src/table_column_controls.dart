@@ -293,7 +293,8 @@ class _WidgetState extends State<_Widget>
   late int movingColumnsTargetIndex;
 
   double leadingResizeHandleCorrection = .0,
-      trailingResizeHandleCorrection = .0;
+      trailingResizeHandleCorrection = .0,
+      moveHandleCorrection = .0;
 
   ScrollHoldController? scrollHold;
 
@@ -360,9 +361,11 @@ class _WidgetState extends State<_Widget>
 
     final leadingResizeHandleCorrection = this.leadingResizeHandleCorrection;
     final trailingResizeHandleCorrection = this.trailingResizeHandleCorrection;
+    final moveHandleCorrection = this.moveHandleCorrection;
 
     this.leadingResizeHandleCorrection = .0;
     this.trailingResizeHandleCorrection = .0;
+    this.moveHandleCorrection = .0;
 
     final leadingResizeHandle = columnIndex == 0
         ? null
@@ -411,7 +414,8 @@ class _WidgetState extends State<_Widget>
           if (widget.tableColumnControls.onColumnMove != null &&
               dragHandle != null)
             Positioned(
-              left: offset.dx +
+              left: moveHandleCorrection +
+                  offset.dx +
                   widget.cellRenderObject.size.width / 2 -
                   dragHandle.preferredSize.width / 2,
               top: offset.dy +
@@ -459,6 +463,7 @@ class _WidgetState extends State<_Widget>
     final delta = _resizeUpdate(-details.delta.dx);
 
     leadingResizeHandleCorrection -= delta;
+    moveHandleCorrection -= delta / 2;
 
     final scrollPosition = widget.horizontalScrollController.position;
     scrollPosition.jumpTo(scrollPosition.pixels + delta);
@@ -471,6 +476,7 @@ class _WidgetState extends State<_Widget>
     final delta = _resizeUpdate(details.delta.dx);
 
     trailingResizeHandleCorrection += delta;
+    moveHandleCorrection += delta / 2;
   }
 
   double _resizeUpdate(double delta) {
@@ -521,7 +527,8 @@ class _WidgetState extends State<_Widget>
   void _dragUpdate(DragUpdateDetails details) {
     dragValue += details.delta.dx;
 
-    late final width = widget.tableColumnControls.columns[columnIndex].width;
+    final column = widget.tableColumnControls.columns[columnIndex];
+    final width = column.width;
 
     if (dragValue > 0) {
       final nextIndex = movingColumnsTargetIndex + 1;
@@ -532,8 +539,8 @@ class _WidgetState extends State<_Widget>
       final nextWidth = widget
           .tableColumnControls.columns[movingColumnsIndices[nextIndex]].width;
       if (dragValue > nextWidth / 2) {
-        _animateColumnTranslation(columnIndex, -nextWidth);
-        _animateColumnTranslation(movingColumnsIndices[nextIndex], width);
+        _animateColumnTranslation(columnIndex, -nextWidth, column.key);
+        _animateColumnTranslation(movingColumnsIndices[nextIndex], width, null);
         widget.tableColumnControls.onColumnMove!(
             columnIndex, movingColumnsIndices[nextIndex]);
         dragValue -= nextWidth;
@@ -550,8 +557,9 @@ class _WidgetState extends State<_Widget>
       final nextWidth = widget
           .tableColumnControls.columns[movingColumnsIndices[nextIndex]].width;
       if (dragValue < -nextWidth / 2) {
-        _animateColumnTranslation(columnIndex, nextWidth);
-        _animateColumnTranslation(movingColumnsIndices[nextIndex], -width);
+        _animateColumnTranslation(columnIndex, nextWidth, column.key);
+        _animateColumnTranslation(
+            movingColumnsIndices[nextIndex], -width, null);
         widget.tableColumnControls.onColumnMove!(
             columnIndex, movingColumnsIndices[nextIndex]);
 
@@ -565,7 +573,11 @@ class _WidgetState extends State<_Widget>
 
   void _dragEnd(DragEndDetails details) {}
 
-  void _animateColumnTranslation(int globalIndex, double translation) {
+  void _animateColumnTranslation(
+    int globalIndex,
+    double translation,
+    Key? correctHandles,
+  ) {
     if (widget.tableColumnControls.onColumnTranslate == null) {
       return;
     }
@@ -613,11 +625,20 @@ class _WidgetState extends State<_Widget>
         return;
       }
 
+      void correctHandlesIfNecessary(double correction) {
+        if (correctHandles != null && column!.key == correctHandles) {
+          leadingResizeHandleCorrection += correction;
+          trailingResizeHandleCorrection += correction;
+          moveHandleCorrection += correction;
+        }
+      }
+
       if (elapsed >= animationDuration) {
         widget.tableColumnControls.onColumnTranslate?.call(
             index,
             column.copyWith(
                 translation: column.translation + translationLeft[0]));
+        correctHandlesIfNecessary(translationLeft[0]);
         stop();
         return;
       }
@@ -637,6 +658,8 @@ class _WidgetState extends State<_Widget>
       translationLeft[0] -= deltaTranslation;
       widget.tableColumnControls.onColumnTranslate?.call(index,
           column.copyWith(translation: column.translation + deltaTranslation));
+
+      correctHandlesIfNecessary(deltaTranslation);
     })
       ..start());
   }
