@@ -183,8 +183,8 @@ class _TableColumnControlsState extends State<TableColumnControls> {
 
     await Navigator.of(context).push(
       _ControlsPopupRoute(
-        barrierColor: widget.barrierColor,
         builder: (context, animation, secondaryAnimation) => _Widget(
+          barrierColor: widget.barrierColor,
           animation: animation,
           secondaryAnimation: secondaryAnimation,
           horizontalScrollController: horizontalScrollController,
@@ -201,8 +201,6 @@ class _TableColumnControlsState extends State<TableColumnControls> {
 }
 
 class _ControlsPopupRoute extends ModalRoute<void> {
-  final Color? barrierColor;
-
   final Widget Function(
     BuildContext context,
     Animation<double> animation,
@@ -211,7 +209,6 @@ class _ControlsPopupRoute extends ModalRoute<void> {
 
   _ControlsPopupRoute({
     required this.builder,
-    required this.barrierColor,
   });
 
   @override
@@ -255,9 +252,13 @@ class _ControlsPopupRoute extends ModalRoute<void> {
 
   @override
   bool get opaque => false;
+
+  @override
+  Color? get barrierColor => null;
 }
 
 class _Widget extends StatefulWidget {
+  final Color? barrierColor;
   final Animation<double> animation, secondaryAnimation;
   final ScrollController horizontalScrollController;
   final TableColumnControls tableColumnControls;
@@ -267,6 +268,7 @@ class _Widget extends StatefulWidget {
   final int columnIndex;
 
   const _Widget({
+    required this.barrierColor,
     required this.animation,
     required this.secondaryAnimation,
     required this.horizontalScrollController,
@@ -283,6 +285,8 @@ class _Widget extends StatefulWidget {
 
 class _WidgetState extends State<_Widget>
     with TickerProviderStateMixin<_Widget> {
+  final clearBarrierCounter = ValueNotifier<int>(0);
+
   late double width;
   late double minColumnWidth;
   bool popped = false;
@@ -393,6 +397,31 @@ class _WidgetState extends State<_Widget>
       builder: (context, constraints) => Stack(
         fit: StackFit.expand,
         children: [
+          if (widget.barrierColor != null)
+            IgnorePointer(
+              child: FadeTransition(
+                opacity: widget.animation,
+                child: ValueListenableBuilder(
+                  valueListenable: clearBarrierCounter,
+                  builder: (context, clearBarrierCounter, _) => SizedBox(
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: clearBarrierCounter == 0
+                          ? ColoredBox(
+                              color: widget.barrierColor!,
+                              child: SizedBox(
+                                width: double.infinity,
+                                height: double.infinity,
+                              ),
+                            )
+                          : null,
+                    ),
+                  ),
+                ),
+              ),
+            ),
           if (widget.tableColumnControls.onColumnResize != null &&
               leadingResizeHandle != null)
             Positioned(
@@ -457,6 +486,7 @@ class _WidgetState extends State<_Widget>
   void _resizeStart(DragStartDetails details) {
     width = widget.tableColumnControls.columns[columnIndex].width;
     scrollHold = widget.horizontalScrollController.position.hold(() {});
+    clearBarrierCounter.value++;
   }
 
   void _resizeUpdateLeading(DragUpdateDetails details) {
@@ -500,6 +530,7 @@ class _WidgetState extends State<_Widget>
   void _resizeEnd(DragEndDetails details) {
     scrollHold?.cancel();
     scrollHold = null;
+    clearBarrierCounter.value--;
   }
 
   void _dragStart(DragStartDetails details) {
@@ -522,6 +553,8 @@ class _WidgetState extends State<_Widget>
       'Could not find the column moved in the layout.'
       ' TableColumnControls should\'ve been popped by now.',
     );
+
+    clearBarrierCounter.value++;
   }
 
   void _dragUpdate(DragUpdateDetails details) {
@@ -571,7 +604,9 @@ class _WidgetState extends State<_Widget>
     }
   }
 
-  void _dragEnd(DragEndDetails details) {}
+  void _dragEnd(DragEndDetails details) {
+    clearBarrierCounter.value--;
+  }
 
   void _animateColumnTranslation(
     int globalIndex,
