@@ -90,13 +90,11 @@ typedef void ColumnTranslateCallback(int index, TableColumn newColumn);
 class TableColumnControls extends StatefulWidget {
   final List<TableColumn> columns;
 
-  final void Function(List<TableColumn> columns)? onColumnsChange;
+  final ColumnResizeCallback? onColumnResize;
 
-  final ColumnResizeCallback onColumnResize;
+  final ColumnMoveCallback? onColumnMove;
 
-  final ColumnMoveCallback onColumnMove;
-
-  final ColumnTranslateCallback onColumnTranslate;
+  final ColumnTranslateCallback? onColumnTranslate;
 
   final Widget child;
 
@@ -118,43 +116,14 @@ class TableColumnControls extends StatefulWidget {
   TableColumnControls({
     super.key,
     required this.columns,
-    this.onColumnsChange,
     required this.child,
-    ColumnResizeCallback? onColumnResize,
-    ColumnMoveCallback? onColumnMove,
-    ColumnTranslateCallback? onColumnTranslate,
+    this.onColumnResize,
+    this.onColumnMove,
+    this.onColumnTranslate,
     this.barrierColor,
     this.resizeHandleBuilder = _defaultResizeHandleBuilder,
     this.dragHandleBuilder = _defaultDragHandleBuilder,
-  })  : onColumnResize = onColumnResize ??
-            (onColumnsChange == null
-                ? _defaultOnColumnResize
-                : (index, column) {
-                    final list = columns.toList(growable: false);
-                    list[index] = column;
-                    onColumnsChange(list);
-                  }),
-        onColumnMove = onColumnMove ??
-            (onColumnsChange == null
-                ? _defaultOnColumnMove
-                : ((oldIndex, newIndex) {
-                    final list = columns.toList();
-                    list.insert(newIndex, list.removeAt(oldIndex));
-                    print('$oldIndex $newIndex');
-                    onColumnsChange(list);
-                  })),
-        onColumnTranslate = onColumnTranslate ??
-            (onColumnsChange == null
-                ? _defaultOnColumnResize
-                : ((index, column) {
-                    final list = columns.toList(growable: false);
-                    list[index] = column;
-                    onColumnsChange(list);
-                  }));
-
-  static void _defaultOnColumnResize(int _, TableColumn __) {}
-
-  static void _defaultOnColumnMove(int _, int __) {}
+  });
 
   @override
   State<StatefulWidget> createState() => _TableColumnControlsState();
@@ -421,7 +390,8 @@ class _WidgetState extends State<_Widget>
       builder: (context, constraints) => Stack(
         fit: StackFit.expand,
         children: [
-          if (leadingResizeHandle != null)
+          if (widget.tableColumnControls.onColumnResize != null &&
+              leadingResizeHandle != null)
             Positioned(
               left: offset.dx +
                   leadingResizeHandleCorrection -
@@ -438,7 +408,8 @@ class _WidgetState extends State<_Widget>
                 child: leadingResizeHandle,
               ),
             ),
-          if (dragHandle != null)
+          if (widget.tableColumnControls.onColumnMove != null &&
+              dragHandle != null)
             Positioned(
               left: offset.dx +
                   widget.cellRenderObject.size.width / 2 -
@@ -455,7 +426,8 @@ class _WidgetState extends State<_Widget>
                 child: dragHandle,
               ),
             ),
-          if (trailingResizeHandle != null)
+          if (widget.tableColumnControls.onColumnResize != null &&
+              trailingResizeHandle != null)
             Positioned(
               left: offset.dx +
                   trailingResizeHandleCorrection +
@@ -515,7 +487,7 @@ class _WidgetState extends State<_Widget>
     return delta;
   }
 
-  void _resizeUpdateColumns() => widget.tableColumnControls.onColumnResize(
+  void _resizeUpdateColumns() => widget.tableColumnControls.onColumnResize!(
       columnIndex,
       widget.tableColumnControls.columns[columnIndex].copyWith(width: width));
 
@@ -562,8 +534,8 @@ class _WidgetState extends State<_Widget>
       if (dragValue > nextWidth / 2) {
         _animateColumnTranslation(columnIndex, -nextWidth);
         _animateColumnTranslation(movingColumnsIndices[nextIndex], width);
-        widget.tableColumnControls
-            .onColumnMove(columnIndex, movingColumnsIndices[nextIndex]);
+        widget.tableColumnControls.onColumnMove!(
+            columnIndex, movingColumnsIndices[nextIndex]);
         dragValue -= nextWidth;
         columnIndex++;
         movingColumnsTargetIndex++;
@@ -580,8 +552,8 @@ class _WidgetState extends State<_Widget>
       if (dragValue < -nextWidth / 2) {
         _animateColumnTranslation(columnIndex, nextWidth);
         _animateColumnTranslation(movingColumnsIndices[nextIndex], -width);
-        widget.tableColumnControls
-            .onColumnMove(columnIndex, movingColumnsIndices[nextIndex]);
+        widget.tableColumnControls.onColumnMove!(
+            columnIndex, movingColumnsIndices[nextIndex]);
 
         dragValue += nextWidth;
         columnIndex--;
@@ -594,6 +566,10 @@ class _WidgetState extends State<_Widget>
   void _dragEnd(DragEndDetails details) {}
 
   void _animateColumnTranslation(int globalIndex, double translation) {
+    if (widget.tableColumnControls.onColumnTranslate == null) {
+      return;
+    }
+
     final ticker = <Ticker>[];
 
     void stop() {
@@ -606,7 +582,7 @@ class _WidgetState extends State<_Widget>
     {
       final column = widget.tableColumnControls.columns[globalIndex];
       key = column.key!;
-      widget.tableColumnControls.onColumnTranslate(globalIndex,
+      widget.tableColumnControls.onColumnTranslate!.call(globalIndex,
           column.copyWith(translation: column.translation + translation));
     }
 
@@ -638,7 +614,7 @@ class _WidgetState extends State<_Widget>
       }
 
       if (elapsed >= animationDuration) {
-        widget.tableColumnControls.onColumnTranslate(
+        widget.tableColumnControls.onColumnTranslate?.call(
             index,
             column.copyWith(
                 translation: column.translation + translationLeft[0]));
@@ -659,7 +635,7 @@ class _WidgetState extends State<_Widget>
       lastElapsed[0] = elapsed;
 
       translationLeft[0] -= deltaTranslation;
-      widget.tableColumnControls.onColumnTranslate(index,
+      widget.tableColumnControls.onColumnTranslate?.call(index,
           column.copyWith(translation: column.translation + deltaTranslation));
     })
       ..start());
