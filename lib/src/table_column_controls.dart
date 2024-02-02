@@ -84,7 +84,7 @@ PreferredSizeWidget _defaultDragHandleBuilder(
 typedef void ColumnResizeCallback(
   Key? tableWidgetKey,
   int index,
-  TableColumn newColumn,
+  double newWidth,
 );
 
 typedef void ColumnMoveCallback(
@@ -96,7 +96,7 @@ typedef void ColumnMoveCallback(
 typedef void ColumnTranslateCallback(
   Key? tableWidgetKey,
   int index,
-  TableColumn newColumn,
+  double newTranslation,
 );
 
 class TableColumnControls extends StatefulWidget {
@@ -544,11 +544,7 @@ class _WidgetState extends State<_Widget>
   }
 
   void _resizeUpdateColumns() => widget.tableColumnControls.onColumnResize!(
-      widget.tableWidgetKey,
-      columnIndex,
-      widget.tableColumnControls
-          .columns(widget.tableWidgetKey)[columnIndex]
-          .copyWith(width: width));
+      widget.tableWidgetKey, columnIndex, width);
 
   void _resizeEnd(DragEndDetails details) {
     scrollHold?.cancel();
@@ -653,9 +649,7 @@ class _WidgetState extends State<_Widget>
           .columns(widget.tableWidgetKey)[globalIndex];
       key = column.key!;
       widget.tableColumnControls.onColumnTranslate!.call(
-          widget.tableWidgetKey,
-          globalIndex,
-          column.copyWith(translation: column.translation + translation));
+          widget.tableWidgetKey, globalIndex, column.translation + translation);
     }
 
     final currentGlobalIndex = <int>[globalIndex];
@@ -697,8 +691,7 @@ class _WidgetState extends State<_Widget>
         widget.tableColumnControls.onColumnTranslate?.call(
             widget.tableWidgetKey,
             index,
-            column.copyWith(
-                translation: column.translation + translationLeft[0]));
+            column.translation + translationLeft[0]);
         correctHandlesIfNecessary(translationLeft[0]);
         stop();
         return;
@@ -718,9 +711,7 @@ class _WidgetState extends State<_Widget>
 
       translationLeft[0] -= deltaTranslation;
       widget.tableColumnControls.onColumnTranslate?.call(
-          widget.tableWidgetKey,
-          index,
-          column.copyWith(translation: column.translation + deltaTranslation));
+          widget.tableWidgetKey, index, column.translation + deltaTranslation);
 
       correctHandlesIfNecessary(deltaTranslation);
     })
