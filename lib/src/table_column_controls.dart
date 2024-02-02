@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:material_table_view/material_table_view.dart';
 import 'package:material_table_view/src/table_column.dart';
+import 'package:material_table_view/src/table_column_controls_controllable.dart';
 import 'package:material_table_view/src/table_layout.dart';
-import 'package:material_table_view/src/table_view_horizontal_scroll_controller_provider.dart';
 
 PreferredSizeWidget _buildAnimatedIconButton(
   BuildContext context,
@@ -81,14 +81,26 @@ PreferredSizeWidget _defaultDragHandleBuilder(
       Icons.drag_indicator,
     );
 
-typedef void ColumnResizeCallback(int index, TableColumn newColumn);
+typedef void ColumnResizeCallback(
+  Key? tableWidgetKey,
+  int index,
+  TableColumn newColumn,
+);
 
-typedef void ColumnMoveCallback(int oldIndex, int newIndex);
+typedef void ColumnMoveCallback(
+  Key? tableWidgetKey,
+  int oldIndex,
+  int newIndex,
+);
 
-typedef void ColumnTranslateCallback(int index, TableColumn newColumn);
+typedef void ColumnTranslateCallback(
+  Key? tableWidgetKey,
+  int index,
+  TableColumn newColumn,
+);
 
 class TableColumnControls extends StatefulWidget {
-  final List<TableColumn> columns;
+  final List<TableColumn> Function(Key? tableWidgetKey) columns;
 
   final ColumnResizeCallback? onColumnResize;
 
@@ -173,17 +185,21 @@ class _TableColumnControlsState extends State<TableColumnControls> {
       ro = obj as RenderBox;
     }
 
+    final Key? tableWidgetKey;
     final ScrollController horizontalScrollController;
     {
-      final state = context.findAncestorStateOfType<
-          TableViewHorizontalScrollControllerProvider>();
+      var state =
+          context.findAncestorStateOfType<TableColumnControlsControllable>();
       assert(state != null, 'No TableView ancestor found');
-      horizontalScrollController = state!.horizontalScrollController;
+      state = state!;
+      tableWidgetKey = state.key;
+      horizontalScrollController = state.horizontalScrollController;
     }
 
     await Navigator.of(context).push(
       _ControlsPopupRoute(
         builder: (context, animation, secondaryAnimation) => _Widget(
+          tableWidgetKey: tableWidgetKey,
           barrierColor: widget.barrierColor,
           animation: animation,
           secondaryAnimation: secondaryAnimation,
@@ -258,6 +274,7 @@ class _ControlsPopupRoute extends ModalRoute<void> {
 }
 
 class _Widget extends StatefulWidget {
+  final Key? tableWidgetKey;
   final Color? barrierColor;
   final Animation<double> animation, secondaryAnimation;
   final ScrollController horizontalScrollController;
@@ -268,6 +285,7 @@ class _Widget extends StatefulWidget {
   final int columnIndex;
 
   const _Widget({
+    required this.tableWidgetKey,
     required this.barrierColor,
     required this.animation,
     required this.secondaryAnimation,
@@ -377,7 +395,7 @@ class _WidgetState extends State<_Widget>
             ?.call(context, true, widget.animation, widget.secondaryAnimation);
 
     final trailingResizeHandle = columnIndex + 1 ==
-            widget.tableColumnControls.columns.length
+            widget.tableColumnControls.columns(widget.tableWidgetKey).length
         ? null
         : widget.tableColumnControls.resizeHandleBuilder
             ?.call(context, false, widget.animation, widget.secondaryAnimation);
@@ -484,7 +502,9 @@ class _WidgetState extends State<_Widget>
   }
 
   void _resizeStart(DragStartDetails details) {
-    width = widget.tableColumnControls.columns[columnIndex].width;
+    width = widget.tableColumnControls
+        .columns(widget.tableWidgetKey)[columnIndex]
+        .width;
     scrollHold = widget.horizontalScrollController.position.hold(() {});
     clearBarrierCounter.value++;
   }
@@ -524,8 +544,11 @@ class _WidgetState extends State<_Widget>
   }
 
   void _resizeUpdateColumns() => widget.tableColumnControls.onColumnResize!(
+      widget.tableWidgetKey,
       columnIndex,
-      widget.tableColumnControls.columns[columnIndex].copyWith(width: width));
+      widget.tableColumnControls
+          .columns(widget.tableWidgetKey)[columnIndex]
+          .copyWith(width: width));
 
   void _resizeEnd(DragEndDetails details) {
     scrollHold?.cancel();
@@ -560,7 +583,8 @@ class _WidgetState extends State<_Widget>
   void _dragUpdate(DragUpdateDetails details) {
     dragValue += details.delta.dx;
 
-    final column = widget.tableColumnControls.columns[columnIndex];
+    final columns = widget.tableColumnControls.columns(widget.tableWidgetKey);
+    final column = columns[columnIndex];
     final width = column.width;
 
     if (dragValue > 0) {
@@ -569,12 +593,11 @@ class _WidgetState extends State<_Widget>
         return;
       }
 
-      final nextWidth = widget
-          .tableColumnControls.columns[movingColumnsIndices[nextIndex]].width;
+      final nextWidth = columns[movingColumnsIndices[nextIndex]].width;
       if (dragValue > nextWidth / 2) {
         _animateColumnTranslation(columnIndex, -nextWidth, column.key);
         _animateColumnTranslation(movingColumnsIndices[nextIndex], width, null);
-        widget.tableColumnControls.onColumnMove!(
+        widget.tableColumnControls.onColumnMove!(widget.tableWidgetKey,
             columnIndex, movingColumnsIndices[nextIndex]);
         dragValue -= nextWidth;
         columnIndex++;
@@ -587,13 +610,12 @@ class _WidgetState extends State<_Widget>
         return;
       }
 
-      final nextWidth = widget
-          .tableColumnControls.columns[movingColumnsIndices[nextIndex]].width;
+      final nextWidth = columns[movingColumnsIndices[nextIndex]].width;
       if (dragValue < -nextWidth / 2) {
         _animateColumnTranslation(columnIndex, nextWidth, column.key);
         _animateColumnTranslation(
             movingColumnsIndices[nextIndex], -width, null);
-        widget.tableColumnControls.onColumnMove!(
+        widget.tableColumnControls.onColumnMove!(widget.tableWidgetKey,
             columnIndex, movingColumnsIndices[nextIndex]);
 
         dragValue += nextWidth;
@@ -627,9 +649,12 @@ class _WidgetState extends State<_Widget>
 
     final Key key;
     {
-      final column = widget.tableColumnControls.columns[globalIndex];
+      final column = widget.tableColumnControls
+          .columns(widget.tableWidgetKey)[globalIndex];
       key = column.key!;
-      widget.tableColumnControls.onColumnTranslate!.call(globalIndex,
+      widget.tableColumnControls.onColumnTranslate!.call(
+          widget.tableWidgetKey,
+          globalIndex,
           column.copyWith(translation: column.translation + translation));
     }
 
@@ -640,7 +665,7 @@ class _WidgetState extends State<_Widget>
     const animationDuration = Duration(milliseconds: 200);
 
     ticker.add(createTicker((elapsed) {
-      final columns = widget.tableColumnControls.columns;
+      final columns = widget.tableColumnControls.columns(widget.tableWidgetKey);
 
       var index = currentGlobalIndex[0];
       TableColumn? column;
@@ -670,6 +695,7 @@ class _WidgetState extends State<_Widget>
 
       if (elapsed >= animationDuration) {
         widget.tableColumnControls.onColumnTranslate?.call(
+            widget.tableWidgetKey,
             index,
             column.copyWith(
                 translation: column.translation + translationLeft[0]));
@@ -691,7 +717,9 @@ class _WidgetState extends State<_Widget>
       lastElapsed[0] = elapsed;
 
       translationLeft[0] -= deltaTranslation;
-      widget.tableColumnControls.onColumnTranslate?.call(index,
+      widget.tableColumnControls.onColumnTranslate?.call(
+          widget.tableWidgetKey,
+          index,
           column.copyWith(translation: column.translation + deltaTranslation));
 
       correctHandlesIfNecessary(deltaTranslation);

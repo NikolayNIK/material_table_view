@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/sliver_table_view_body.dart';
 import 'package:material_table_view/src/table_column.dart';
+import 'package:material_table_view/src/table_column_controls_controllable.dart';
 import 'package:material_table_view/src/table_column_resolve_layout_extension.dart';
 import 'package:material_table_view/src/table_horizontal_divider.dart';
 import 'package:material_table_view/src/table_layout.dart';
@@ -13,7 +14,6 @@ import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
-import 'package:material_table_view/src/table_view_horizontal_scroll_controller_provider.dart';
 import 'package:material_table_view/src/table_view_style.dart';
 import 'package:material_table_view/src/table_view_style_resolved.dart';
 import 'package:material_table_view/src/table_viewport.dart';
@@ -136,9 +136,12 @@ class TableView extends StatefulWidget {
 }
 
 class _TableViewState extends State<TableView>
-    implements TableViewHorizontalScrollControllerProvider<TableView> {
+    implements TableColumnControlsControllable<TableView> {
   late TableViewController _controller;
   final _stickyHorizontalOffset = ValueNotifier<double>(.0);
+
+  @override
+  Key? get key => widget.key;
 
   @override
   ScrollController get horizontalScrollController =>

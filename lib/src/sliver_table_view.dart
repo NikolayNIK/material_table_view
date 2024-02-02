@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/sliver_table_view_body.dart';
+import 'package:material_table_view/src/table_column_controls_controllable.dart';
 import 'package:material_table_view/src/table_column_resolve_layout_extension.dart';
 import 'package:material_table_view/src/table_horizontal_divider.dart';
 import 'package:material_table_view/src/table_layout.dart';
@@ -11,7 +12,6 @@ import 'package:material_table_view/src/table_row.dart';
 import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_view.dart';
-import 'package:material_table_view/src/table_view_horizontal_scroll_controller_provider.dart';
 import 'package:material_table_view/src/table_view_style_resolved.dart';
 
 /// This is a sliver variant of the [TableView] widget.
@@ -52,9 +52,12 @@ class SliverTableView extends TableView {
 }
 
 class _SliverTableViewState extends State<SliverTableView>
-    implements TableViewHorizontalScrollControllerProvider<SliverTableView> {
+    implements TableColumnControlsControllable<SliverTableView> {
   late ScrollController _horizontalScrollController;
   late ValueNotifier<double> _horizontalStickyOffset;
+
+  @override
+  Key? get key => widget.key;
 
   @override
   ScrollController get horizontalScrollController =>
