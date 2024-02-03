@@ -549,25 +549,6 @@ class _WidgetState extends State<_Widget>
                 child: leadingResizeHandle,
               ),
             ),
-          if (widget.tableColumnControls.onColumnMove != null &&
-              dragHandle != null)
-            Positioned(
-              left: moveHandleCorrection +
-                  offset.dx +
-                  widget.cellRenderObject.size.width / 2 -
-                  dragHandle.preferredSize.width / 2,
-              top: offset.dy +
-                  widget.cellRenderObject.size.height -
-                  dragHandle.preferredSize.height / 2,
-              width: dragHandle.preferredSize.width,
-              height: dragHandle.preferredSize.height,
-              child: GestureDetector(
-                onHorizontalDragStart: _dragStart,
-                onHorizontalDragUpdate: _dragUpdate,
-                onHorizontalDragEnd: _dragEnd,
-                child: dragHandle,
-              ),
-            ),
           if (widget.tableColumnControls.onColumnResize != null &&
               trailingResizeHandle != null)
             Positioned(
@@ -585,6 +566,25 @@ class _WidgetState extends State<_Widget>
                 onHorizontalDragUpdate: _resizeUpdateTrailing,
                 onHorizontalDragEnd: _resizeEnd,
                 child: trailingResizeHandle,
+              ),
+            ),
+          if (widget.tableColumnControls.onColumnMove != null &&
+              dragHandle != null)
+            Positioned(
+              left: moveHandleCorrection +
+                  offset.dx +
+                  widget.cellRenderObject.size.width / 2 -
+                  dragHandle.preferredSize.width / 2,
+              top: offset.dy +
+                  widget.cellRenderObject.size.height -
+                  dragHandle.preferredSize.height / 2,
+              width: dragHandle.preferredSize.width,
+              height: dragHandle.preferredSize.height,
+              child: GestureDetector(
+                onHorizontalDragStart: _dragStart,
+                onHorizontalDragUpdate: _dragUpdate,
+                onHorizontalDragEnd: _dragEnd,
+                child: dragHandle,
               ),
             ),
         ],
