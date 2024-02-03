@@ -323,8 +323,6 @@ class _WidgetState extends State<_Widget>
 
   late int columnIndex;
   late double dragValue;
-  late List<int> movingColumnsIndices;
-  late int movingColumnsTargetIndex;
 
   double leadingResizeHandleCorrection = .0,
       trailingResizeHandleCorrection = .0,
@@ -646,24 +644,6 @@ class _WidgetState extends State<_Widget>
   void _dragStart(DragStartDetails details) {
     dragValue = 0;
 
-    for (final list in [
-      widget.tableContentLayoutState.lastLayoutData.leadingColumnIndices,
-      widget.tableContentLayoutState.lastLayoutData.scrollableColumns.indices,
-      widget.tableContentLayoutState.lastLayoutData.trailingColumnIndices
-    ]) {
-      movingColumnsTargetIndex = list.indexOf(columnIndex);
-      if (movingColumnsTargetIndex != -1) {
-        movingColumnsIndices = list;
-        break;
-      }
-    }
-
-    assert(
-      movingColumnsTargetIndex != -1,
-      'Could not find the column moved in the layout.'
-      ' TableColumnControls should\'ve been popped by now.',
-    );
-
     clearBarrierCounter.value++;
   }
 
@@ -672,42 +652,116 @@ class _WidgetState extends State<_Widget>
 
     final columns = widget.tableColumnControls.columns(widget.tableWidgetKey);
     final column = columns[columnIndex];
-    final width = column.width;
 
-    if (dragValue > 0) {
-      final nextIndex = movingColumnsTargetIndex + 1;
-      if (nextIndex >= movingColumnsIndices.length) {
+    final sections = [
+      widget.tableContentLayoutState.lastLayoutData.fixedColumns,
+      widget.tableContentLayoutState.lastLayoutData.scrollableColumns
+    ];
+
+    final double offset, width;
+    {
+      double? foundOffset, foundWidth;
+
+      sections:
+      for (final section in sections) {
+        if (section.indices.isEmpty) {
+          return;
+        }
+
+        for (int i = 0; i < section.indices.length; i++) {
+          if (section.indices[i] == columnIndex) {
+            foundOffset = section.positions[i];
+            foundWidth = section.widths[i];
+            break sections;
+          }
+        }
+      }
+
+      if (foundOffset == null || foundWidth == null) {
         return;
       }
 
-      final nextWidth = columns[movingColumnsIndices[nextIndex]].width;
+      offset = foundOffset;
+      width = foundWidth;
+    }
+
+    if (dragValue > 0) {
+      if (columnIndex + 1 == columns.length) {
+        return;
+      }
+
+      int? closestColumnGlobalIndex;
+      {
+        double? closestColumnDistance;
+        for (final section in sections) {
+          for (var i = 0; i < section.indices.length; i++) {
+            if (section.indices[i] == columnIndex) {
+              continue;
+            }
+
+            final distance = section.positions[i] - offset;
+            if (distance >= 0 &&
+                (closestColumnDistance == null ||
+                    distance < closestColumnDistance)) {
+              closestColumnDistance = distance;
+              closestColumnGlobalIndex = section.indices[i];
+            }
+          }
+        }
+      }
+
+      if (closestColumnGlobalIndex == null ||
+          closestColumnGlobalIndex != columnIndex + 1) {
+        // TODO scroll
+        return;
+      }
+
+      final nextWidth = columns[closestColumnGlobalIndex].width;
       if (dragValue > nextWidth / 2) {
         _animateColumnTranslation(columnIndex, -nextWidth, column.key);
-        _animateColumnTranslation(movingColumnsIndices[nextIndex], width, null);
-        widget.tableColumnControls.onColumnMove!(widget.tableWidgetKey,
-            columnIndex, movingColumnsIndices[nextIndex]);
+        _animateColumnTranslation(closestColumnGlobalIndex, width, null);
+        widget.tableColumnControls.onColumnMove!(
+            widget.tableWidgetKey, columnIndex, closestColumnGlobalIndex);
         dragValue -= nextWidth;
         columnIndex++;
-        movingColumnsTargetIndex++;
         return;
       }
     } else if (dragValue < 0) {
-      final nextIndex = movingColumnsTargetIndex - 1;
-      if (nextIndex < 0) {
+      int? closestColumnGlobalIndex;
+      {
+        double? closestColumnDistance;
+        for (final section in sections) {
+          for (var i = 0; i < section.indices.length; i++) {
+            if (section.indices[i] == columnIndex) {
+              continue;
+            }
+
+            final distance = offset - section.positions[i];
+            if (distance >= 0 &&
+                (closestColumnDistance == null ||
+                    distance < closestColumnDistance)) {
+              closestColumnDistance = distance;
+              closestColumnGlobalIndex = section.indices[i];
+            }
+          }
+        }
+      }
+
+      if (closestColumnGlobalIndex == null ||
+          closestColumnGlobalIndex != columnIndex - 1) {
+        // TODO scroll
         return;
       }
 
-      final nextWidth = columns[movingColumnsIndices[nextIndex]].width;
-      if (dragValue < -nextWidth / 2) {
+      final nextWidth = columns[closestColumnGlobalIndex].width;
+      if (dragValue < nextWidth / -2) {
         _animateColumnTranslation(columnIndex, nextWidth, column.key);
-        _animateColumnTranslation(
-            movingColumnsIndices[nextIndex], -width, null);
-        widget.tableColumnControls.onColumnMove!(widget.tableWidgetKey,
-            columnIndex, movingColumnsIndices[nextIndex]);
+        _animateColumnTranslation(closestColumnGlobalIndex, -width, null);
+        widget.tableColumnControls.onColumnMove!(
+            widget.tableWidgetKey, columnIndex, closestColumnGlobalIndex);
 
         dragValue += nextWidth;
         columnIndex--;
-        movingColumnsTargetIndex--;
         return;
       }
     }
