@@ -6,6 +6,7 @@ import 'package:material_table_view/material_table_view.dart';
 import 'package:material_table_view/src/table_column.dart';
 import 'package:material_table_view/src/table_column_controls_controllable.dart';
 import 'package:material_table_view/src/table_layout.dart';
+import 'package:material_table_view/src/table_layout_data.dart';
 
 PreferredSizeWidget _buildAnimatedIconButton(
   BuildContext context,
@@ -658,8 +659,10 @@ class _WidgetState extends State<_Widget>
       widget.tableContentLayoutState.lastLayoutData.scrollableColumns
     ];
 
+    final TableContentColumnData? targetColumnSection;
     final double offset, width;
     {
+      TableContentColumnData? foundSection;
       double? foundOffset, foundWidth;
 
       sections:
@@ -670,6 +673,7 @@ class _WidgetState extends State<_Widget>
 
         for (int i = 0; i < section.indices.length; i++) {
           if (section.indices[i] == columnIndex) {
+            foundSection = section;
             foundOffset = section.positions[i];
             foundWidth = section.widths[i];
             break sections;
@@ -677,10 +681,11 @@ class _WidgetState extends State<_Widget>
         }
       }
 
-      if (foundOffset == null || foundWidth == null) {
+      if (foundSection == null || foundOffset == null || foundWidth == null) {
         return;
       }
 
+      targetColumnSection = foundSection;
       offset = foundOffset;
       width = foundWidth;
     }
@@ -690,6 +695,7 @@ class _WidgetState extends State<_Widget>
         return;
       }
 
+      TableContentColumnData? closestColumnSection;
       int? closestColumnGlobalIndex;
       {
         double? closestColumnDistance;
@@ -701,9 +707,11 @@ class _WidgetState extends State<_Widget>
 
             final distance = section.positions[i] - offset;
             if (distance >= 0 &&
+                section.indices[i] > columnIndex &&
                 (closestColumnDistance == null ||
                     distance < closestColumnDistance)) {
               closestColumnDistance = distance;
+              closestColumnSection = section;
               closestColumnGlobalIndex = section.indices[i];
             }
           }
@@ -711,7 +719,8 @@ class _WidgetState extends State<_Widget>
       }
 
       if (closestColumnGlobalIndex == null ||
-          closestColumnGlobalIndex != columnIndex + 1) {
+          (closestColumnGlobalIndex != columnIndex + 1 &&
+              !identical(closestColumnSection, targetColumnSection))) {
         // TODO scroll
         return;
       }
@@ -723,10 +732,11 @@ class _WidgetState extends State<_Widget>
         widget.tableColumnControls.onColumnMove!(
             widget.tableWidgetKey, columnIndex, closestColumnGlobalIndex);
         dragValue -= nextWidth;
-        columnIndex++;
+        columnIndex = closestColumnGlobalIndex;
         return;
       }
     } else if (dragValue < 0) {
+      TableContentColumnData? closestColumnSection;
       int? closestColumnGlobalIndex;
       {
         double? closestColumnDistance;
@@ -738,9 +748,11 @@ class _WidgetState extends State<_Widget>
 
             final distance = offset - section.positions[i];
             if (distance >= 0 &&
+                section.indices[i] < columnIndex &&
                 (closestColumnDistance == null ||
                     distance < closestColumnDistance)) {
               closestColumnDistance = distance;
+              closestColumnSection = section;
               closestColumnGlobalIndex = section.indices[i];
             }
           }
@@ -748,7 +760,8 @@ class _WidgetState extends State<_Widget>
       }
 
       if (closestColumnGlobalIndex == null ||
-          closestColumnGlobalIndex != columnIndex - 1) {
+          (closestColumnGlobalIndex != columnIndex - 1 &&
+              !identical(closestColumnSection, targetColumnSection))) {
         // TODO scroll
         return;
       }
@@ -761,7 +774,7 @@ class _WidgetState extends State<_Widget>
             widget.tableWidgetKey, columnIndex, closestColumnGlobalIndex);
 
         dragValue += nextWidth;
-        columnIndex--;
+        columnIndex = closestColumnGlobalIndex;
         return;
       }
     }
