@@ -489,7 +489,7 @@ class _WidgetState extends State<_Widget>
                     } else {
                       x = margin.left;
                     }
-                  } else if (x + width > constraints.maxWidth + margin.right) {
+                  } else if (x + width > constraints.maxWidth - margin.right) {
                     x = constraints.maxWidth - margin.right - width;
                     if (x < 0) {
                       x = margin.left;
