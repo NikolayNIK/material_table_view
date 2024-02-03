@@ -135,7 +135,7 @@ class TableColumnControls extends StatefulWidget {
 
   final EdgeInsets popupPadding;
 
-  TableColumnControls({
+  TableColumnControls.realtime({
     super.key,
     required this.columns,
     required this.child,
