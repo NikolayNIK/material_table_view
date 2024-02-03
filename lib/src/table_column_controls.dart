@@ -125,6 +125,16 @@ class TableColumnControls extends StatefulWidget {
     Animation<double> secondaryAnimation,
   )? dragHandleBuilder;
 
+  final PreferredSizeWidget Function(
+    BuildContext context,
+    Key? tableWidgetKey,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    double columnWidth,
+  )? popupBuilder;
+
+  final EdgeInsets popupPadding;
+
   TableColumnControls({
     super.key,
     required this.columns,
@@ -135,6 +145,8 @@ class TableColumnControls extends StatefulWidget {
     this.barrierColor,
     this.resizeHandleBuilder = _defaultResizeHandleBuilder,
     this.dragHandleBuilder = _defaultDragHandleBuilder,
+    this.popupBuilder,
+    this.popupPadding = const EdgeInsets.all(16.0),
   });
 
   @override
@@ -439,6 +451,85 @@ class _WidgetState extends State<_Widget>
                   ),
                 ),
               ),
+            ),
+          if (widget.tableColumnControls.popupBuilder != null)
+            ValueListenableBuilder(
+              valueListenable: clearBarrierCounter,
+              child: widget.tableColumnControls.popupBuilder!.call(
+                  context,
+                  widget.tableWidgetKey,
+                  widget.animation,
+                  widget.secondaryAnimation,
+                  widget.cellRenderObject.size.width),
+              builder: (context, clearBarrierCounter, child) {
+                child = child as PreferredSizeWidget;
+
+                final margin = widget.tableColumnControls.popupPadding;
+
+                final maxWidth = constraints.maxWidth - margin.horizontal;
+                final maxHeight = constraints.maxHeight - margin.vertical;
+
+                var width = child.preferredSize.width;
+                var height = child.preferredSize.height;
+
+                double x;
+                if (width.isInfinite) {
+                  x = margin.left;
+                  width = constraints.maxWidth - margin.horizontal;
+                } else {
+                  x = offset.dx +
+                      widget.cellRenderObject.size.width / 2 -
+                      width / 2 +
+                      moveHandleCorrection;
+
+                  if (x < margin.left) {
+                    if (width > maxWidth) {
+                      x = margin.left;
+                      width = maxWidth;
+                    } else {
+                      x = margin.left;
+                    }
+                  } else if (x + width > constraints.maxWidth + margin.right) {
+                    x = constraints.maxWidth - margin.right - width;
+                    if (x < 0) {
+                      x = margin.left;
+                      width = maxWidth;
+                    }
+                  }
+                }
+
+                double y = offset.dy + 2 * widget.cellRenderObject.size.height;
+                if (height.isInfinite) {
+                  height = maxHeight;
+                }
+
+                if (y + height > maxHeight) {
+                  final invertedBottom = offset.dy;
+                  final clampedHeight =
+                      constraints.maxHeight - y - margin.bottom;
+                  if (invertedBottom > clampedHeight) {
+                    y = invertedBottom - height;
+                    if (y < margin.top) {
+                      y = margin.top;
+                      height = invertedBottom - margin.top;
+                    }
+                  } else {
+                    height = clampedHeight;
+                  }
+                }
+
+                return Positioned(
+                  left: x,
+                  top: y,
+                  width: width,
+                  height: height,
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 200),
+                    opacity: clearBarrierCounter == 0 ? 1.0 : .0,
+                    child: child,
+                  ),
+                );
+              },
             ),
           if (widget.tableColumnControls.onColumnResize != null &&
               leadingResizeHandle != null)
