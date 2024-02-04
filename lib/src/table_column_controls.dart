@@ -673,7 +673,7 @@ class _WidgetState extends State<_Widget>
       sections:
       for (final section in sections) {
         if (section.indices.isEmpty) {
-          return;
+          continue;
         }
 
         for (int i = 0; i < section.indices.length; i++) {
