@@ -48,15 +48,11 @@ class TableContentLayoutData {
   final TableContentColumnData scrollableColumns,
       fixedColumns;
 
-  final List<int> leadingColumnIndices, trailingColumnIndices;
-
   final TableContentDividerData leftDivider, rightDivider;
   final double leftWidth, centerWidth, rightWidth;
 
   TableContentLayoutData({
     required this.scrollableColumns,
-    required this.leadingColumnIndices,
-    required this.trailingColumnIndices,
     required this.fixedColumns,
     required this.leftDivider,
     required this.rightDivider,

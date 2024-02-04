@@ -407,8 +407,6 @@ class TableContentLayoutState extends State<TableContentLayout>
             .map((e) => widget.columns[e].key ?? ValueKey(e))
             .toList(growable: false),
       ),
-      leadingColumnIndices: columnsLeft,
-      trailingColumnIndices: columnsRight,
       fixedColumns: TableContentColumnData(
         indices: columnsFixed,
         positions: columnOffsetsFixed,
