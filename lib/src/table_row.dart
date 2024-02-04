@@ -30,13 +30,13 @@ class TableViewRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO implement caching in the element tree instead
-    Map<int, Widget> previousCells = {};
+    Map<Key, Widget> previousCells = {};
 
     return Builder(
       builder: (context) {
         final data = TableContentLayout.of(context);
 
-        final newCells = <int, Widget>{};
+        final newCells = <Key, Widget>{};
 
         Iterable<Widget> columnMapper(
           TableContentColumnData columnData,
@@ -44,13 +44,14 @@ class TableViewRow extends StatelessWidget {
         ) =>
             Iterable.generate(columnData.indices.length).map((i) {
               final columnIndex = columnData.indices[i];
+              final columnKey = columnData.keys[i];
               return _TableViewCell(
-                key: columnData.keys[i],
+                key: columnKey,
                 width: columnData.widths[i],
                 // height: data.rowHeight,
                 position: columnData.positions[i],
                 scrolled: scrolled,
-                child: newCells[columnIndex] = previousCells[columnIndex] ??
+                child: newCells[columnKey] = previousCells[columnKey] ??
                     Builder(
                         builder: (context) =>
                             cellBuilder(context, columnIndex)),
