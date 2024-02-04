@@ -741,6 +741,8 @@ class _WidgetState extends State<_Widget>
         return;
       }
     } else if (dragValue < 0) {
+      if (columnIndex == 0) return;
+
       TableContentColumnData? closestColumnSection;
       int? closestColumnGlobalIndex;
       {
