@@ -428,6 +428,7 @@ class _WidgetState extends State<_Widget>
         children: [
           if (widget.barrierColor != null)
             IgnorePointer(
+              key: const ValueKey('barrier'),
               child: FadeTransition(
                 opacity: widget.animation,
                 child: ValueListenableBuilder(
@@ -453,6 +454,7 @@ class _WidgetState extends State<_Widget>
             ),
           if (widget.tableColumnControls.popupBuilder != null)
             ValueListenableBuilder(
+              key: ValueKey('popup'),
               valueListenable: clearBarrierCounter,
               child: widget.tableColumnControls.popupBuilder!.call(
                   context,
@@ -533,6 +535,7 @@ class _WidgetState extends State<_Widget>
           if (widget.tableColumnControls.onColumnResize != null &&
               leadingResizeHandle != null)
             Positioned(
+              key: const ValueKey('leftResizeHandle'),
               left: offset.dx +
                   leadingResizeHandleCorrection -
                   leadingResizeHandle.preferredSize.width / 2,
@@ -551,6 +554,7 @@ class _WidgetState extends State<_Widget>
           if (widget.tableColumnControls.onColumnResize != null &&
               trailingResizeHandle != null)
             Positioned(
+              key: const ValueKey('rightResizeHandle'),
               left: offset.dx +
                   trailingResizeHandleCorrection +
                   widget.cellRenderObject.size.width -
@@ -570,6 +574,7 @@ class _WidgetState extends State<_Widget>
           if (widget.tableColumnControls.onColumnMove != null &&
               dragHandle != null)
             Positioned(
+              key: const ValueKey('moveHandle'),
               left: moveHandleCorrection +
                   offset.dx +
                   widget.cellRenderObject.size.width / 2 -
