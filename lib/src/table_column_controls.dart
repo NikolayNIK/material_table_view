@@ -672,7 +672,6 @@ class _WidgetState extends State<_Widget>
       TableContentColumnData? foundSection;
       double? foundOffset, foundWidth;
 
-      sections:
       for (final section in sections) {
         if (section.indices.isEmpty) {
           continue;
@@ -683,7 +682,7 @@ class _WidgetState extends State<_Widget>
             foundSection = section;
             foundOffset = section.positions[i];
             foundWidth = section.widths[i];
-            break sections;
+            break; // breaking outer loop here causes web release build to freeze whenever section.indices is empty...
           }
         }
       }
