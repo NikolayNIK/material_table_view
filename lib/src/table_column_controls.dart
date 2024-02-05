@@ -118,13 +118,13 @@ class TableColumnControls extends StatefulWidget {
     bool leading,
     Animation<double> animation,
     Animation<double> secondaryAnimation,
-  )? resizeHandleBuilder;
+  ) resizeHandleBuilder;
 
   final PreferredSizeWidget Function(
     BuildContext context,
     Animation<double> animation,
     Animation<double> secondaryAnimation,
-  )? dragHandleBuilder;
+  ) dragHandleBuilder;
 
   final PreferredSizeWidget Function(
     BuildContext context,
@@ -400,19 +400,24 @@ class _WidgetState extends State<_Widget>
     this.trailingResizeHandleCorrection = .0;
     this.moveHandleCorrection = .0;
 
-    final leadingResizeHandle = columnIndex == 0
-        ? null
-        : widget.tableColumnControls.resizeHandleBuilder
-            ?.call(context, true, widget.animation, widget.secondaryAnimation);
+    final leadingResizeHandle =
+        widget.tableColumnControls.onColumnResize == null || columnIndex == 0
+            ? null
+            : widget.tableColumnControls.resizeHandleBuilder(
+                context, true, widget.animation, widget.secondaryAnimation);
 
-    final trailingResizeHandle = columnIndex + 1 ==
-            widget.tableColumnControls.columns(widget.tableWidgetKey).length
+    final trailingResizeHandle = widget.tableColumnControls.onColumnResize ==
+                null ||
+            columnIndex + 1 ==
+                widget.tableColumnControls.columns(widget.tableWidgetKey).length
         ? null
-        : widget.tableColumnControls.resizeHandleBuilder
-            ?.call(context, false, widget.animation, widget.secondaryAnimation);
+        : widget.tableColumnControls.resizeHandleBuilder(
+            context, false, widget.animation, widget.secondaryAnimation);
 
-    final dragHandle = widget.tableColumnControls.dragHandleBuilder
-        ?.call(context, widget.animation, widget.secondaryAnimation);
+    final dragHandle = widget.tableColumnControls.onColumnMove == null
+        ? null
+        : widget.tableColumnControls.dragHandleBuilder
+            .call(context, widget.animation, widget.secondaryAnimation);
 
     final offset = widget.tableColumnControlsRenderObject
         .globalToLocal(widget.cellRenderObject.localToGlobal(Offset.zero));
@@ -532,8 +537,7 @@ class _WidgetState extends State<_Widget>
                 );
               },
             ),
-          if (widget.tableColumnControls.onColumnResize != null &&
-              leadingResizeHandle != null)
+          if (leadingResizeHandle != null)
             Positioned(
               key: const ValueKey('leftResizeHandle'),
               left: offset.dx +
@@ -551,8 +555,7 @@ class _WidgetState extends State<_Widget>
                 child: leadingResizeHandle,
               ),
             ),
-          if (widget.tableColumnControls.onColumnResize != null &&
-              trailingResizeHandle != null)
+          if (trailingResizeHandle != null)
             Positioned(
               key: const ValueKey('rightResizeHandle'),
               left: offset.dx +
@@ -571,8 +574,7 @@ class _WidgetState extends State<_Widget>
                 child: trailingResizeHandle,
               ),
             ),
-          if (widget.tableColumnControls.onColumnMove != null &&
-              dragHandle != null)
+          if (dragHandle != null)
             Positioned(
               key: const ValueKey('moveHandle'),
               left: moveHandleCorrection +
