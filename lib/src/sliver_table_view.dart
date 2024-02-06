@@ -159,24 +159,27 @@ class _SliverTableViewState extends State<SliverTableView>
                             ),
                           ],
                           Expanded(
-                            child: ClipRect(
-                              child: TableSection(
-                                rowHeight: widget.rowHeight,
-                                verticalOffset: ViewportOffset.fixed(
-                                    verticalScrollOffsetPixels),
-                                placeholderShade: widget.placeholderShade,
-                                child: sliverBuilder(
-                                  sliver: SliverPadding(
-                                    padding: EdgeInsets.only(
-                                      top: scrollPadding.top,
-                                      bottom: scrollPadding.bottom,
-                                    ),
-                                    sliver: SliverTableViewBody(
-                                      rowHeight: widget.rowHeight,
-                                      rowCount: widget.rowCount,
-                                      rowBuilder: widget.rowBuilder,
-                                      placeholderBuilder:
-                                          widget.placeholderBuilder,
+                            child: widget.bodyContainerBuilder(
+                              context,
+                              ClipRect(
+                                child: TableSection(
+                                  rowHeight: widget.rowHeight,
+                                  verticalOffset: ViewportOffset.fixed(
+                                      verticalScrollOffsetPixels),
+                                  placeholderShade: widget.placeholderShade,
+                                  child: sliverBuilder(
+                                    sliver: SliverPadding(
+                                      padding: EdgeInsets.only(
+                                        top: scrollPadding.top,
+                                        bottom: scrollPadding.bottom,
+                                      ),
+                                      sliver: SliverTableViewBody(
+                                        rowHeight: widget.rowHeight,
+                                        rowCount: widget.rowCount,
+                                        rowBuilder: widget.rowBuilder,
+                                        placeholderBuilder:
+                                            widget.placeholderBuilder,
+                                      ),
                                     ),
                                   ),
                                 ),
