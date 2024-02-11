@@ -207,7 +207,7 @@ class TableContentLayoutState extends State<TableContentLayout>
         }
 
         columnsLeft.add(i);
-        columnOffsetsLeft.add(leftOffset + column.translation);
+        columnOffsetsLeft.add(leftOffset);
         leftOffset += column.width;
       } else if (leftOffset +
               centerOffset +
@@ -217,7 +217,7 @@ class TableContentLayoutState extends State<TableContentLayout>
           widget.width) {
         if (centerOffset >= -column.width) {
           columnsCenter.add(i);
-          columnOffsetsCenter.add(centerOffset + column.translation);
+          columnOffsetsCenter.add(centerOffset);
         }
         centerOffset += column.width;
       } else {
@@ -234,7 +234,7 @@ class TableContentLayoutState extends State<TableContentLayout>
 
             columnsRight.add(j);
             rightOffset -= column.width;
-            columnOffsetsRight.add(rightOffset + column.translation);
+            columnOffsetsRight.add(rightOffset);
 
             final maxVisibleOffset = widget.width - leftOffset + rightOffset;
             while (columnsCenter.isNotEmpty &&
@@ -263,6 +263,18 @@ class TableContentLayoutState extends State<TableContentLayout>
       // restart the layout with the new sticky offset
       // let's just hope there won't be an infinite recursion here
       return calculateLayoutData(columns, stickyOffset);
+    }
+
+    for (int i = 0; i < columnsLeft.length; i++) {
+      columnOffsetsLeft[i] += columns[columnsLeft[i]].translation;
+    }
+
+    for (int i = 0; i < columnsCenter.length; i++) {
+      columnOffsetsCenter[i] += columns[columnsCenter[i]].translation;
+    }
+
+    for (int i = 0; i < columnsRight.length; i++) {
+      columnOffsetsRight[i] += columns[columnsRight[i]].translation;
     }
 
     final leftWidth = columnsLeft.isEmpty
