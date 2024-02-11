@@ -915,7 +915,6 @@ class _WidgetState extends State<_Widget>
     callback(widget.tableWidgetKey, index, newWidth);
 
     var columns = this.columns;
-    print('${columns[index].width} == $newWidth');
     if (_recentlyChangedColumns == null && columns[index].width == newWidth) {
       return;
     }
