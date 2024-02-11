@@ -100,6 +100,8 @@ typedef void ColumnTranslateCallback(
   double newTranslation,
 );
 
+int _defaultImmovableColumnCount(Key? key) => 0;
+
 class TableColumnControls extends StatefulWidget {
   final List<TableColumn> Function(Key? tableWidgetKey) columns;
 
@@ -108,6 +110,10 @@ class TableColumnControls extends StatefulWidget {
   final ColumnMoveCallback? onColumnMove;
 
   final ColumnTranslateCallback? onColumnTranslate;
+
+  final int Function(Key? tableWidgetKey) leadingImmovableColumnCount;
+
+  final int Function(Key? tableWidgetKey) trailingImmovableColumnCount;
 
   final Widget child;
 
@@ -143,6 +149,8 @@ class TableColumnControls extends StatefulWidget {
     this.onColumnResize,
     this.onColumnMove,
     this.onColumnTranslate,
+    this.leadingImmovableColumnCount = _defaultImmovableColumnCount,
+    this.trailingImmovableColumnCount = _defaultImmovableColumnCount,
     this.barrierColor,
     this.resizeHandleBuilder = _defaultResizeHandleBuilder,
     this.dragHandleBuilder = _defaultDragHandleBuilder,
@@ -719,8 +727,12 @@ class _WidgetState extends State<_Widget>
     }
 
     if (dragValue > 0) {
-      if (columnIndex + 1 == columns.length) {
-        return;
+      {
+        final value = widget.tableColumnControls.trailingImmovableColumnCount(widget.tableWidgetKey);
+        assert(value >= 0, );
+        if (columnIndex + 1 >= columns.length - value) {
+          return;
+        }
       }
 
       TableContentColumnData? closestColumnSection;
@@ -766,7 +778,11 @@ class _WidgetState extends State<_Widget>
         return;
       }
     } else if (dragValue < 0) {
-      if (columnIndex == 0) return;
+      {
+        final value = widget.tableColumnControls.leadingImmovableColumnCount(widget.tableWidgetKey);
+        assert(value >= 0);
+        if (columnIndex <= value) return;
+      }
 
       TableContentColumnData? closestColumnSection;
       int? closestColumnGlobalIndex;
