@@ -331,6 +331,12 @@ class _WidgetState extends State<_Widget>
 
   ScrollHoldController? scrollHold;
 
+  TableContentLayoutData? _changedTableContentLayoutData;
+
+  TableContentLayoutData get tableContentLayoutData =>
+      _changedTableContentLayoutData ??
+      widget.tableContentLayoutState.lastLayoutData;
+
   @override
   void initState() {
     super.initState();
@@ -391,6 +397,8 @@ class _WidgetState extends State<_Widget>
 
       return SizedBox();
     }
+
+    _changedTableContentLayoutData = null;
 
     final leadingResizeHandleCorrection = this.leadingResizeHandleCorrection;
     final trailingResizeHandleCorrection = this.trailingResizeHandleCorrection;
@@ -655,6 +663,15 @@ class _WidgetState extends State<_Widget>
     clearBarrierCounter.value++;
   }
 
+  void _layoutDataChanged() {
+    // Right now this relies on callbacks modifying the same instance of columns
+    // list in order to calculate latest layout data.
+    // It might be necessary to keep a list of columns with changes applied
+    // until we get a new one with build cycle.
+    _changedTableContentLayoutData =
+        widget.tableContentLayoutState.calculateLayoutData(null);
+  }
+
   void _dragUpdate(DragUpdateDetails details) {
     dragValue += details.delta.dx;
 
@@ -662,8 +679,8 @@ class _WidgetState extends State<_Widget>
     final column = columns[columnIndex];
 
     final sections = [
-      widget.tableContentLayoutState.lastLayoutData.fixedColumns,
-      widget.tableContentLayoutState.lastLayoutData.scrollableColumns
+      tableContentLayoutData.fixedColumns,
+      tableContentLayoutData.scrollableColumns
     ];
 
     final TableContentColumnData? targetColumnSection;
@@ -680,7 +697,8 @@ class _WidgetState extends State<_Widget>
         for (int i = 0; i < section.indices.length; i++) {
           if (section.indices[i] == columnIndex) {
             foundSection = section;
-            foundOffset = section.positions[i];
+            foundOffset =
+                section.positions[i] - columns[section.indices[i]].translation;
             foundWidth = section.widths[i];
             break; // breaking outer loop here causes web release build to freeze whenever section.indices is empty...
           }
@@ -711,7 +729,9 @@ class _WidgetState extends State<_Widget>
               continue;
             }
 
-            final distance = section.positions[i] - offset;
+            final distance = (section.positions[i] -
+                    columns[section.indices[i]].translation) -
+                offset;
             if (distance >= 0 &&
                 section.indices[i] > columnIndex &&
                 (closestColumnDistance == null ||
@@ -739,6 +759,7 @@ class _WidgetState extends State<_Widget>
             widget.tableWidgetKey, columnIndex, closestColumnGlobalIndex);
         dragValue -= nextWidth;
         columnIndex = closestColumnGlobalIndex;
+        _layoutDataChanged();
         return;
       }
     } else if (dragValue < 0) {
@@ -754,7 +775,9 @@ class _WidgetState extends State<_Widget>
               continue;
             }
 
-            final distance = offset - section.positions[i];
+            final distance = offset -
+                (section.positions[i] -
+                    columns[section.indices[i]].translation);
             if (distance >= 0 &&
                 section.indices[i] < columnIndex &&
                 (closestColumnDistance == null ||
@@ -783,6 +806,7 @@ class _WidgetState extends State<_Widget>
 
         dragValue += nextWidth;
         columnIndex = closestColumnGlobalIndex;
+        _layoutDataChanged();
         return;
       }
     }
