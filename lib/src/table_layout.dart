@@ -168,13 +168,14 @@ class TableContentLayoutState extends State<TableContentLayout>
     freezePriority = priority;
   }
 
-  TableContentLayoutData calculateLayoutData(double? stickyOffset) {
+  TableContentLayoutData calculateLayoutData(
+      final List<TableColumn> columns, double? stickyOffset) {
     // this is quickly becoming a mess...
 
     final horizontalOffsetPixels = widget.horizontalOffset.pixels;
 
     double foldColumnsWidth(double previousValue, int index) =>
-        previousValue + widget.columns[index].width;
+        previousValue + columns[index].width;
 
     final columnsLeft = <int>[],
         columnsCenter = <int>[],
@@ -195,9 +196,9 @@ class TableContentLayoutState extends State<TableContentLayout>
             leftOffset = widget.scrollPadding.left + stickyLeftOffset,
             centerOffset = -horizontalOffsetPixels - stickyLeftOffset,
             rightOffset = -widget.scrollPadding.right + stickyRightOffset;
-        i < widget.columns.length;
+        i < columns.length;
         i++) {
-      final column = widget.columns[i];
+      final column = columns[i];
       if (column.frozenAt(freezePriority) && centerOffset <= 0) {
         if (column.sticky && sticky) {
           _minStickyHorizontalOffset -= column.width;
@@ -222,8 +223,8 @@ class TableContentLayoutState extends State<TableContentLayout>
       } else {
         sticky = true;
         i = max(0, i - 2);
-        for (int j = widget.columns.length - 1; j > i; j--) {
-          final column = widget.columns[j];
+        for (int j = columns.length - 1; j > i; j--) {
+          final column = columns[j];
           if (column.frozenAt(freezePriority)) {
             if (column.sticky && sticky) {
               _maxStickyHorizontalOffset += column.width;
@@ -261,7 +262,7 @@ class TableContentLayoutState extends State<TableContentLayout>
 
       // restart the layout with the new sticky offset
       // let's just hope there won't be an infinite recursion here
-      return calculateLayoutData(stickyOffset);
+      return calculateLayoutData(columns, stickyOffset);
     }
 
     final leftWidth = columnsLeft.isEmpty
@@ -298,8 +299,7 @@ class TableContentLayoutState extends State<TableContentLayout>
       double leftDividerAnimationValue = .0;
       if (columnsLeft.isNotEmpty) {
         final toFreeze = Iterable.generate(columnsCenter.length)
-            .where((i) =>
-                widget.columns[columnsCenter[i]].frozenAt(freezePriority))
+            .where((i) => columns[columnsCenter[i]].frozenAt(freezePriority))
             .maybeFirst;
 
         if (toFreeze == null) {
@@ -345,8 +345,7 @@ class TableContentLayoutState extends State<TableContentLayout>
       if (columnsRight.isNotEmpty) {
         final toFreeze = Iterable.generate(columnsCenter.length,
                 (index) => columnsCenter.length - index - 1)
-            .where((i) =>
-                widget.columns[columnsCenter[i]].frozenAt(freezePriority))
+            .where((i) => columns[columnsCenter[i]].frozenAt(freezePriority))
             .maybeFirst;
 
         if (toFreeze == null) {
@@ -358,7 +357,7 @@ class TableContentLayoutState extends State<TableContentLayout>
                   1.0,
                   (centerWidth -
                           (columnOffsetsCenter[toFreeze] - leftWidth) -
-                          widget.columns[columnsCenter[toFreeze]].width) /
+                          columns[columnsCenter[toFreeze]].width) /
                       widget.verticalDividersStyle.trailing.revealOffset));
         }
 
@@ -373,7 +372,7 @@ class TableContentLayoutState extends State<TableContentLayout>
                       1.0,
                       (-centerWidth +
                               (columnOffsetsCenter.last - leftWidth) +
-                              widget.columns[columnsCenter.last].width) /
+                              columns[columnsCenter.last].width) /
                           widget.verticalDividersStyle.trailing.revealOffset)));
         }
       }
@@ -400,21 +399,19 @@ class TableContentLayoutState extends State<TableContentLayout>
       scrollableColumns: TableContentColumnData(
         indices: columnsCenter,
         positions: columnOffsetsCenter,
-        widths: columnsCenter
-            .map((e) => widget.columns[e].width)
-            .toList(growable: false),
+        widths:
+            columnsCenter.map((e) => columns[e].width).toList(growable: false),
         keys: columnsCenter
-            .map((e) => widget.columns[e].key ?? ValueKey(e))
+            .map((e) => columns[e].key ?? ValueKey(e))
             .toList(growable: false),
       ),
       fixedColumns: TableContentColumnData(
         indices: columnsFixed,
         positions: columnOffsetsFixed,
-        widths: columnsFixed
-            .map((e) => widget.columns[e].width)
-            .toList(growable: false),
+        widths:
+            columnsFixed.map((e) => columns[e].width).toList(growable: false),
         keys: columnsFixed
-            .map((e) => widget.columns[e].key ?? ValueKey(e))
+            .map((e) => columns[e].key ?? ValueKey(e))
             .toList(growable: false),
       ),
       leftDivider: TableContentDividerData(
@@ -438,7 +435,7 @@ class TableContentLayoutState extends State<TableContentLayout>
 
   @override
   Widget build(BuildContext context) => _InheritedTableContentLayout(
-        data: calculateLayoutData(null),
+        data: calculateLayoutData(widget.columns, null),
         child: widget.child,
       );
 

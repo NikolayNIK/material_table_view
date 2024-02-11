@@ -331,11 +331,16 @@ class _WidgetState extends State<_Widget>
 
   ScrollHoldController? scrollHold;
 
-  TableContentLayoutData? _changedTableContentLayoutData;
+  List<TableColumn>? _recentlyChangedColumns;
+  TableContentLayoutData? _recentlyChangedTableContentLayoutData;
 
   TableContentLayoutData get tableContentLayoutData =>
-      _changedTableContentLayoutData ??
+      _recentlyChangedTableContentLayoutData ??
       widget.tableContentLayoutState.lastLayoutData;
+
+  List<TableColumn> get columns =>
+      _recentlyChangedColumns ??
+      widget.tableColumnControls.columns(widget.tableWidgetKey);
 
   @override
   void initState() {
@@ -398,7 +403,8 @@ class _WidgetState extends State<_Widget>
       return SizedBox();
     }
 
-    _changedTableContentLayoutData = null;
+    _recentlyChangedColumns = null;
+    _recentlyChangedTableContentLayoutData = null;
 
     final leadingResizeHandleCorrection = this.leadingResizeHandleCorrection;
     final trailingResizeHandleCorrection = this.trailingResizeHandleCorrection;
@@ -414,13 +420,12 @@ class _WidgetState extends State<_Widget>
             : widget.tableColumnControls.resizeHandleBuilder(
                 context, true, widget.animation, widget.secondaryAnimation);
 
-    final trailingResizeHandle = widget.tableColumnControls.onColumnResize ==
-                null ||
-            columnIndex + 1 ==
-                widget.tableColumnControls.columns(widget.tableWidgetKey).length
-        ? null
-        : widget.tableColumnControls.resizeHandleBuilder(
-            context, false, widget.animation, widget.secondaryAnimation);
+    final trailingResizeHandle =
+        widget.tableColumnControls.onColumnResize == null ||
+                columnIndex + 1 == this.columns.length
+            ? null
+            : widget.tableColumnControls.resizeHandleBuilder(
+                context, false, widget.animation, widget.secondaryAnimation);
 
     final dragHandle = widget.tableColumnControls.onColumnMove == null
         ? null
@@ -648,8 +653,7 @@ class _WidgetState extends State<_Widget>
     return delta;
   }
 
-  void _resizeUpdateColumns() => widget.tableColumnControls.onColumnResize!(
-      widget.tableWidgetKey, columnIndex, width);
+  void _resizeUpdateColumns() => onColumnResize(columnIndex, width);
 
   void _resizeEnd(DragEndDetails details) {
     scrollHold?.cancel();
@@ -668,14 +672,14 @@ class _WidgetState extends State<_Widget>
     // list in order to calculate latest layout data.
     // It might be necessary to keep a list of columns with changes applied
     // until we get a new one with build cycle.
-    _changedTableContentLayoutData =
-        widget.tableContentLayoutState.calculateLayoutData(null);
+    _recentlyChangedTableContentLayoutData =
+        widget.tableContentLayoutState.calculateLayoutData(columns, null);
   }
 
   void _dragUpdate(DragUpdateDetails details) {
     dragValue += details.delta.dx;
 
-    final columns = widget.tableColumnControls.columns(widget.tableWidgetKey);
+    final columns = this.columns;
     final column = columns[columnIndex];
 
     final sections = [
@@ -755,8 +759,7 @@ class _WidgetState extends State<_Widget>
       if (dragValue > nextWidth / 2) {
         _animateColumnTranslation(columnIndex, -nextWidth, column.key);
         _animateColumnTranslation(closestColumnGlobalIndex, width, null);
-        widget.tableColumnControls.onColumnMove!(
-            widget.tableWidgetKey, columnIndex, closestColumnGlobalIndex);
+        onColumnMove(columnIndex, closestColumnGlobalIndex);
         dragValue -= nextWidth;
         columnIndex = closestColumnGlobalIndex;
         _layoutDataChanged();
@@ -801,8 +804,7 @@ class _WidgetState extends State<_Widget>
       if (dragValue < nextWidth / -2) {
         _animateColumnTranslation(columnIndex, nextWidth, column.key);
         _animateColumnTranslation(closestColumnGlobalIndex, -width, null);
-        widget.tableColumnControls.onColumnMove!(
-            widget.tableWidgetKey, columnIndex, closestColumnGlobalIndex);
+        onColumnMove(columnIndex, closestColumnGlobalIndex);
 
         dragValue += nextWidth;
         columnIndex = closestColumnGlobalIndex;
@@ -838,8 +840,7 @@ class _WidgetState extends State<_Widget>
       final column = widget.tableColumnControls
           .columns(widget.tableWidgetKey)[globalIndex];
       key = column.key!;
-      widget.tableColumnControls.onColumnTranslate!.call(
-          widget.tableWidgetKey, globalIndex, column.translation + translation);
+      onColumnTranslate(globalIndex, column.translation + translation);
     }
 
     final currentGlobalIndex = <int>[globalIndex];
@@ -849,7 +850,7 @@ class _WidgetState extends State<_Widget>
     const animationDuration = Duration(milliseconds: 200);
 
     ticker.add(createTicker((elapsed) {
-      final columns = widget.tableColumnControls.columns(widget.tableWidgetKey);
+      final columns = this.columns;
 
       var index = currentGlobalIndex[0];
       TableColumn? column;
@@ -878,10 +879,7 @@ class _WidgetState extends State<_Widget>
       }
 
       if (elapsed >= animationDuration) {
-        widget.tableColumnControls.onColumnTranslate?.call(
-            widget.tableWidgetKey,
-            index,
-            column.translation + translationLeft[0]);
+        onColumnTranslate(index, column.translation + translationLeft[0]);
         correctHandlesIfNecessary(translationLeft[0]);
         stop();
         return;
@@ -900,11 +898,68 @@ class _WidgetState extends State<_Widget>
       lastElapsed[0] = elapsed;
 
       translationLeft[0] -= deltaTranslation;
-      widget.tableColumnControls.onColumnTranslate?.call(
-          widget.tableWidgetKey, index, column.translation + deltaTranslation);
+      onColumnTranslate(index, column.translation + deltaTranslation);
 
       correctHandlesIfNecessary(deltaTranslation);
     })
       ..start());
+  }
+
+  void onColumnResize(
+    int index,
+    double newWidth,
+  ) {
+    final callback = widget.tableColumnControls.onColumnResize;
+    if (callback == null) return;
+
+    callback(widget.tableWidgetKey, index, newWidth);
+
+    var columns = this.columns;
+    print('${columns[index].width} == $newWidth');
+    if (_recentlyChangedColumns == null && columns[index].width == newWidth) {
+      return;
+    }
+
+    columns = _recentlyChangedColumns ??= columns.toList();
+    columns[index] = columns[index].copyWith(width: newWidth);
+  }
+
+  void onColumnMove(
+    int oldIndex,
+    int newIndex,
+  ) {
+    final callback = widget.tableColumnControls.onColumnMove;
+    if (callback == null) return;
+
+    var columns = this.columns;
+    final column = columns[oldIndex];
+
+    callback(widget.tableWidgetKey, oldIndex, newIndex);
+
+    if (_recentlyChangedColumns == null && columns[newIndex] == column) {
+      return;
+    }
+
+    columns = _recentlyChangedColumns ??= columns.toList();
+    columns.insert(newIndex, columns.removeAt(oldIndex));
+  }
+
+  void onColumnTranslate(
+    int index,
+    double newTranslation,
+  ) {
+    final callback = widget.tableColumnControls.onColumnTranslate;
+    if (callback == null) return;
+
+    callback(widget.tableWidgetKey, index, newTranslation);
+
+    var columns = this.columns;
+    if (_recentlyChangedColumns == null &&
+        columns[index].translation == newTranslation) {
+      return;
+    }
+
+    columns = _recentlyChangedColumns ??= columns.toList();
+    columns[index] = columns[index].copyWith(translation: newTranslation);
   }
 }
