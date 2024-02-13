@@ -776,10 +776,13 @@ class _WidgetState extends State<_Widget>
   void _dragUpdate(DragUpdateDetails details) {
     dragValue += details.delta.dx;
     _calculateMovement();
-    onColumnTranslate(columnIndex, dragValue);
-    leadingResizeHandleCorrection += details.delta.dx;
-    moveHandleCorrection += details.delta.dx;
-    trailingResizeHandleCorrection += details.delta.dx;
+
+    if (route.onColumnTranslate.value != null) {
+      onColumnTranslate(columnIndex, dragValue);
+      leadingResizeHandleCorrection += details.delta.dx;
+      moveHandleCorrection += details.delta.dx;
+      trailingResizeHandleCorrection += details.delta.dx;
+    }
   }
 
   void _calculateMovement() {
