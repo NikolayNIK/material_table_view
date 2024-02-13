@@ -701,9 +701,15 @@ class _WidgetState extends State<_Widget>
 
   void _dragUpdate(DragUpdateDetails details) {
     dragValue += details.delta.dx;
+    _calculateMovement();
+    onColumnTranslate(columnIndex, dragValue);
+    leadingResizeHandleCorrection += details.delta.dx;
+    moveHandleCorrection += details.delta.dx;
+    trailingResizeHandleCorrection += details.delta.dx;
+  }
 
+  void _calculateMovement() {
     final columns = this.columns;
-    final column = columns[columnIndex];
 
     final sections = [
       tableContentLayoutData.fixedColumns,
@@ -786,7 +792,6 @@ class _WidgetState extends State<_Widget>
 
       final nextWidth = columns[closestColumnGlobalIndex].width;
       if (dragValue > nextWidth / 2) {
-        _animateColumnTranslation(columnIndex, -nextWidth, column.key);
         _animateColumnTranslation(closestColumnGlobalIndex, width, null);
         onColumnMove(columnIndex, closestColumnGlobalIndex);
         dragValue -= nextWidth;
@@ -835,7 +840,6 @@ class _WidgetState extends State<_Widget>
 
       final nextWidth = columns[closestColumnGlobalIndex].width;
       if (dragValue < nextWidth / -2) {
-        _animateColumnTranslation(columnIndex, nextWidth, column.key);
         _animateColumnTranslation(closestColumnGlobalIndex, -width, null);
         onColumnMove(columnIndex, closestColumnGlobalIndex);
 
@@ -849,13 +853,16 @@ class _WidgetState extends State<_Widget>
 
   void _dragEnd(DragEndDetails details) {
     clearBarrierCounter.value--;
+    _animateColumnTranslation(
+        columnIndex, dragValue, columns[columnIndex].key, false);
   }
 
   void _animateColumnTranslation(
     int globalIndex,
     double translation,
-    Key? correctHandles,
-  ) {
+    Key? correctHandles, [
+    bool back = true,
+  ]) {
     if (route.onColumnTranslate.value == null) {
       return;
     }
@@ -872,7 +879,9 @@ class _WidgetState extends State<_Widget>
     {
       final column = columns[globalIndex];
       key = column.key!;
-      onColumnTranslate(globalIndex, column.translation + translation);
+      if (back) {
+        onColumnTranslate(globalIndex, column.translation + translation);
+      }
     }
 
     final currentGlobalIndex = <int>[globalIndex];
