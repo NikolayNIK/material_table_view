@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:material_table_view/material_table_view.dart';
@@ -83,176 +81,147 @@ PreferredSizeWidget _defaultDragHandleBuilder(
     );
 
 typedef void ColumnResizeCallback(
-  Key? tableWidgetKey,
   int index,
   double newWidth,
 );
 
 typedef void ColumnMoveCallback(
-  Key? tableWidgetKey,
   int oldIndex,
   int newIndex,
 );
 
 typedef void ColumnTranslateCallback(
-  Key? tableWidgetKey,
   int index,
   double newTranslation,
 );
 
-int _defaultImmovableColumnCount(Key? key) => 0;
+typedef PreferredSizeWidget ResizeHandleBuilder(
+  BuildContext context,
+  bool leading,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+);
 
-class TableColumnControls extends StatefulWidget {
-  final List<TableColumn> Function(Key? tableWidgetKey) columns;
+typedef PreferredSizeWidget DragHandleBuilder(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+);
 
-  final ColumnResizeCallback? onColumnResize;
+typedef PreferredSizeWidget PopupBuilder(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+  double columnWidth,
+);
 
-  final ColumnMoveCallback? onColumnMove;
+class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
+  final ValueNotifier<Listenable?> tableViewChanged;
 
-  final ColumnTranslateCallback? onColumnTranslate;
+  final ValueNotifier<ColumnResizeCallback?> onColumnResize;
 
-  final int Function(Key? tableWidgetKey) leadingImmovableColumnCount;
+  final ValueNotifier<ColumnMoveCallback?> onColumnMove;
 
-  final int Function(Key? tableWidgetKey) trailingImmovableColumnCount;
+  final ValueNotifier<ColumnTranslateCallback?> onColumnTranslate;
 
-  final Widget child;
+  final ValueNotifier<int> leadingImmovableColumnCount;
 
-  final Color? barrierColor;
+  final ValueNotifier<int> trailingImmovableColumnCount;
 
-  final PreferredSizeWidget Function(
-    BuildContext context,
-    bool leading,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-  ) resizeHandleBuilder;
+  final ValueNotifier<Color?> _barrierColor;
 
-  final PreferredSizeWidget Function(
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-  ) dragHandleBuilder;
+  final ValueNotifier<ResizeHandleBuilder> resizeHandleBuilder;
 
-  final PreferredSizeWidget Function(
-    BuildContext context,
-    Key? tableWidgetKey,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    double columnWidth,
-  )? popupBuilder;
+  final ValueNotifier<DragHandleBuilder> dragHandleBuilder;
 
-  final EdgeInsets popupPadding;
+  final ValueNotifier<PopupBuilder?> popupBuilder;
 
-  TableColumnControls.realtime({
-    super.key,
-    required this.columns,
-    required this.child,
-    this.onColumnResize,
-    this.onColumnMove,
-    this.onColumnTranslate,
-    this.leadingImmovableColumnCount = _defaultImmovableColumnCount,
-    this.trailingImmovableColumnCount = _defaultImmovableColumnCount,
-    this.barrierColor,
-    this.resizeHandleBuilder = _defaultResizeHandleBuilder,
-    this.dragHandleBuilder = _defaultDragHandleBuilder,
-    this.popupBuilder,
-    this.popupPadding = const EdgeInsets.all(16.0),
-  });
+  final ValueNotifier<EdgeInsets> popupPadding;
 
-  @override
-  State<StatefulWidget> createState() => _TableColumnControlsState();
+  factory TableColumnControlHandlesPopupRoute.realtime({
+    required BuildContext controlCellBuildContext,
+    required int columnIndex,
+    required Listenable? tableViewChanged,
+    required ColumnResizeCallback? onColumnResize,
+    required ColumnMoveCallback? onColumnMove,
+    required ColumnTranslateCallback? onColumnTranslate,
+    int leadingImmovableColumnCount = 0,
+    int trailingImmovableColumnCount = 0,
+    Color? barrierColor,
+    ResizeHandleBuilder resizeHandleBuilder = _defaultResizeHandleBuilder,
+    DragHandleBuilder dragHandleBuilder = _defaultDragHandleBuilder,
+    PopupBuilder? popupBuilder,
+    EdgeInsets popupPadding = const EdgeInsets.all(16.0),
+  }) {
+    var tableContentLayoutState = controlCellBuildContext
+        .findAncestorStateOfType<TableContentLayoutState>();
+    assert(tableContentLayoutState != null);
 
-  static TableColumnControlsInterface of(BuildContext context) {
-    final state = context.findAncestorStateOfType<_TableColumnControlsState>();
-    assert(
-      state != null,
-      'Could not find TableColumnControls widget ancestor.'
-      ' Make sure you used the right BuildContext and your TableView'
-      ' is directly or indirectly contained within TableColumnControls widget.',
-    );
+    var cellRenderObject = controlCellBuildContext.findRenderObject();
+    assert(cellRenderObject is RenderBox);
 
-    return TableColumnControlsInterface._(context, state!);
-  }
-}
+    var state = controlCellBuildContext
+        .findAncestorStateOfType<TableColumnControlsControllable>();
+    assert(state != null, 'No TableView ancestor found');
 
-class TableColumnControlsInterface {
-  final BuildContext context;
-  final _TableColumnControlsState _state;
+    controlCellBuildContext.findRenderObject() as RenderBox;
 
-  TableColumnControlsInterface._(
-    this.context,
-    this._state,
-  );
-
-  FutureOr<void> invoke(int columnIndex) => _state.invoke(context, columnIndex);
-}
-
-class _TableColumnControlsState extends State<TableColumnControls> {
-  @override
-  Widget build(BuildContext context) => Navigator(
-        onGenerateRoute: (settings) => MaterialPageRoute(
-          builder: (context) => widget.child,
-        ),
-      );
-
-  FutureOr<void> invoke(BuildContext context, int columnIndex) async {
-    final tableContentLayoutState =
-        context.findAncestorStateOfType<TableContentLayoutState>();
-    if (tableContentLayoutState == null) return;
-
-    final RenderBox ro;
-    {
-      final obj = context.findRenderObject();
-      assert(obj is RenderBox);
-      ro = obj as RenderBox;
-    }
-
-    final Key? tableWidgetKey;
-    final ScrollController horizontalScrollController;
-    {
-      var state =
-          context.findAncestorStateOfType<TableColumnControlsControllable>();
-      assert(state != null, 'No TableView ancestor found');
-      state = state!;
-      tableWidgetKey = state.key;
-      horizontalScrollController = state.horizontalScrollController;
-    }
-
-    await Navigator.of(context).push(
-      _ControlsPopupRoute(
-        builder: (context, animation, secondaryAnimation) => _Widget(
-          tableWidgetKey: tableWidgetKey,
-          barrierColor: widget.barrierColor,
-          animation: animation,
-          secondaryAnimation: secondaryAnimation,
-          horizontalScrollController: horizontalScrollController,
-          tableColumnControlsRenderObject:
-              this.context.findRenderObject() as RenderBox,
-          tableContentLayoutState: tableContentLayoutState,
-          tableColumnControls: widget,
-          cellRenderObject: ro,
-          columnIndex: columnIndex,
-        ),
-      ),
+    return TableColumnControlHandlesPopupRoute._(
+      state!,
+      tableContentLayoutState!,
+      cellRenderObject as RenderBox,
+      columnIndex,
+      barrierColor: barrierColor,
+      dragHandleBuilder: dragHandleBuilder,
+      leadingImmovableColumnCount: leadingImmovableColumnCount,
+      onColumnMove: onColumnMove,
+      onColumnResize: onColumnResize,
+      onColumnTranslate: onColumnTranslate,
+      popupBuilder: popupBuilder,
+      popupPadding: popupPadding,
+      resizeHandleBuilder: resizeHandleBuilder,
+      trailingImmovableColumnCount: trailingImmovableColumnCount,
+      tableViewChanged: tableViewChanged,
     );
   }
-}
 
-class _ControlsPopupRoute extends ModalRoute<void> {
-  final Widget Function(
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-  ) builder;
+  final TableColumnControlsControllable _tableViewState;
 
-  _ControlsPopupRoute({
-    required this.builder,
-  });
+  final TableContentLayoutState _tableContentLayoutState;
 
-  @override
-  bool get barrierDismissible => true;
+  final RenderBox _targetCellRenderObject;
 
-  @override
-  String? get barrierLabel => null;
+  int _targetColumnIndex;
+
+  TableColumnControlHandlesPopupRoute._(
+    this._tableViewState,
+    this._tableContentLayoutState,
+    this._targetCellRenderObject,
+    this._targetColumnIndex, {
+    required Listenable? tableViewChanged,
+    required ColumnResizeCallback? onColumnResize,
+    required ColumnMoveCallback? onColumnMove,
+    required ColumnTranslateCallback? onColumnTranslate,
+    required int leadingImmovableColumnCount,
+    required int trailingImmovableColumnCount,
+    required Color? barrierColor,
+    required ResizeHandleBuilder resizeHandleBuilder,
+    required DragHandleBuilder dragHandleBuilder,
+    required PopupBuilder? popupBuilder,
+    required EdgeInsets popupPadding,
+  })  : tableViewChanged = ValueNotifier(tableViewChanged),
+        onColumnResize = ValueNotifier(onColumnResize),
+        onColumnMove = ValueNotifier(onColumnMove),
+        onColumnTranslate = ValueNotifier(onColumnTranslate),
+        leadingImmovableColumnCount =
+            ValueNotifier(leadingImmovableColumnCount),
+        trailingImmovableColumnCount =
+            ValueNotifier(trailingImmovableColumnCount),
+        _barrierColor = ValueNotifier(barrierColor),
+        resizeHandleBuilder = ValueNotifier(resizeHandleBuilder),
+        dragHandleBuilder = ValueNotifier(dragHandleBuilder),
+        popupBuilder = ValueNotifier(popupBuilder),
+        popupPadding = ValueNotifier(popupPadding) {}
 
   @override
   Widget buildPage(
@@ -273,13 +242,19 @@ class _ControlsPopupRoute extends ModalRoute<void> {
               height: double.infinity,
             ),
           ),
-          builder(
-            context,
-            animation,
-            secondaryAnimation,
+          _Widget(
+            route: this,
+            animation: animation,
+            secondaryAnimation: secondaryAnimation,
           ),
         ],
       );
+
+  @override
+  bool get barrierDismissible => true;
+
+  @override
+  String? get barrierLabel => null;
 
   @override
   Duration get transitionDuration => const Duration(milliseconds: 200);
@@ -295,27 +270,13 @@ class _ControlsPopupRoute extends ModalRoute<void> {
 }
 
 class _Widget extends StatefulWidget {
-  final Key? tableWidgetKey;
-  final Color? barrierColor;
+  final TableColumnControlHandlesPopupRoute route;
   final Animation<double> animation, secondaryAnimation;
-  final ScrollController horizontalScrollController;
-  final TableColumnControls tableColumnControls;
-  final RenderBox tableColumnControlsRenderObject;
-  final TableContentLayoutState tableContentLayoutState;
-  final RenderBox cellRenderObject;
-  final int columnIndex;
 
   const _Widget({
-    required this.tableWidgetKey,
-    required this.barrierColor,
+    required this.route,
     required this.animation,
     required this.secondaryAnimation,
-    required this.horizontalScrollController,
-    required this.tableColumnControls,
-    required this.tableColumnControlsRenderObject,
-    required this.tableContentLayoutState,
-    required this.cellRenderObject,
-    required this.columnIndex,
   });
 
   @override
@@ -342,51 +303,95 @@ class _WidgetState extends State<_Widget>
   List<TableColumn>? _recentlyChangedColumns;
   TableContentLayoutData? _recentlyChangedTableContentLayoutData;
 
+  TableColumnControlHandlesPopupRoute get route => widget.route;
+
   TableContentLayoutData get tableContentLayoutData =>
       _recentlyChangedTableContentLayoutData ??
-      widget.tableContentLayoutState.lastLayoutData;
+      route._tableContentLayoutState.lastLayoutData;
 
   List<TableColumn> get columns =>
-      _recentlyChangedColumns ??
-      widget.tableColumnControls.columns(widget.tableWidgetKey);
+      _recentlyChangedColumns ?? route._tableViewState.widget.columns;
+
+  List<Listenable> get _routeFieldToListenTo => [
+        route.onColumnResize,
+        route.onColumnMove,
+        route.onColumnTranslate,
+        route.leadingImmovableColumnCount,
+        route.trailingImmovableColumnCount,
+        route._barrierColor,
+        route.resizeHandleBuilder,
+        route.dragHandleBuilder,
+        route.popupBuilder,
+        route.popupPadding,
+      ];
+
+  late ScrollController horizontalScrollController;
+
+  late Listenable? tableViewChanged;
 
   @override
   void initState() {
     super.initState();
 
-    columnIndex = widget.columnIndex;
-    widget.tableContentLayoutState.addListener(_parentDataChanged);
-    widget.horizontalScrollController.addListener(_horizontalScrollChanged);
+    columnIndex = route._targetColumnIndex;
+    route._tableContentLayoutState.addListener(_parentDataChanged);
+    horizontalScrollController =
+        route._tableViewState.horizontalScrollController;
+    horizontalScrollController.addListener(_horizontalScrollChanged);
+
+    for (final listenable in _routeFieldToListenTo) {
+      listenable.addListener(_routeChanged);
+    }
+
+    route.tableViewChanged.addListener(_tableViewChangedChanged);
+
+    tableViewChanged = route.tableViewChanged.value;
+    tableViewChanged?.addListener(_tableViewChanged);
   }
 
   @override
   void didUpdateWidget(covariant _Widget oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.tableContentLayoutState != widget.tableContentLayoutState) {
-      oldWidget.tableContentLayoutState.removeListener(_parentDataChanged);
-      widget.tableContentLayoutState.addListener(_parentDataChanged);
-    }
-
-    if (oldWidget.horizontalScrollController !=
-        oldWidget.horizontalScrollController) {
-      oldWidget.horizontalScrollController
-          .removeListener(_horizontalScrollChanged);
-      oldWidget.horizontalScrollController
-          .addListener(_horizontalScrollChanged);
+    if (!identical(horizontalScrollController,
+        route._tableViewState.horizontalScrollController)) {
+      horizontalScrollController.removeListener(_horizontalScrollChanged);
+      horizontalScrollController =
+          route._tableViewState.horizontalScrollController;
+      horizontalScrollController.addListener(_horizontalScrollChanged);
     }
   }
 
   @override
   void dispose() {
-    widget.tableContentLayoutState.removeListener(_parentDataChanged);
-    widget.horizontalScrollController.removeListener(_horizontalScrollChanged);
+    route._tableContentLayoutState.removeListener(_parentDataChanged);
+    horizontalScrollController.removeListener(_horizontalScrollChanged);
     scrollHold?.cancel();
+
+    for (final listenable in _routeFieldToListenTo) {
+      listenable.removeListener(_routeChanged);
+    }
+
+    tableViewChanged?.removeListener(_tableViewChanged);
+    route.tableViewChanged.removeListener(_tableViewChangedChanged);
 
     super.dispose();
   }
 
+  void _routeChanged() => setState(() {});
+
   void _horizontalScrollChanged() => setState(() {});
+
+  void _tableViewChangedChanged() {
+    if (!identical(tableViewChanged, route.tableViewChanged.value)) {
+      tableViewChanged?.removeListener(_tableViewChanged);
+      tableViewChanged = route.tableViewChanged.value;
+      tableViewChanged?.addListener(_tableViewChanged);
+      _routeChanged();
+    }
+  }
+
+  void _tableViewChanged() => setState(() {});
 
   void _parentDataChanged() =>
       SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
@@ -403,12 +408,25 @@ class _WidgetState extends State<_Widget>
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.cellRenderObject.attached ||
-        !widget.tableColumnControlsRenderObject.attached ||
-        !widget.tableContentLayoutState.mounted) {
+    if (!route._targetCellRenderObject.attached ||
+        !route._tableContentLayoutState.mounted) {
       abort();
 
       return SizedBox();
+    }
+
+    final RenderBox originRenderObject;
+    {
+      final ro = context.findRenderObject();
+      if (ro == null) {
+        SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+          if (mounted) setState(() {});
+        });
+
+        return SizedBox();
+      }
+
+      originRenderObject = ro as RenderBox;
     }
 
     _recentlyChangedColumns = null;
@@ -422,26 +440,25 @@ class _WidgetState extends State<_Widget>
     this.trailingResizeHandleCorrection = .0;
     this.moveHandleCorrection = .0;
 
-    final leadingResizeHandle =
-        widget.tableColumnControls.onColumnResize == null || columnIndex == 0
-            ? null
-            : widget.tableColumnControls.resizeHandleBuilder(
-                context, true, widget.animation, widget.secondaryAnimation);
-
-    final trailingResizeHandle =
-        widget.tableColumnControls.onColumnResize == null ||
-                columnIndex + 1 == this.columns.length
-            ? null
-            : widget.tableColumnControls.resizeHandleBuilder(
-                context, false, widget.animation, widget.secondaryAnimation);
-
-    final dragHandle = widget.tableColumnControls.onColumnMove == null
+    final leadingResizeHandle = route.onColumnResize.value == null ||
+            columnIndex == 0
         ? null
-        : widget.tableColumnControls.dragHandleBuilder
-            .call(context, widget.animation, widget.secondaryAnimation);
+        : route.resizeHandleBuilder
+            .value(context, true, widget.animation, widget.secondaryAnimation);
 
-    final offset = widget.tableColumnControlsRenderObject
-        .globalToLocal(widget.cellRenderObject.localToGlobal(Offset.zero));
+    final trailingResizeHandle = route.onColumnResize.value == null ||
+            columnIndex + 1 == this.columns.length
+        ? null
+        : route.resizeHandleBuilder
+            .value(context, false, widget.animation, widget.secondaryAnimation);
+
+    final dragHandle = route.onColumnMove.value == null
+        ? null
+        : route.dragHandleBuilder
+            .value(context, widget.animation, widget.secondaryAnimation);
+
+    final offset = originRenderObject.globalToLocal(
+        route._targetCellRenderObject.localToGlobal(Offset.zero));
 
     minColumnWidth = (dragHandle?.preferredSize.width ?? .0) +
         (((leadingResizeHandle?.preferredSize.width ?? .0) +
@@ -452,7 +469,7 @@ class _WidgetState extends State<_Widget>
       builder: (context, constraints) => Stack(
         fit: StackFit.expand,
         children: [
-          if (widget.barrierColor != null)
+          if (route._barrierColor.value != null)
             IgnorePointer(
               key: const ValueKey('barrier'),
               child: FadeTransition(
@@ -466,7 +483,7 @@ class _WidgetState extends State<_Widget>
                       duration: const Duration(milliseconds: 200),
                       child: clearBarrierCounter == 0
                           ? ColoredBox(
-                              color: widget.barrierColor!,
+                              color: route._barrierColor.value!,
                               child: SizedBox(
                                 width: double.infinity,
                                 height: double.infinity,
@@ -478,20 +495,19 @@ class _WidgetState extends State<_Widget>
                 ),
               ),
             ),
-          if (widget.tableColumnControls.popupBuilder != null)
+          if (route.popupBuilder.value != null)
             ValueListenableBuilder(
               key: ValueKey('popup'),
               valueListenable: clearBarrierCounter,
-              child: widget.tableColumnControls.popupBuilder!.call(
+              child: route.popupBuilder.value!.call(
                   context,
-                  widget.tableWidgetKey,
                   widget.animation,
                   widget.secondaryAnimation,
-                  widget.cellRenderObject.size.width),
+                  route._targetCellRenderObject.size.width),
               builder: (context, clearBarrierCounter, child) {
                 child = child as PreferredSizeWidget;
 
-                final margin = widget.tableColumnControls.popupPadding;
+                final margin = route.popupPadding.value;
 
                 final maxWidth = constraints.maxWidth - margin.horizontal;
                 final maxHeight = constraints.maxHeight - margin.vertical;
@@ -505,7 +521,7 @@ class _WidgetState extends State<_Widget>
                   width = constraints.maxWidth - margin.horizontal;
                 } else {
                   x = offset.dx +
-                      widget.cellRenderObject.size.width / 2 -
+                      route._targetCellRenderObject.size.width / 2 -
                       width / 2 +
                       moveHandleCorrection;
 
@@ -525,7 +541,8 @@ class _WidgetState extends State<_Widget>
                   }
                 }
 
-                double y = offset.dy + 2 * widget.cellRenderObject.size.height;
+                double y =
+                    offset.dy + 2 * route._targetCellRenderObject.size.height;
                 if (height.isInfinite) {
                   height = maxHeight;
                 }
@@ -565,7 +582,7 @@ class _WidgetState extends State<_Widget>
                   leadingResizeHandleCorrection -
                   leadingResizeHandle.preferredSize.width / 2,
               top: offset.dy +
-                  widget.cellRenderObject.size.height -
+                  route._targetCellRenderObject.size.height -
                   leadingResizeHandle.preferredSize.height / 2,
               width: leadingResizeHandle.preferredSize.width,
               height: leadingResizeHandle.preferredSize.height,
@@ -581,10 +598,10 @@ class _WidgetState extends State<_Widget>
               key: const ValueKey('rightResizeHandle'),
               left: offset.dx +
                   trailingResizeHandleCorrection +
-                  widget.cellRenderObject.size.width -
+                  route._targetCellRenderObject.size.width -
                   trailingResizeHandle.preferredSize.width / 2,
               top: offset.dy +
-                  widget.cellRenderObject.size.height -
+                  route._targetCellRenderObject.size.height -
                   trailingResizeHandle.preferredSize.height / 2,
               width: trailingResizeHandle.preferredSize.width,
               height: trailingResizeHandle.preferredSize.height,
@@ -600,10 +617,10 @@ class _WidgetState extends State<_Widget>
               key: const ValueKey('moveHandle'),
               left: moveHandleCorrection +
                   offset.dx +
-                  widget.cellRenderObject.size.width / 2 -
+                  route._targetCellRenderObject.size.width / 2 -
                   dragHandle.preferredSize.width / 2,
               top: offset.dy +
-                  widget.cellRenderObject.size.height -
+                  route._targetCellRenderObject.size.height -
                   dragHandle.preferredSize.height / 2,
               width: dragHandle.preferredSize.width,
               height: dragHandle.preferredSize.height,
@@ -620,10 +637,8 @@ class _WidgetState extends State<_Widget>
   }
 
   void _resizeStart(DragStartDetails details) {
-    width = widget.tableColumnControls
-        .columns(widget.tableWidgetKey)[columnIndex]
-        .width;
-    scrollHold = widget.horizontalScrollController.position.hold(() {});
+    width = columns[columnIndex].width;
+    scrollHold = horizontalScrollController.position.hold(() {});
     clearBarrierCounter.value++;
   }
 
@@ -633,11 +648,11 @@ class _WidgetState extends State<_Widget>
     leadingResizeHandleCorrection -= delta;
     moveHandleCorrection -= delta / 2;
 
-    final scrollPosition = widget.horizontalScrollController.position;
+    final scrollPosition = horizontalScrollController.position;
     scrollPosition.jumpTo(scrollPosition.pixels + delta);
 
     scrollHold?.cancel();
-    scrollHold = widget.horizontalScrollController.position.hold(() {});
+    scrollHold = horizontalScrollController.position.hold(() {});
   }
 
   void _resizeUpdateTrailing(DragUpdateDetails details) {
@@ -681,7 +696,7 @@ class _WidgetState extends State<_Widget>
     // It might be necessary to keep a list of columns with changes applied
     // until we get a new one with build cycle.
     _recentlyChangedTableContentLayoutData =
-        widget.tableContentLayoutState.calculateLayoutData(columns, null);
+        route._tableContentLayoutState.calculateLayoutData(columns, null);
   }
 
   void _dragUpdate(DragUpdateDetails details) {
@@ -728,8 +743,10 @@ class _WidgetState extends State<_Widget>
 
     if (dragValue > 0) {
       {
-        final value = widget.tableColumnControls.trailingImmovableColumnCount(widget.tableWidgetKey);
-        assert(value >= 0, );
+        final value = route.trailingImmovableColumnCount.value;
+        assert(
+          value >= 0,
+        );
         if (columnIndex + 1 >= columns.length - value) {
           return;
         }
@@ -779,7 +796,7 @@ class _WidgetState extends State<_Widget>
       }
     } else if (dragValue < 0) {
       {
-        final value = widget.tableColumnControls.leadingImmovableColumnCount(widget.tableWidgetKey);
+        final value = route.leadingImmovableColumnCount.value;
         assert(value >= 0);
         if (columnIndex <= value) return;
       }
@@ -839,7 +856,7 @@ class _WidgetState extends State<_Widget>
     double translation,
     Key? correctHandles,
   ) {
-    if (widget.tableColumnControls.onColumnTranslate == null) {
+    if (route.onColumnTranslate.value == null) {
       return;
     }
 
@@ -853,8 +870,7 @@ class _WidgetState extends State<_Widget>
 
     final Key key;
     {
-      final column = widget.tableColumnControls
-          .columns(widget.tableWidgetKey)[globalIndex];
+      final column = columns[globalIndex];
       key = column.key!;
       onColumnTranslate(globalIndex, column.translation + translation);
     }
@@ -925,10 +941,12 @@ class _WidgetState extends State<_Widget>
     int index,
     double newWidth,
   ) {
-    final callback = widget.tableColumnControls.onColumnResize;
+    final callback = route.onColumnResize.value;
     if (callback == null) return;
 
-    callback(widget.tableWidgetKey, index, newWidth);
+    callback(index, newWidth);
+
+    setState(() {});
 
     var columns = this.columns;
     if (_recentlyChangedColumns == null && columns[index].width == newWidth) {
@@ -943,13 +961,15 @@ class _WidgetState extends State<_Widget>
     int oldIndex,
     int newIndex,
   ) {
-    final callback = widget.tableColumnControls.onColumnMove;
+    final callback = route.onColumnMove.value;
     if (callback == null) return;
 
     var columns = this.columns;
     final column = columns[oldIndex];
 
-    callback(widget.tableWidgetKey, oldIndex, newIndex);
+    callback(oldIndex, newIndex);
+
+    setState(() {});
 
     if (_recentlyChangedColumns == null && columns[newIndex] == column) {
       return;
@@ -963,10 +983,12 @@ class _WidgetState extends State<_Widget>
     int index,
     double newTranslation,
   ) {
-    final callback = widget.tableColumnControls.onColumnTranslate;
+    final callback = route.onColumnTranslate.value;
     if (callback == null) return;
 
-    callback(widget.tableWidgetKey, index, newTranslation);
+    callback(index, newTranslation);
+
+    setState(() {});
 
     var columns = this.columns;
     if (_recentlyChangedColumns == null &&

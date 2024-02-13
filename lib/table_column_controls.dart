@@ -1,1 +1,1 @@
-export 'src/table_column_controls.dart' show TableColumnControls;
+export 'src/table_column_controls.dart' show TableColumnControlHandlesPopupRoute;
