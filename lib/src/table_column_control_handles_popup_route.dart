@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:material_table_view/material_table_view.dart';
-import 'package:material_table_view/src/table_column.dart';
+import 'package:material_table_view/sliver_table_view.dart';
 import 'package:material_table_view/src/table_column_controls_controllable.dart';
 import 'package:material_table_view/src/table_layout.dart';
 import 'package:material_table_view/src/table_layout_data.dart';
@@ -115,29 +115,101 @@ typedef PreferredSizeWidget PopupBuilder(
   double columnWidth,
 );
 
+/// Experimental modal route that can display control handles to resize/move a column and custom popup for that column.
+///
+/// The popup will pop itself whenever it detects that [RenderBox] of the target cell is offstage.
 class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
+  /// Contains [Listenable] that route widget will subscribe to in order to rebuild.
+  /// The [null] value here will lead to controls not updating whenever the [TableView] or [SliverTableView] changes
+  /// by something else other than the controls themselves; which might be ok if the controls are the only way the
+  /// table changes.
+  ///
+  /// Can be changed at any time (except [SchedulerPhase.persistentCallbacks]).
   final ValueNotifier<Listenable?> tableViewChanged;
 
+  /// Contains a callback that will be called whenever the width of a column needs to change.
+  /// The [null] value here will result in resize handles not appearing on the screen.
+  ///
+  /// Internal logic assumes that the changes will get applied the next build-cycle.
+  /// Failing to so will lead to unexpected behavior.
+  ///
+  /// Can be changed at any time (except [SchedulerPhase.persistentCallbacks]).
   final ValueNotifier<ColumnResizeCallback?> onColumnResize;
 
+  /// Contains a callback that will be called whenever the position of a column needs to change.
+  /// The [null] value here will result in move handle not appearing on the screen.
+  ///
+  /// Internal logic assumes that the changes will get applied the next build-cycle.
+  /// Failing to so will lead to unexpected behavior.
+  ///
+  /// Can be changed at any time (except [SchedulerPhase.persistentCallbacks]).
   final ValueNotifier<ColumnMoveCallback?> onColumnMove;
 
+  /// Contains a callback that will be called whenever the translation of a column needs to change.
+  /// The [null] value here will result in column movement not animating.
+  ///
+  /// Internal logic assumes that the changes will get applied the next build-cycle.
+  /// Failing to so will lead to unexpected behavior.
+  ///
+  /// Can be changed at any time (except [SchedulerPhase.persistentCallbacks]).
   final ValueNotifier<ColumnTranslateCallback?> onColumnTranslate;
 
+  /// Contains a number of columns at the start of the screen (left) that other columns will not get moved past.
+  /// Keep in mind, being within this range does not prevent a column from being moved by starting
+  /// [TableColumnControlHandlesPopupRoute] for it.
+  ///
+  /// Can be changed at any time (except [SchedulerPhase.persistentCallbacks]).
   final ValueNotifier<int> leadingImmovableColumnCount;
 
+  /// Contains a number of columns at the end of the screen (right) that other columns will not get moved past.
+  /// Keep in mind, being within this range does not prevent a column from being moved by starting
+  /// [TableColumnControlHandlesPopupRoute] for it.
+  ///
+  /// Can be changed at any time (except [SchedulerPhase.persistentCallbacks]).
   final ValueNotifier<int> trailingImmovableColumnCount;
 
+  /// This name conflicts with [barrierColor] so I gotta think of something better.
+  ///
+  /// Can be changed at any time (except [SchedulerPhase.persistentCallbacks]).
   final ValueNotifier<Color?> _barrierColor;
 
+  /// Contains a builder function returning a [PreferredSizeWidget] that will be used for column resize handles.
+  /// The handle will be laid out at exactly the preferred size. It must never be negative or infinite.
+  ///
+  /// Can be changed at any time (except [SchedulerPhase.persistentCallbacks]).
   final ValueNotifier<ResizeHandleBuilder> resizeHandleBuilder;
 
+  /// Contains a builder function returning a [PreferredSizeWidget] that will be used for the column drag handle.
+  /// The handle will be laid out at exactly the preferred size. It must never be negative or infinite.
+  ///
+  /// Can be changed at any time (except [SchedulerPhase.persistentCallbacks]).
   final ValueNotifier<DragHandleBuilder> dragHandleBuilder;
 
+  /// Contains a builder function returning a [PreferredSizeWidget] that will be displayed close to the target cell.
+  /// The popup will shrink in size if its preferred size is larger than the available space. Infinite preferred size
+  /// will result in popup filling as much space as possible.
+  ///
+  /// Can be changed at any time (except [SchedulerPhase.persistentCallbacks]).
   final ValueNotifier<PopupBuilder?> popupBuilder;
 
+  /// Contains a window margin for the popup. The popup widget will never get closer to the edge of the enclosing
+  /// [Navigator] (edge of the screen for the application level [Navigator]).
+  ///
+  /// Can be changed at any time (except [SchedulerPhase.persistentCallbacks]).
   final ValueNotifier<EdgeInsets> popupPadding;
 
+  /// Creates [TableColumnControlHandlesPopupRoute] that updates columns in realtime as soon as the gesture happens.
+  /// Although this results in a better user experience, depending on the complexity of a table and the end platform,
+  /// frequent rebuilds can cause performance issues.
+  ///
+  /// The position of the controls and [TableView]/[SliverTableView] to control are determined by the
+  /// [controlCellBuildContext] passed. It is intended that the [BuildContext] passed to the cellBuilder function
+  /// is used.
+  ///
+  /// [columnIndex] is the position of the controlled column.
+  ///
+  /// Other parameters are used as initial values for corresponding [ValueNotifier] properties of the route that
+  /// can be changed later in the lifecycle of the route. Refer to their documentation comments for their usage.
   factory TableColumnControlHandlesPopupRoute.realtime({
     required BuildContext controlCellBuildContext,
     required int columnIndex,
@@ -282,6 +354,8 @@ class _Widget extends StatefulWidget {
   @override
   State<_Widget> createState() => _WidgetState();
 }
+
+// this needs cleaning up
 
 class _WidgetState extends State<_Widget>
     with TickerProviderStateMixin<_Widget> {
