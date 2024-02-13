@@ -797,6 +797,7 @@ class _WidgetState extends State<_Widget>
         dragValue -= nextWidth;
         columnIndex = closestColumnGlobalIndex;
         _layoutDataChanged();
+        _calculateMovement();
         return;
       }
     } else if (dragValue < 0) {
@@ -846,6 +847,7 @@ class _WidgetState extends State<_Widget>
         dragValue += nextWidth;
         columnIndex = closestColumnGlobalIndex;
         _layoutDataChanged();
+        _calculateMovement();
         return;
       }
     }
