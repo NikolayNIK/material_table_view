@@ -223,7 +223,7 @@ class TableContentLayoutState extends State<TableContentLayout>
       } else {
         sticky = true;
         i = max(0, i - 2);
-        for (int j = columns.length - 1; j > i; j--) {
+        for (int j = columns.length - 1; j > i && j > 0; j--) {
           final column = columns[j];
           if (column.frozenAt(freezePriority)) {
             if (column.sticky && sticky) {
