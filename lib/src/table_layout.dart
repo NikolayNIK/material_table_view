@@ -169,7 +169,9 @@ class TableContentLayoutState extends State<TableContentLayout>
   }
 
   TableContentLayoutData calculateLayoutData(
-      final List<TableColumn> columns, double? stickyOffset) {
+    final List<TableColumn> columns,
+    double? stickyOffset,
+  ) {
     // this is quickly becoming a mess...
 
     final horizontalOffsetPixels = widget.horizontalOffset.pixels;
