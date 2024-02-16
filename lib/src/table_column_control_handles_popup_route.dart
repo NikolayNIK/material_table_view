@@ -484,11 +484,9 @@ class _WidgetState extends State<_Widget>
       lastElapsed = elapsed;
 
       final deltaPixels = value * 384 * deltaSeconds;
-      dragValue += deltaPixels;
-      _calculateMovement();
-      onColumnTranslate(columnIndex, dragValue);
 
       final position = horizontalScrollController.position;
+      final pixelsBefore = position.pixels;
       if (scrollHold == null) {
         position.pointerScroll(deltaPixels);
       } else {
@@ -496,6 +494,10 @@ class _WidgetState extends State<_Widget>
         position.pointerScroll(deltaPixels);
         scrollHold = position.hold(() {});
       }
+
+      dragValue += position.pixels - pixelsBefore;
+      _calculateMovement();
+      onColumnTranslate(columnIndex, dragValue);
     })
       ..start();
   }
