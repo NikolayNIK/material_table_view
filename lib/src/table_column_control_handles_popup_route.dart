@@ -361,6 +361,10 @@ class _WidgetState extends State<_Widget>
     with TickerProviderStateMixin<_Widget> {
   final clearBarrierCounter = ValueNotifier<int>(0);
 
+  final continuousScroll = ValueNotifier<int>(0);
+
+  Ticker? continuousScrollTicker;
+
   late double width;
   late double minColumnWidth;
   bool popped = false;
@@ -421,6 +425,8 @@ class _WidgetState extends State<_Widget>
 
     tableViewChanged = route.tableViewChanged.value;
     tableViewChanged?.addListener(_tableViewChanged);
+
+    continuousScroll.addListener(_continuousScrollChanged);
   }
 
   @override
@@ -449,12 +455,50 @@ class _WidgetState extends State<_Widget>
     tableViewChanged?.removeListener(_tableViewChanged);
     route.tableViewChanged.removeListener(_tableViewChangedChanged);
 
+    continuousScrollTicker
+      ?..stop()
+      ..dispose();
+
     super.dispose();
   }
 
   void _routeChanged() => setState(() {});
 
   void _horizontalScrollChanged() => setState(() {});
+
+  void _continuousScrollChanged() {
+    final value = continuousScroll.value;
+    continuousScrollTicker
+      ?..stop()
+      ..dispose();
+    continuousScrollTicker = null;
+
+    if (value == 0) {
+      return;
+    }
+
+    var lastElapsed = Duration.zero;
+    continuousScrollTicker = createTicker((elapsed) {
+      final deltaSeconds =
+          (elapsed.inMicroseconds - lastElapsed.inMicroseconds) / 1000000;
+      lastElapsed = elapsed;
+
+      final deltaPixels = value * 384 * deltaSeconds;
+      dragValue += deltaPixels;
+      _calculateMovement();
+      onColumnTranslate(columnIndex, dragValue);
+
+      final position = horizontalScrollController.position;
+      if (scrollHold == null) {
+        position.pointerScroll(deltaPixels);
+      } else {
+        scrollHold!.cancel();
+        position.pointerScroll(deltaPixels);
+        scrollHold = position.hold(() {});
+      }
+    })
+      ..start();
+  }
 
   void _tableViewChangedChanged() {
     if (!identical(tableViewChanged, route.tableViewChanged.value)) {
@@ -788,6 +832,8 @@ class _WidgetState extends State<_Widget>
   void _calculateMovement() {
     final columns = this.columns;
 
+    final tableContentLayoutData = this.tableContentLayoutData;
+
     final sections = [
       tableContentLayoutData.fixedColumns,
       tableContentLayoutData.scrollableColumns
@@ -816,6 +862,7 @@ class _WidgetState extends State<_Widget>
       }
 
       if (foundSection == null || foundOffset == null || foundWidth == null) {
+        continuousScroll.value = 0;
         return;
       }
 
@@ -831,12 +878,13 @@ class _WidgetState extends State<_Widget>
           value >= 0,
         );
         if (columnIndex + 1 >= columns.length - value) {
+          continuousScroll.value = 0;
           return;
         }
       }
 
       TableContentColumnData? closestColumnSection;
-      int? closestColumnGlobalIndex;
+      int? closestColumnSectionIndex;
       {
         double? closestColumnDistance;
         for (final section in sections) {
@@ -852,22 +900,49 @@ class _WidgetState extends State<_Widget>
                 section.indices[i] > columnIndex &&
                 (closestColumnDistance == null ||
                     distance < closestColumnDistance)) {
+              closestColumnSectionIndex = i;
               closestColumnDistance = distance;
               closestColumnSection = section;
-              closestColumnGlobalIndex = section.indices[i];
             }
           }
         }
       }
 
-      if (closestColumnGlobalIndex == null ||
-          (closestColumnGlobalIndex != columnIndex + 1 &&
-              !identical(closestColumnSection, targetColumnSection))) {
-        // TODO scroll
+      if (closestColumnSectionIndex == null || closestColumnSection == null) {
+        continuousScroll.value = 1;
         return;
       }
 
-      final nextWidth = columns[closestColumnGlobalIndex].width;
+      final closestColumnGlobalIndex =
+          closestColumnSection.indices[closestColumnSectionIndex];
+      final closestColumn = columns[closestColumnGlobalIndex];
+
+      if (identical(targetColumnSection, tableContentLayoutData.fixedColumns)) {
+        if (closestColumnGlobalIndex != columnIndex + 1 &&
+            !identical(closestColumnSection, targetColumnSection)) {
+          continuousScroll.value = 0;
+          return;
+        }
+      } else {
+        if (identical(
+            closestColumnSection, tableContentLayoutData.fixedColumns)) {
+          if (closestColumnGlobalIndex != columnIndex + 1) {
+            continuousScroll.value = 1;
+            return;
+          }
+        } else {
+          if (closestColumnSection.positions[closestColumnSectionIndex] -
+                  closestColumn.translation +
+                  closestColumn.width >
+              tableContentLayoutData.leftWidth +
+                  tableContentLayoutData.centerWidth) {
+            continuousScroll.value = 1;
+            return;
+          }
+        }
+      }
+
+      final nextWidth = closestColumn.width;
       if (dragValue > nextWidth / 2) {
         _animateColumnTranslation(closestColumnGlobalIndex, width, null);
         onColumnMove(columnIndex, closestColumnGlobalIndex);
@@ -881,11 +956,13 @@ class _WidgetState extends State<_Widget>
       {
         final value = route.leadingImmovableColumnCount.value;
         assert(value >= 0);
-        if (columnIndex <= value) return;
+        if (columnIndex <= value) {
+          return;
+        }
       }
 
       TableContentColumnData? closestColumnSection;
-      int? closestColumnGlobalIndex;
+      int? closestColumnSectionIndex;
       {
         double? closestColumnDistance;
         for (final section in sections) {
@@ -903,20 +980,45 @@ class _WidgetState extends State<_Widget>
                     distance < closestColumnDistance)) {
               closestColumnDistance = distance;
               closestColumnSection = section;
-              closestColumnGlobalIndex = section.indices[i];
+              closestColumnSectionIndex = i;
             }
           }
         }
       }
 
-      if (closestColumnGlobalIndex == null ||
-          (closestColumnGlobalIndex != columnIndex - 1 &&
-              !identical(closestColumnSection, targetColumnSection))) {
-        // TODO scroll
+      if (closestColumnSectionIndex == null || closestColumnSection == null) {
+        continuousScroll.value = -1;
         return;
       }
 
-      final nextWidth = columns[closestColumnGlobalIndex].width;
+      final closestColumnGlobalIndex =
+          closestColumnSection.indices[closestColumnSectionIndex];
+      final closestColumn = columns[closestColumnGlobalIndex];
+
+      if (identical(targetColumnSection, tableContentLayoutData.fixedColumns)) {
+        if (closestColumnGlobalIndex != columnIndex - 1 &&
+            !identical(closestColumnSection, targetColumnSection)) {
+          continuousScroll.value = 0;
+          return;
+        }
+      } else {
+        if (identical(
+            closestColumnSection, tableContentLayoutData.fixedColumns)) {
+          if (closestColumnGlobalIndex != columnIndex - 1) {
+            continuousScroll.value = -1;
+            return;
+          }
+        } else {
+          if (closestColumnSection.positions[closestColumnSectionIndex] -
+                  columns[closestColumnGlobalIndex].translation <
+              tableContentLayoutData.leftWidth) {
+            continuousScroll.value = -1;
+            return;
+          }
+        }
+      }
+
+      final nextWidth = closestColumn.width;
       if (dragValue < nextWidth / -2) {
         _animateColumnTranslation(closestColumnGlobalIndex, -width, null);
         onColumnMove(columnIndex, closestColumnGlobalIndex);
@@ -928,12 +1030,15 @@ class _WidgetState extends State<_Widget>
         return;
       }
     }
+
+    continuousScroll.value = 0;
   }
 
   void _dragEnd(DragEndDetails details) {
     clearBarrierCounter.value--;
     _animateColumnTranslation(
         columnIndex, dragValue, columns[columnIndex].key, false);
+    continuousScroll.value = 0;
   }
 
   void _animateColumnTranslation(
