@@ -267,18 +267,6 @@ class TableContentLayoutState extends State<TableContentLayout>
       return calculateLayoutData(columns, stickyOffset);
     }
 
-    for (int i = 0; i < columnsLeft.length; i++) {
-      columnOffsetsLeft[i] += columns[columnsLeft[i]].translation;
-    }
-
-    for (int i = 0; i < columnsCenter.length; i++) {
-      columnOffsetsCenter[i] += columns[columnsCenter[i]].translation;
-    }
-
-    for (int i = 0; i < columnsRight.length; i++) {
-      columnOffsetsRight[i] += columns[columnsRight[i]].translation;
-    }
-
     final leftWidth = columnsLeft.isEmpty
         ? .0
         : columnsLeft.fold<double>(.0, foldColumnsWidth) +
@@ -404,6 +392,14 @@ class TableContentLayoutState extends State<TableContentLayout>
           widget.verticalDividersStyle.trailing.wiggleOffset *
               widget.verticalDividersStyle.trailing.wiggleRevealCurve
                   .transform(rightDividerAnimationValue);
+    }
+
+    for (int i = 0; i < columnsFixed.length; i++) {
+      columnOffsetsFixed[i] += columns[columnsFixed[i]].translation;
+    }
+
+    for (int i = 0; i < columnsCenter.length; i++) {
+      columnOffsetsCenter[i] += columns[columnsCenter[i]].translation;
     }
 
     final data = TableContentLayoutData(
