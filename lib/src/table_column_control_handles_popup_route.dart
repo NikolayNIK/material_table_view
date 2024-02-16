@@ -1072,40 +1072,44 @@ class _WidgetState extends State<_Widget>
     double translationLeft = -translation;
     Duration lastElapsed = Duration.zero;
 
+    int? findCurrentGlobalIndex() {
+      if (currentGlobalIndex > columns.length ||
+          (columns[currentGlobalIndex]).key != key) {
+        for (var i = 0; i < columns.length; i++) {
+          if (columns[i].key == key) {
+            return currentGlobalIndex = i;
+          }
+        }
+
+        return null;
+      }
+
+      return currentGlobalIndex;
+    }
+
+    void correctHandlesIfNecessary(TableColumn column, double correction) {
+      if (correctHandles != null && column.key == correctHandles) {
+        leadingResizeHandleCorrection += correction;
+        trailingResizeHandleCorrection += correction;
+        moveHandleCorrection += correction;
+      }
+    }
+
     const animationDuration = Duration(milliseconds: 200);
 
     ticker = createTicker((elapsed) {
       final columns = this.columns;
 
-      var index = currentGlobalIndex;
-      TableColumn? column;
-      if (index > columns.length ||
-          (column = columns[currentGlobalIndex]).key != key) {
-        for (var i = 0; i < columns.length; i++) {
-          if (columns[i].key == key) {
-            column = columns[i];
-            index = currentGlobalIndex = i;
-            break;
-          }
-        }
-      }
+      final index = findCurrentGlobalIndex();
 
-      if (column == null) {
+      if (index == null) {
         stop();
         return;
       }
 
-      void correctHandlesIfNecessary(double correction) {
-        if (correctHandles != null && column!.key == correctHandles) {
-          leadingResizeHandleCorrection += correction;
-          trailingResizeHandleCorrection += correction;
-          moveHandleCorrection += correction;
-        }
-      }
+      final column = columns[index];
 
       if (elapsed >= animationDuration) {
-        onColumnTranslate(index, column.translation + translationLeft);
-        correctHandlesIfNecessary(translationLeft);
         stop();
         return;
       }
@@ -1125,9 +1129,18 @@ class _WidgetState extends State<_Widget>
       translationLeft -= deltaTranslation;
       onColumnTranslate(index, column.translation + deltaTranslation);
 
-      correctHandlesIfNecessary(deltaTranslation);
-    })
-      ..start();
+      correctHandlesIfNecessary(column, deltaTranslation);
+    });
+
+    final onComplete = ticker.start();
+
+    onComplete.orCancel.then((_) {
+      final index = findCurrentGlobalIndex();
+      if (index == null) return;
+      final column = columns[index];
+      onColumnTranslate(index, column.translation + translationLeft);
+      correctHandlesIfNecessary(column, translationLeft);
+    });
   }
 
   void onColumnResize(
