@@ -1051,10 +1051,10 @@ class _WidgetState extends State<_Widget>
       return;
     }
 
-    final ticker = <Ticker>[];
+    late Ticker ticker;
 
     void stop() {
-      ticker[0]
+      ticker
         ..stop()
         ..dispose();
     }
@@ -1068,23 +1068,23 @@ class _WidgetState extends State<_Widget>
       }
     }
 
-    final currentGlobalIndex = <int>[globalIndex];
-    final translationLeft = <double>[-translation];
-    final lastElapsed = <Duration>[Duration.zero];
+    int currentGlobalIndex = globalIndex;
+    double translationLeft = -translation;
+    Duration lastElapsed = Duration.zero;
 
     const animationDuration = Duration(milliseconds: 200);
 
-    ticker.add(createTicker((elapsed) {
+    ticker = createTicker((elapsed) {
       final columns = this.columns;
 
-      var index = currentGlobalIndex[0];
+      var index = currentGlobalIndex;
       TableColumn? column;
       if (index > columns.length ||
-          (column = columns[currentGlobalIndex[0]]).key != key) {
+          (column = columns[currentGlobalIndex]).key != key) {
         for (var i = 0; i < columns.length; i++) {
           if (columns[i].key == key) {
             column = columns[i];
-            index = currentGlobalIndex[0] = i;
+            index = currentGlobalIndex = i;
             break;
           }
         }
@@ -1104,14 +1104,14 @@ class _WidgetState extends State<_Widget>
       }
 
       if (elapsed >= animationDuration) {
-        onColumnTranslate(index, column.translation + translationLeft[0]);
-        correctHandlesIfNecessary(translationLeft[0]);
+        onColumnTranslate(index, column.translation + translationLeft);
+        correctHandlesIfNecessary(translationLeft);
         stop();
         return;
       }
 
       final valuePrev =
-          lastElapsed[0].inMicroseconds / animationDuration.inMicroseconds;
+          lastElapsed.inMicroseconds / animationDuration.inMicroseconds;
 
       final valueNext =
           elapsed.inMicroseconds / animationDuration.inMicroseconds;
@@ -1120,14 +1120,14 @@ class _WidgetState extends State<_Widget>
       final deltaTranslation = -translation *
           (curve.transform(valueNext) - curve.transform(valuePrev));
 
-      lastElapsed[0] = elapsed;
+      lastElapsed = elapsed;
 
-      translationLeft[0] -= deltaTranslation;
+      translationLeft -= deltaTranslation;
       onColumnTranslate(index, column.translation + deltaTranslation);
 
       correctHandlesIfNecessary(deltaTranslation);
     })
-      ..start());
+      ..start();
   }
 
   void onColumnResize(
