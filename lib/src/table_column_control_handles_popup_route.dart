@@ -519,8 +519,8 @@ class _WidgetState extends State<_Widget>
   void abort() {
     if (!popped) {
       popped = true;
-      SchedulerBinding.instance
-          .addPostFrameCallback((timeStamp) => Navigator.pop(context));
+      SchedulerBinding.instance.addPostFrameCallback(
+          (timeStamp) => Navigator.removeRoute(context, route));
     }
   }
 
