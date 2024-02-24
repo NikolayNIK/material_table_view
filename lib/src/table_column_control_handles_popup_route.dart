@@ -882,9 +882,9 @@ class _WidgetState extends State<_Widget>
     }
 
     void updateContinuousScroll() {
-      if (offset + translation <= tableContentLayoutData.leftWidth) {
+      if (offset + dragValue <= tableContentLayoutData.leftWidth) {
         continuousScroll.value = -1;
-      } else if (offset + translation + width >=
+      } else if (offset + dragValue + width >=
           tableContentLayoutData.leftWidth +
               tableContentLayoutData.centerWidth) {
         continuousScroll.value = 1;
