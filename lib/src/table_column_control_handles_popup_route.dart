@@ -370,7 +370,7 @@ class _WidgetState extends State<_Widget>
   bool popped = false;
 
   late int columnIndex;
-  late double dragValue;
+  double dragValue = .0;
 
   double leadingResizeHandleCorrection = .0,
       trailingResizeHandleCorrection = .0,
@@ -454,6 +454,10 @@ class _WidgetState extends State<_Widget>
 
     tableViewChanged?.removeListener(_tableViewChanged);
     route.tableViewChanged.removeListener(_tableViewChangedChanged);
+
+    if (dragValue != .0 && route.onColumnTranslate.value != null) {
+      route.onColumnTranslate.value!(columnIndex, .0);
+    }
 
     continuousScrollTicker
       ?..stop()
@@ -1057,6 +1061,7 @@ class _WidgetState extends State<_Widget>
     _animateColumnTranslation(
         columnIndex, dragValue, columns[columnIndex].key, false);
     continuousScroll.value = 0;
+    dragValue = .0;
   }
 
   void _animateColumnTranslation(
