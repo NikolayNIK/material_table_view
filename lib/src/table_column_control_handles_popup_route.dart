@@ -117,7 +117,10 @@ typedef PreferredSizeWidget PopupBuilder(
 
 /// Experimental modal route that can display control handles to resize/move a column and custom popup for that column.
 ///
-/// The popup will pop itself whenever it detects that [RenderBox] of the target cell is offstage.
+/// The popup will remove itself whenever it detects that [RenderBox] of the target cell is offstage.
+/// Keep in mind that in the case of route removal the [Future] returned by
+/// a call to [Navigator.push] will not complete. Use [Future.orCancel] to
+/// handle this case.
 class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
   /// Contains [Listenable] that route widget will subscribe to in order to rebuild.
   /// The [null] value here will lead to controls not updating whenever the [TableView] or [SliverTableView] changes
