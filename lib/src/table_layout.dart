@@ -252,6 +252,30 @@ class TableContentLayoutState extends State<TableContentLayout>
       }
     }
 
+    // reinsert culled center columns that have translation at the edges
+    // this is used by column controls
+    if (columnsCenter.isNotEmpty) {
+      var i = columnsCenter.first - 1;
+      TableColumn column;
+      if (i >= 0 &&
+          (column = columns[i]).translation > .25 &&
+          !columnsLeft.contains(i) &&
+          !columnsRight.contains(i)) {
+        columnsCenter.insert(0, i);
+        columnOffsetsCenter.insert(0, columnOffsetsCenter.first - column.width);
+      }
+
+      i = columnsCenter.last + 1;
+      if (i < columns.length &&
+          columns[i].translation < -.25 &&
+          !columnsLeft.contains(i) &&
+          !columnsRight.contains(i)) {
+        columnOffsetsCenter
+            .add(columnOffsetsCenter.last + columns[columnsCenter.last].width);
+        columnsCenter.add(i);
+      }
+    }
+
     if (stickyOffset < _minStickyHorizontalOffset ||
         stickyOffset > _maxStickyHorizontalOffset) {
       stickyOffset = min(_maxStickyHorizontalOffset,
