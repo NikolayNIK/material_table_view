@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/sliver_table_view_body.dart';
+import 'package:material_table_view/src/table_column.dart';
 import 'package:material_table_view/src/table_column_controls_controllable.dart';
 import 'package:material_table_view/src/table_column_resolve_layout_extension.dart';
 import 'package:material_table_view/src/table_horizontal_divider.dart';
@@ -56,6 +57,10 @@ class _SliverTableViewState extends State<SliverTableView>
   late ScrollController _horizontalScrollController;
   late ValueNotifier<double> _horizontalStickyOffset;
 
+  List<TableColumn>? _columns;
+
+  List<TableColumn> get columns => _columns ?? widget.columns;
+
   @override
   Key? get key => widget.key;
 
@@ -106,7 +111,7 @@ class _SliverTableViewState extends State<SliverTableView>
           headerHeight +
           footerHeight,
       builder: (context, sliverBuilder, width, verticalScrollOffsetPixels) {
-        final columns =
+        final columns = _columns =
             widget.columns.resolveLayout(width - scrollPadding.horizontal);
         return Transform.translate(
           offset: scrollbarOffset,

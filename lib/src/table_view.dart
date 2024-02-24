@@ -140,6 +140,10 @@ class _TableViewState extends State<TableView>
   late TableViewController _controller;
   final _stickyHorizontalOffset = ValueNotifier<double>(.0);
 
+  List<TableColumn>? _columns;
+
+  List<TableColumn> get columns => _columns ?? widget.columns;
+
   @override
   Key? get key => widget.key;
 
@@ -212,7 +216,7 @@ class _TableViewState extends State<TableView>
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = widget.columns
+        final columns = _columns = widget.columns
             .resolveLayout(constraints.maxWidth - scrollPadding.horizontal);
 
         return ScrollDimensionsApplicator(

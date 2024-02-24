@@ -388,7 +388,7 @@ class _WidgetState extends State<_Widget>
       route._tableContentLayoutState.lastLayoutData;
 
   List<TableColumn> get columns =>
-      _recentlyChangedColumns ?? route._tableViewState.widget.columns;
+      _recentlyChangedColumns ?? route._tableViewState.columns;
 
   List<Listenable> get _routeFieldToListenTo => [
         route.onColumnResize,
