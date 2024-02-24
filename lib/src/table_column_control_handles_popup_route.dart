@@ -531,7 +531,44 @@ class _WidgetState extends State<_Widget>
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Stack(
+        fit: StackFit.expand,
+        clipBehavior: Clip.none,
+        children: [
+          if (route._barrierColor.value != null)
+            IgnorePointer(
+              key: const ValueKey('barrier'),
+              child: FadeTransition(
+                opacity: widget.animation,
+                child: ValueListenableBuilder(
+                  valueListenable: clearBarrierCounter,
+                  builder: (context, clearBarrierCounter, _) => SizedBox(
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: clearBarrierCounter == 0
+                          ? ColoredBox(
+                              color: route._barrierColor.value!,
+                              child: SizedBox(
+                                width: double.infinity,
+                                height: double.infinity,
+                              ),
+                            )
+                          : null,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          SafeArea(
+            key: const ValueKey('content'),
+            child: Builder(builder: (context) => _build(context)),
+          ),
+        ],
+      );
+
+  Widget _build(BuildContext context) {
     if (!route._targetCellRenderObject.attached ||
         !route._tableContentLayoutState.mounted) {
       abort();
@@ -593,32 +630,6 @@ class _WidgetState extends State<_Widget>
       builder: (context, constraints) => Stack(
         fit: StackFit.expand,
         children: [
-          if (route._barrierColor.value != null)
-            IgnorePointer(
-              key: const ValueKey('barrier'),
-              child: FadeTransition(
-                opacity: widget.animation,
-                child: ValueListenableBuilder(
-                  valueListenable: clearBarrierCounter,
-                  builder: (context, clearBarrierCounter, _) => SizedBox(
-                    width: double.infinity,
-                    height: double.infinity,
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
-                      child: clearBarrierCounter == 0
-                          ? ColoredBox(
-                              color: route._barrierColor.value!,
-                              child: SizedBox(
-                                width: double.infinity,
-                                height: double.infinity,
-                              ),
-                            )
-                          : null,
-                    ),
-                  ),
-                ),
-              ),
-            ),
           if (route.popupBuilder.value != null)
             ValueListenableBuilder(
               key: ValueKey('popup'),
