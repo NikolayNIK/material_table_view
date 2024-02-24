@@ -59,6 +59,8 @@ class _SliverTableViewState extends State<SliverTableView>
 
   List<TableColumn>? _columns;
 
+  late double _lastResolvedColumnsWidth;
+
   List<TableColumn> get columns => _columns ?? widget.columns;
 
   @override
@@ -78,6 +80,7 @@ class _SliverTableViewState extends State<SliverTableView>
   void didUpdateWidget(covariant SliverTableView oldWidget) {
     super.didUpdateWidget(oldWidget);
 
+    _columns = null;
     _horizontalScrollController =
         widget.horizontalScrollController ?? _horizontalScrollController;
   }
@@ -108,8 +111,13 @@ class _SliverTableViewState extends State<SliverTableView>
           headerHeight +
           footerHeight,
       builder: (context, sliverBuilder, width, verticalScrollOffsetPixels) {
-        final columns = _columns =
-            widget.columns.resolveLayout(width - scrollPadding.horizontal);
+        final columns = _columns != null && width == _lastResolvedColumnsWidth
+            ? _columns!
+            : _columns =
+                widget.columns.resolveLayout(width - scrollPadding.horizontal);
+
+        _lastResolvedColumnsWidth = width;
+
         return Transform.translate(
           offset: scrollbarOffset,
           transformHitTests: false,
