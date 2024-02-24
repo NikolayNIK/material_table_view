@@ -842,10 +842,10 @@ class _WidgetState extends State<_Widget>
     ];
 
     final TableContentColumnData? targetColumnSection;
-    final double offset, width;
+    final double offset, translation, width;
     {
       TableContentColumnData? foundSection;
-      double? foundOffset, foundWidth;
+      double? foundOffset, foundTranslation, foundWidth;
 
       for (final section in sections) {
         if (section.indices.isEmpty) {
@@ -855,22 +855,38 @@ class _WidgetState extends State<_Widget>
         for (int i = 0; i < section.indices.length; i++) {
           if (section.indices[i] == columnIndex) {
             foundSection = section;
-            foundOffset =
-                section.positions[i] - columns[section.indices[i]].translation;
+            foundTranslation = columns[section.indices[i]].translation;
+            foundOffset = section.positions[i] - foundTranslation;
             foundWidth = section.widths[i];
             break; // breaking outer loop here causes web release build to freeze whenever section.indices is empty...
           }
         }
       }
 
-      if (foundSection == null || foundOffset == null || foundWidth == null) {
+      if (foundSection == null ||
+          foundOffset == null ||
+          foundTranslation == null ||
+          foundWidth == null) {
         continuousScroll.value = 0;
         return;
       }
 
       targetColumnSection = foundSection;
       offset = foundOffset;
+      translation = foundTranslation;
       width = foundWidth;
+    }
+
+    void updateContinuousScroll() {
+      if (offset + translation <= tableContentLayoutData.leftWidth) {
+        continuousScroll.value = -1;
+      } else if (offset + translation + width >=
+          tableContentLayoutData.leftWidth +
+              tableContentLayoutData.centerWidth) {
+        continuousScroll.value = 1;
+      } else {
+        continuousScroll.value = 0;
+      }
     }
 
     if (dragValue > 0) {
@@ -911,7 +927,7 @@ class _WidgetState extends State<_Widget>
       }
 
       if (closestColumnSectionIndex == null || closestColumnSection == null) {
-        continuousScroll.value = 1;
+        updateContinuousScroll();
         return;
       }
 
@@ -929,7 +945,7 @@ class _WidgetState extends State<_Widget>
         if (identical(
             closestColumnSection, tableContentLayoutData.fixedColumns)) {
           if (closestColumnGlobalIndex != columnIndex + 1) {
-            continuousScroll.value = 1;
+            updateContinuousScroll();
             return;
           }
         } else {
@@ -938,7 +954,7 @@ class _WidgetState extends State<_Widget>
                   closestColumn.width >
               tableContentLayoutData.leftWidth +
                   tableContentLayoutData.centerWidth) {
-            continuousScroll.value = 1;
+            updateContinuousScroll();
             return;
           }
         }
@@ -989,7 +1005,7 @@ class _WidgetState extends State<_Widget>
       }
 
       if (closestColumnSectionIndex == null || closestColumnSection == null) {
-        continuousScroll.value = -1;
+        updateContinuousScroll();
         return;
       }
 
@@ -1007,14 +1023,14 @@ class _WidgetState extends State<_Widget>
         if (identical(
             closestColumnSection, tableContentLayoutData.fixedColumns)) {
           if (closestColumnGlobalIndex != columnIndex - 1) {
-            continuousScroll.value = -1;
+            updateContinuousScroll();
             return;
           }
         } else {
           if (closestColumnSection.positions[closestColumnSectionIndex] -
                   columns[closestColumnGlobalIndex].translation <
               tableContentLayoutData.leftWidth) {
-            continuousScroll.value = -1;
+            updateContinuousScroll();
             return;
           }
         }
