@@ -857,10 +857,10 @@ class _WidgetState extends State<_Widget>
     ];
 
     final TableContentColumnData? targetColumnSection;
-    final double offset, translation, width;
+    final double offset, width;
     {
       TableContentColumnData? foundSection;
-      double? foundOffset, foundTranslation, foundWidth;
+      double? foundOffset, foundWidth;
 
       for (final section in sections) {
         if (section.indices.isEmpty) {
@@ -870,25 +870,21 @@ class _WidgetState extends State<_Widget>
         for (int i = 0; i < section.indices.length; i++) {
           if (section.indices[i] == columnIndex) {
             foundSection = section;
-            foundTranslation = columns[section.indices[i]].translation;
-            foundOffset = section.positions[i] - foundTranslation;
+            foundOffset =
+                section.positions[i] - columns[section.indices[i]].translation;
             foundWidth = section.widths[i];
             break; // breaking outer loop here causes web release build to freeze whenever section.indices is empty...
           }
         }
       }
 
-      if (foundSection == null ||
-          foundOffset == null ||
-          foundTranslation == null ||
-          foundWidth == null) {
+      if (foundSection == null || foundOffset == null || foundWidth == null) {
         continuousScroll.value = 0;
         return;
       }
 
       targetColumnSection = foundSection;
       offset = foundOffset;
-      translation = foundTranslation;
       width = foundWidth;
     }
 
