@@ -145,9 +145,6 @@ class _TableViewState extends State<TableView>
   List<TableColumn> get columns => _columns ?? widget.columns;
 
   @override
-  Key? get key => widget.key;
-
-  @override
   ScrollController get horizontalScrollController =>
       _controller.horizontalScrollController;
 

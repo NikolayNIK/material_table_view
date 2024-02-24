@@ -62,9 +62,6 @@ class _SliverTableViewState extends State<SliverTableView>
   List<TableColumn> get columns => _columns ?? widget.columns;
 
   @override
-  Key? get key => widget.key;
-
-  @override
   ScrollController get horizontalScrollController =>
       _horizontalScrollController;
 
