@@ -842,10 +842,16 @@ class _WidgetState extends State<_Widget>
   }
 
   double _resizeUpdate(double delta) {
+    final column = columns[columnIndex];
     final width = this.width + delta;
-    if (width < minColumnWidth) {
-      this.width = minColumnWidth;
-      delta += minColumnWidth - width;
+    final minResizeWidth = column.minResizeWidth ?? minColumnWidth;
+    final maxResizeWidth = column.maxResizeWidth;
+    if (width < minResizeWidth) {
+      this.width = minResizeWidth;
+      delta += minResizeWidth - width;
+    } else if (maxResizeWidth != null && width > maxResizeWidth) {
+      this.width = maxResizeWidth;
+      delta += maxResizeWidth - width;
     } else {
       this.width = width;
     }

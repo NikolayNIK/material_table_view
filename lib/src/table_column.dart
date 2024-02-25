@@ -9,6 +9,8 @@ class TableColumn {
     this.sticky = false,
     this.flex = 0,
     this.translation = 0,
+    this.minResizeWidth,
+    this.maxResizeWidth,
   })  : assert(freezePriority >= 0),
         assert(
           freezePriority != 0 || !sticky,
@@ -37,6 +39,12 @@ class TableColumn {
   /// of other columns. Primarily used for animations.
   final double translation;
 
+  /// Minimum width the column is allowed to resize to.
+  final double? minResizeWidth;
+
+  /// Maximum width the column is allowed to resize to.
+  final double? maxResizeWidth;
+
   /// Check whether or not the column is frozen at a given priority.
   bool frozenAt(int priority) => freezePriority > priority;
 
@@ -54,6 +62,8 @@ class TableColumn {
     bool? sticky,
     int? flex,
     double? translation,
+    double? maxResizeWidth,
+    double? minResizeWidth,
   }) =>
       TableColumn(
         width: width ?? this.width,
@@ -61,5 +71,7 @@ class TableColumn {
         sticky: sticky ?? this.sticky,
         flex: flex ?? this.flex,
         translation: translation ?? this.translation,
+        maxResizeWidth: maxResizeWidth ?? this.maxResizeWidth,
+        minResizeWidth: minResizeWidth ?? this.minResizeWidth,
       );
 }
