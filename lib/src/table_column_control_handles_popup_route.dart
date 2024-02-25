@@ -70,8 +70,8 @@ PreferredSizeWidget _defaultResizeHandleBuilder(
       leading ? Icons.switch_right : Icons.switch_left,
     );
 
-Duration _defaultColumnTranslationDuration(double distance) =>
-    Duration(milliseconds: (sqrt(distance / 64).toDouble() * 200).round());
+Duration _defaultColumnTranslationDuration(double distance) => Duration(
+    milliseconds: (pow(distance / 64, 1 / 3).toDouble() * 200).round());
 
 PreferredSizeWidget _defaultDragHandleBuilder(
   BuildContext context,
