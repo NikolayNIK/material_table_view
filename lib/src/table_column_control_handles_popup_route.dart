@@ -284,19 +284,21 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
     var state = controlCellBuildContext
         .findAncestorStateOfType<TableColumnControlsControllable>();
     assert(state != null, 'No TableView ancestor found');
+    state = state!;
 
     assert(
-      onColumnMove == null || state!.columns[columnIndex].key != null,
+      onColumnMove == null || state.columns[columnIndex].key != null,
       _movingColumnsWithoutKeyAssertionMessage,
     );
 
     controlCellBuildContext.findRenderObject() as RenderBox;
 
     return TableColumnControlHandlesPopupRoute._(
-      state!,
+      state,
       tableContentLayoutState!,
       cellRenderObject as RenderBox,
       columnIndex,
+      state.columns[columnIndex].key!,
       transitionDuration: transitionDuration,
       columnTranslationDuration: columnTranslationDuration,
       columnTranslationCurve: columnTranslationCurve,
@@ -322,11 +324,14 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
 
   int _targetColumnIndex;
 
+  final Key _targetColumnKey;
+
   TableColumnControlHandlesPopupRoute._(
     this._tableViewState,
     this._tableContentLayoutState,
     this._targetCellRenderObject,
-    this._targetColumnIndex, {
+    this._targetColumnIndex,
+    this._targetColumnKey, {
     required this.transitionDuration,
     required Listenable? tableViewChanged,
     required ColumnResizeCallback? onColumnResize,
@@ -602,7 +607,10 @@ class _WidgetState extends State<_Widget>
   @override
   Widget build(BuildContext context) {
     if (!route._targetCellRenderObject.attached ||
-        !route._tableContentLayoutState.mounted) {
+        !route._tableContentLayoutState.mounted ||
+        columnIndex >= route._tableViewState.columns.length ||
+        route._tableViewState.columns[columnIndex].key !=
+            route._targetColumnKey) {
       abort();
 
       return const SizedBox();
