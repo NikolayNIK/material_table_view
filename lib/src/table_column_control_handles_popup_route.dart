@@ -70,9 +70,6 @@ PreferredSizeWidget _defaultResizeHandleBuilder(
       leading ? Icons.switch_right : Icons.switch_left,
     );
 
-Duration _defaultColumnTranslationDuration(double distance) => Duration(
-    milliseconds: (pow(distance / 64, 1 / 3).toDouble() * 200).round());
-
 PreferredSizeWidget _defaultDragHandleBuilder(
   BuildContext context,
   Animation<double> animation,
@@ -84,6 +81,9 @@ PreferredSizeWidget _defaultDragHandleBuilder(
       secondaryAnimation,
       Icons.drag_indicator,
     );
+
+Duration _defaultColumnTranslationDuration(double distance) => Duration(
+    milliseconds: (pow(distance / 64, 1 / 3).toDouble() * 200).round());
 
 typedef ColumnResizeCallback = void Function(
   int index,
