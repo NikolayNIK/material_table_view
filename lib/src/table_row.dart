@@ -22,7 +22,8 @@ class TableViewRow extends StatelessWidget {
   final TableCellBuilder cellBuilder;
   final bool usePlaceholderLayers;
 
-  TableViewRow({
+  const TableViewRow({
+    super.key,
     required this.cellBuilder,
     this.usePlaceholderLayers = false,
   });
@@ -77,10 +78,10 @@ class TableViewRow extends StatelessWidget {
 class _TableViewRow extends MultiChildRenderObjectWidget {
   final bool usePlaceholderLayers;
 
-  _TableViewRow({
+  const _TableViewRow({
     required this.usePlaceholderLayers,
-    required List<Widget> children,
-  }) : super(children: children);
+    required super.children,
+  });
 
   @override
   RenderObject createRenderObject(BuildContext context) =>
@@ -210,7 +211,7 @@ class _TableViewCell extends ParentDataWidget<_TableViewCellParentData> {
   final double position;
   final bool scrolled;
 
-  _TableViewCell({
+  const _TableViewCell({
     super.key,
     required this.width,
     required this.position,

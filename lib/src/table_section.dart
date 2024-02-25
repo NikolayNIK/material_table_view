@@ -18,7 +18,8 @@ class TableSection extends StatelessWidget {
   final TablePlaceholderShade? placeholderShade;
   final Widget child;
 
-  TableSection({
+  const TableSection({
+    super.key,
     required this.verticalOffset,
     required this.rowHeight,
     required this.placeholderShade,
@@ -41,7 +42,7 @@ class _TableSection extends SingleChildRenderObjectWidget {
   final TableContentLayoutData layoutData;
   final TablePlaceholderShade? placeholderShade;
 
-  _TableSection({
+  const _TableSection({
     required this.verticalOffset,
     required this.rowHeight,
     required this.layoutData,
@@ -344,6 +345,7 @@ class RenderTableSection extends RenderProxyBox {
     }
   }
 
+  @override
   @protected
   bool get alwaysNeedsCompositing => true;
 

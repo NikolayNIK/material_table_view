@@ -34,7 +34,7 @@ class ResolvedTableViewStyle extends TableViewStyle {
   @override
   double get minScrollableWidthRatio => super.minScrollableWidthRatio!;
 
-  ResolvedTableViewStyle({
+  const ResolvedTableViewStyle({
     required ResolvedTableViewDividersStyle dividers,
     required ResolvedTableViewScrollbarsStyle scrollbars,
     required EdgeInsets scrollPadding,
@@ -88,10 +88,11 @@ class ResolvedTableViewDividersStyle extends TableViewDividersStyle {
   ResolvedTableViewHorizontalDividersStyle get horizontal =>
       super.horizontal as ResolvedTableViewHorizontalDividersStyle;
 
+  @override
   ResolvedTableViewVerticalDividersStyle get vertical =>
       super.vertical as ResolvedTableViewVerticalDividersStyle;
 
-  ResolvedTableViewDividersStyle({
+  const ResolvedTableViewDividersStyle({
     required ResolvedTableViewHorizontalDividersStyle horizontalDividersStyle,
     required ResolvedTableViewVerticalDividersStyle verticalDividersStyle,
   }) : super(
@@ -124,10 +125,11 @@ class ResolvedTableViewHorizontalDividersStyle
   ResolvedTableViewHorizontalDividerStyle get header =>
       super.header as ResolvedTableViewHorizontalDividerStyle;
 
+  @override
   ResolvedTableViewHorizontalDividerStyle get footer =>
       super.footer as ResolvedTableViewHorizontalDividerStyle;
 
-  ResolvedTableViewHorizontalDividersStyle({
+  const ResolvedTableViewHorizontalDividersStyle({
     required ResolvedTableViewHorizontalDividerStyle headerDividerStyle,
     required ResolvedTableViewHorizontalDividerStyle footerDividerStyle,
   }) : super(
@@ -171,7 +173,7 @@ class ResolvedTableViewHorizontalDividerStyle
   @override
   double get endIndent => super.endIndent!;
 
-  ResolvedTableViewHorizontalDividerStyle({
+  const ResolvedTableViewHorizontalDividerStyle({
     required Color color,
     required double thickness,
     required double space,
@@ -208,10 +210,11 @@ class ResolvedTableViewVerticalDividersStyle
   ResolvedTableViewVerticalDividerStyle get leading =>
       super.leading as ResolvedTableViewVerticalDividerStyle;
 
+  @override
   ResolvedTableViewVerticalDividerStyle get trailing =>
       super.trailing as ResolvedTableViewVerticalDividerStyle;
 
-  ResolvedTableViewVerticalDividersStyle({
+  const ResolvedTableViewVerticalDividersStyle({
     required ResolvedTableViewVerticalDividerStyle leadingDividerStyle,
     required ResolvedTableViewVerticalDividerStyle trailingDividerStyle,
   }) : super(
@@ -261,7 +264,7 @@ class ResolvedTableViewVerticalDividerStyle
   @override
   Curve get wiggleRevealCurve => super.wiggleRevealCurve!;
 
-  ResolvedTableViewVerticalDividerStyle({
+  const ResolvedTableViewVerticalDividerStyle({
     required Color color,
     required double thickness,
     required int wigglesPerRow,
@@ -310,7 +313,7 @@ class ResolvedTableViewScrollbarsStyle extends TableViewScrollbarsStyle {
   ResolvedTableViewScrollbarStyle get vertical =>
       super.vertical as ResolvedTableViewScrollbarStyle;
 
-  ResolvedTableViewScrollbarsStyle({
+  const ResolvedTableViewScrollbarsStyle({
     required ResolvedTableViewScrollbarStyle horizontal,
     required ResolvedTableViewScrollbarStyle? vertical,
   }) : super(
@@ -396,11 +399,11 @@ class ResolvedTableViewScrollbarStyle extends TableViewScrollbarStyle {
           (style?.scrollPadding ?? base?.scrollPadding ?? true),
       thumbVisibility: style?.thumbVisibility ??
           base?.thumbVisibility ??
-          MaterialStatePropertyAll(true),
+          const MaterialStatePropertyAll(true),
       thickness: style?.thickness ?? base?.thickness,
       trackVisibility: style?.trackVisibility ??
           base?.trackVisibility ??
-          MaterialStatePropertyAll(true),
+          const MaterialStatePropertyAll(true),
       interactive: style?.interactive ?? base?.interactive ?? true,
       radius: style?.radius ?? base?.radius,
       thumbColor: style?.thumbColor ?? base?.thumbColor,

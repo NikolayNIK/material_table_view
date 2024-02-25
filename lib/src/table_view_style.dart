@@ -158,6 +158,7 @@ class TableViewHorizontalDividerStyle extends DividerThemeData {
         assert(indent == null || indent >= 0),
         assert(endIndent == null || endIndent >= 0);
 
+  @override
   TableViewHorizontalDividerStyle copyWith({
     Color? color,
     double? thickness,
@@ -214,8 +215,8 @@ class TableViewVerticalDividersStyle {
     TableViewVerticalDividerStyle? trailingDividerStyle,
   }) =>
       TableViewVerticalDividersStyle(
-        leading: leadingDividerStyle ?? this.leading,
-        trailing: trailingDividerStyle ?? this.trailing,
+        leading: leadingDividerStyle ?? leading,
+        trailing: trailingDividerStyle ?? trailing,
       );
 
   TableViewVerticalDividersStyle lerp(

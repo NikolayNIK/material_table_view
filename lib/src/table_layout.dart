@@ -133,7 +133,7 @@ class TableContentLayoutState extends State<TableContentLayout>
   void _columnLayoutChanged() {
     final minScrollableWidth = max(
       16.0,
-      this.widget.minScrollableWidth ??
+      widget.minScrollableWidth ??
           widget.minScrollableWidthRatio * widget.width,
     );
 
@@ -305,8 +305,9 @@ class TableContentLayoutState extends State<TableContentLayout>
             stickyRightOffset;
     final centerWidth = widget.width - leftWidth - rightWidth;
 
-    for (var i = 0; i < columnOffsetsCenter.length; i++)
+    for (var i = 0; i < columnOffsetsCenter.length; i++) {
       columnOffsetsCenter[i] += leftWidth;
+    }
 
     if (columnsLeft.isEmpty) {
       for (var i = 0; i < columnOffsetsCenter.length; i++) {
@@ -487,7 +488,7 @@ class TableContentLayoutState extends State<TableContentLayout>
 class _InheritedTableContentLayout extends InheritedWidget {
   final TableContentLayoutData data;
 
-  _InheritedTableContentLayout({
+  const _InheritedTableContentLayout({
     required this.data,
     required super.child,
   });

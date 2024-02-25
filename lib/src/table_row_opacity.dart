@@ -16,7 +16,7 @@ import 'package:material_table_view/src/table_painting_context.dart';
 class TableRowOpacity extends SingleChildRenderObjectWidget {
   final double opacity;
 
-  TableRowOpacity({
+  const TableRowOpacity({
     super.key,
     required this.opacity,
     required super.child,
@@ -28,10 +28,10 @@ class TableRowOpacity extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, covariant _RenderTableRowOpacity renderObject) {
+      BuildContext context, covariant RenderObject renderObject) {
     super.updateRenderObject(context, renderObject);
 
-    renderObject.opacity = opacity;
+    (renderObject as _RenderTableRowOpacity).opacity = opacity;
   }
 }
 
@@ -49,6 +49,7 @@ class _RenderTableRowOpacity extends RenderProxyBox {
     }
   }
 
+  @override
   void paint(PaintingContext context, Offset offset) {
     if (_alpha == 0) return;
 

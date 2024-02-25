@@ -22,7 +22,7 @@ import 'package:material_table_view/src/table_view_style_resolved.dart';
 ///
 /// Horizontal scrolling is managed by this widget itself.
 class SliverTableView extends TableView {
-  SliverTableView.builder({
+  const SliverTableView.builder({
     super.key,
     super.style,
     required super.rowCount,
@@ -61,6 +61,7 @@ class _SliverTableViewState extends State<SliverTableView>
 
   late double _lastResolvedColumnsWidth;
 
+  @override
   List<TableColumn> get columns => _columns ?? widget.columns;
 
   @override
@@ -291,7 +292,7 @@ class _SliverPassthrough extends StatelessWidget {
 }
 
 class _BoxToSliverAdapter extends SingleChildRenderObjectWidget {
-  _BoxToSliverAdapter({
+  const _BoxToSliverAdapter({
     required this.constraints,
     required super.child,
   });
@@ -333,6 +334,7 @@ class _RenderBoxToSliver extends RenderBox
     size = constraints.biggest;
   }
 
+  @override
   void paint(PaintingContext context, Offset offset) =>
       context.paintChild(child!, offset);
 

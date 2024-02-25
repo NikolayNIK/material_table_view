@@ -6,7 +6,7 @@ class TableScrollbar extends StatelessWidget {
   final ResolvedTableViewScrollbarStyle style;
   final Widget child;
 
-  TableScrollbar({
+  const TableScrollbar({
     super.key,
     required this.controller,
     required this.style,

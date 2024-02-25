@@ -7,7 +7,7 @@ class TableContentDividerData {
   final int wigglesPerRow;
   final double wiggleOffset;
 
-  TableContentDividerData({
+  const TableContentDividerData({
     required this.color,
     required this.thickness,
     required this.wigglesPerRow,
@@ -33,7 +33,7 @@ class TableContentColumnData {
   final List<double> widths;
   final List<Key> keys;
 
-  TableContentColumnData({
+  const TableContentColumnData({
     required this.indices,
     required this.positions,
     required this.widths,
@@ -45,13 +45,12 @@ class TableContentColumnData {
 /// a table.
 @immutable
 class TableContentLayoutData {
-  final TableContentColumnData scrollableColumns,
-      fixedColumns;
+  final TableContentColumnData scrollableColumns, fixedColumns;
 
   final TableContentDividerData leftDivider, rightDivider;
   final double leftWidth, centerWidth, rightWidth;
 
-  TableContentLayoutData({
+  const TableContentLayoutData({
     required this.scrollableColumns,
     required this.fixedColumns,
     required this.leftDivider,

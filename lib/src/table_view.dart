@@ -142,6 +142,7 @@ class _TableViewState extends State<TableView>
 
   List<TableColumn>? _columns;
 
+  @override
   List<TableColumn> get columns => _columns ?? widget.columns;
 
   @override
@@ -355,11 +356,11 @@ Widget _defaultPlaceholderBuilder(
         );
 
         return Padding(
-          padding: EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8.0),
           child: DecoratedBox(
             decoration: BoxDecoration(
               color: color,
-              borderRadius: BorderRadius.all(Radius.circular(16)),
+              borderRadius: const BorderRadius.all(Radius.circular(16)),
             ),
           ),
         );

@@ -85,42 +85,42 @@ PreferredSizeWidget _defaultDragHandleBuilder(
       Icons.drag_indicator,
     );
 
-typedef void ColumnResizeCallback(
+typedef ColumnResizeCallback = void Function(
   int index,
   double newWidth,
 );
 
-typedef void ColumnMoveCallback(
+typedef ColumnMoveCallback = void Function(
   int oldIndex,
   int newIndex,
 );
 
-typedef void ColumnTranslateCallback(
+typedef ColumnTranslateCallback = void Function(
   int index,
   double newTranslation,
 );
 
-typedef PreferredSizeWidget ResizeHandleBuilder(
+typedef ResizeHandleBuilder = PreferredSizeWidget Function(
   BuildContext context,
   bool leading,
   Animation<double> animation,
   Animation<double> secondaryAnimation,
 );
 
-typedef PreferredSizeWidget DragHandleBuilder(
+typedef DragHandleBuilder = PreferredSizeWidget Function(
   BuildContext context,
   Animation<double> animation,
   Animation<double> secondaryAnimation,
 );
 
-typedef PreferredSizeWidget PopupBuilder(
+typedef PopupBuilder = PreferredSizeWidget Function(
   BuildContext context,
   Animation<double> animation,
   Animation<double> secondaryAnimation,
   double columnWidth,
 );
 
-typedef Duration ColumnTranslationDurationFunctor(
+typedef ColumnTranslationDurationFunctor = Duration Function(
   double distance,
 );
 
@@ -340,7 +340,7 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
         popupBuilder = ValueNotifier(popupBuilder),
         popupPadding = ValueNotifier(popupPadding),
         columnTranslationDuration = ValueNotifier(columnTranslationDuration),
-        columnTranslationCurve = ValueNotifier(columnTranslationCurve) {}
+        columnTranslationCurve = ValueNotifier(columnTranslationCurve);
 
   @override
   Widget buildPage(
@@ -356,7 +356,7 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
           GestureDetector(
             onTapDown: (details) => Navigator.of(context).pop(),
             behavior: HitTestBehavior.opaque,
-            child: SizedBox(
+            child: const SizedBox(
               width: double.infinity,
               height: double.infinity,
             ),
@@ -594,7 +594,7 @@ class _WidgetState extends State<_Widget>
                       child: clearBarrierCounter == 0
                           ? ColoredBox(
                               color: route._barrierColor.value!,
-                              child: SizedBox(
+                              child: const SizedBox(
                                 width: double.infinity,
                                 height: double.infinity,
                               ),
@@ -617,7 +617,7 @@ class _WidgetState extends State<_Widget>
         !route._tableContentLayoutState.mounted) {
       abort();
 
-      return SizedBox();
+      return const SizedBox();
     }
 
     final RenderBox originRenderObject;
@@ -628,7 +628,7 @@ class _WidgetState extends State<_Widget>
           if (mounted) setState(() {});
         });
 
-        return SizedBox();
+        return const SizedBox();
       }
 
       originRenderObject = ro as RenderBox;
@@ -652,7 +652,7 @@ class _WidgetState extends State<_Widget>
             .value(context, true, widget.animation, widget.secondaryAnimation);
 
     final trailingResizeHandle = route.onColumnResize.value == null ||
-            columnIndex + 1 == this.columns.length
+            columnIndex + 1 == columns.length
         ? null
         : route.resizeHandleBuilder
             .value(context, false, widget.animation, widget.secondaryAnimation);
@@ -676,7 +676,7 @@ class _WidgetState extends State<_Widget>
         children: [
           if (route.popupBuilder.value != null)
             ValueListenableBuilder(
-              key: ValueKey('popup'),
+              key: const ValueKey('popup'),
               valueListenable: clearBarrierCounter,
               child: route.popupBuilder.value!.call(
                   context,
