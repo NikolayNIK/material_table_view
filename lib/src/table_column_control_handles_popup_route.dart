@@ -490,9 +490,8 @@ class _WidgetState extends State<_Widget>
     assert(() {
       route.onColumnMove.addListener(() {
         assert(
-        route.onColumnMove.value == null ||
-            columns[columnIndex].key != null,
-        _movingColumnsWithoutKeyAssertionMessage,
+          route.onColumnMove.value == null || columns[columnIndex].key != null,
+          _movingColumnsWithoutKeyAssertionMessage,
         );
       });
       return true;
@@ -601,44 +600,7 @@ class _WidgetState extends State<_Widget>
   }
 
   @override
-  Widget build(BuildContext context) => Stack(
-        fit: StackFit.expand,
-        clipBehavior: Clip.none,
-        children: [
-          if (route._barrierColor.value != null)
-            IgnorePointer(
-              key: const ValueKey('barrier'),
-              child: FadeTransition(
-                opacity: widget.animation,
-                child: ValueListenableBuilder(
-                  valueListenable: clearBarrierCounter,
-                  builder: (context, clearBarrierCounter, _) => SizedBox(
-                    width: double.infinity,
-                    height: double.infinity,
-                    child: AnimatedSwitcher(
-                      duration: route.transitionDuration,
-                      child: clearBarrierCounter == 0
-                          ? ColoredBox(
-                              color: route._barrierColor.value!,
-                              child: const SizedBox(
-                                width: double.infinity,
-                                height: double.infinity,
-                              ),
-                            )
-                          : null,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          SafeArea(
-            key: const ValueKey('content'),
-            child: Builder(builder: (context) => _build(context)),
-          ),
-        ],
-      );
-
-  Widget _build(BuildContext context) {
+  Widget build(BuildContext context) {
     if (!route._targetCellRenderObject.attached ||
         !route._tableContentLayoutState.mounted) {
       abort();
@@ -646,6 +608,45 @@ class _WidgetState extends State<_Widget>
       return const SizedBox();
     }
 
+    return Stack(
+      fit: StackFit.expand,
+      clipBehavior: Clip.none,
+      children: [
+        if (route._barrierColor.value != null)
+          IgnorePointer(
+            key: const ValueKey('barrier'),
+            child: FadeTransition(
+              opacity: widget.animation,
+              child: ValueListenableBuilder(
+                valueListenable: clearBarrierCounter,
+                builder: (context, clearBarrierCounter, _) => SizedBox(
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: AnimatedSwitcher(
+                    duration: route.transitionDuration,
+                    child: clearBarrierCounter == 0
+                        ? ColoredBox(
+                            color: route._barrierColor.value!,
+                            child: const SizedBox(
+                              width: double.infinity,
+                              height: double.infinity,
+                            ),
+                          )
+                        : null,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        SafeArea(
+          key: const ValueKey('content'),
+          child: Builder(builder: (context) => _build(context)),
+        ),
+      ],
+    );
+  }
+
+  Widget _build(BuildContext context) {
     final RenderBox originRenderObject;
     {
       final ro = context.findRenderObject();
