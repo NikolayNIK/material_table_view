@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:material_table_view/material_table_view.dart';
@@ -68,6 +70,9 @@ PreferredSizeWidget _defaultResizeHandleBuilder(
       leading ? Icons.switch_right : Icons.switch_left,
     );
 
+Duration _defaultColumnTranslationDuration(double distance) =>
+    Duration(milliseconds: (sqrt(distance / 64).toDouble() * 200).round());
+
 PreferredSizeWidget _defaultDragHandleBuilder(
   BuildContext context,
   Animation<double> animation,
@@ -113,6 +118,10 @@ typedef PreferredSizeWidget PopupBuilder(
   Animation<double> animation,
   Animation<double> secondaryAnimation,
   double columnWidth,
+);
+
+typedef Duration ColumnTranslationDurationFunctor(
+  double distance,
 );
 
 /// Experimental modal route that can display control handles to resize/move a column and custom popup for that column.
@@ -201,6 +210,29 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
   /// Can be changed at any time (except [SchedulerPhase.persistentCallbacks]).
   final ValueNotifier<EdgeInsets> popupPadding;
 
+  /// Controls the duration of the following:
+  /// - control handles enter/exit animations;
+  /// - color barrier fade in/out animations;
+  /// - popup fade in/out animations.
+  @override
+  final Duration transitionDuration;
+
+  /// Contains a function that is called to determine a duration of the
+  /// translation animation when a column gets moved. That allows for the
+  /// duration to depend on the distance to travel.
+  ///
+  /// Can be changed at any time but ongoing animations will not respect
+  /// the change.
+  final ValueNotifier<ColumnTranslationDurationFunctor>
+      columnTranslationDuration;
+
+  /// Contains a [Curve] that is called to determine a rate of change of the
+  /// translation animation when a column gets moved.
+  ///
+  /// Can be changed at any time but ongoing animations will not respect
+  /// the change.
+  final ValueNotifier<Curve> columnTranslationCurve;
+
   /// Creates [TableColumnControlHandlesPopupRoute] that updates columns in realtime as soon as the gesture happens.
   /// Although this results in a better user experience, depending on the complexity of a table and the end platform,
   /// frequent rebuilds can cause performance issues.
@@ -227,6 +259,10 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
     DragHandleBuilder dragHandleBuilder = _defaultDragHandleBuilder,
     PopupBuilder? popupBuilder,
     EdgeInsets popupPadding = const EdgeInsets.all(16.0),
+    Duration transitionDuration = const Duration(milliseconds: 200),
+    ColumnTranslationDurationFunctor columnTranslationDuration =
+        _defaultColumnTranslationDuration,
+    Curve columnTranslationCurve = Curves.fastOutSlowIn,
   }) {
     var tableContentLayoutState = controlCellBuildContext
         .findAncestorStateOfType<TableContentLayoutState>();
@@ -246,6 +282,9 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
       tableContentLayoutState!,
       cellRenderObject as RenderBox,
       columnIndex,
+      transitionDuration: transitionDuration,
+      columnTranslationDuration: columnTranslationDuration,
+      columnTranslationCurve: columnTranslationCurve,
       barrierColor: barrierColor,
       dragHandleBuilder: dragHandleBuilder,
       leadingImmovableColumnCount: leadingImmovableColumnCount,
@@ -273,6 +312,7 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
     this._tableContentLayoutState,
     this._targetCellRenderObject,
     this._targetColumnIndex, {
+    required this.transitionDuration,
     required Listenable? tableViewChanged,
     required ColumnResizeCallback? onColumnResize,
     required ColumnMoveCallback? onColumnMove,
@@ -284,6 +324,8 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
     required DragHandleBuilder dragHandleBuilder,
     required PopupBuilder? popupBuilder,
     required EdgeInsets popupPadding,
+    required ColumnTranslationDurationFunctor columnTranslationDuration,
+    required Curve columnTranslationCurve,
   })  : tableViewChanged = ValueNotifier(tableViewChanged),
         onColumnResize = ValueNotifier(onColumnResize),
         onColumnMove = ValueNotifier(onColumnMove),
@@ -296,7 +338,9 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
         resizeHandleBuilder = ValueNotifier(resizeHandleBuilder),
         dragHandleBuilder = ValueNotifier(dragHandleBuilder),
         popupBuilder = ValueNotifier(popupBuilder),
-        popupPadding = ValueNotifier(popupPadding) {}
+        popupPadding = ValueNotifier(popupPadding),
+        columnTranslationDuration = ValueNotifier(columnTranslationDuration),
+        columnTranslationCurve = ValueNotifier(columnTranslationCurve) {}
 
   @override
   Widget buildPage(
@@ -330,9 +374,6 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
 
   @override
   String? get barrierLabel => null;
-
-  @override
-  Duration get transitionDuration => const Duration(milliseconds: 200);
 
   @override
   bool get maintainState => false;
@@ -549,7 +590,7 @@ class _WidgetState extends State<_Widget>
                     width: double.infinity,
                     height: double.infinity,
                     child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
+                      duration: route.transitionDuration,
                       child: clearBarrierCounter == 0
                           ? ColoredBox(
                               color: route._barrierColor.value!,
@@ -706,7 +747,7 @@ class _WidgetState extends State<_Widget>
                   width: width,
                   height: height,
                   child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 200),
+                    duration: route.transitionDuration,
                     opacity: clearBarrierCounter == 0 ? 1.0 : .0,
                     child: child,
                   ),
@@ -1128,7 +1169,10 @@ class _WidgetState extends State<_Widget>
       }
     }
 
-    const animationDuration = Duration(milliseconds: 200);
+    final animationDuration =
+        route.columnTranslationDuration.value(translation.abs());
+
+    final curve = route.columnTranslationCurve.value;
 
     ticker = createTicker((elapsed) {
       final columns = this.columns;
@@ -1153,7 +1197,6 @@ class _WidgetState extends State<_Widget>
       final valueNext =
           elapsed.inMicroseconds / animationDuration.inMicroseconds;
 
-      const curve = Curves.fastOutSlowIn;
       final deltaTranslation = -translation *
           (curve.transform(valueNext) - curve.transform(valuePrev));
 
