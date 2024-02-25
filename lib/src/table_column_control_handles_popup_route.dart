@@ -124,6 +124,11 @@ typedef ColumnTranslationDurationFunctor = Duration Function(
   double distance,
 );
 
+const _movingColumnsWithoutKeyAssertionMessage =
+    'When using column moving functionality make sure to instantiate column'
+    ' list with a class that extends TableColumn and overrides key getter'
+    ' with one returning unique non-null key';
+
 /// Experimental modal route that can display control handles to resize/move a column and custom popup for that column.
 ///
 /// The popup will remove itself whenever it detects that [RenderBox] of the target cell is offstage.
@@ -266,7 +271,12 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
   }) {
     var tableContentLayoutState = controlCellBuildContext
         .findAncestorStateOfType<TableContentLayoutState>();
-    assert(tableContentLayoutState != null);
+    assert(
+      tableContentLayoutState != null,
+      'No TableView ancestor found.'
+      ' Make sure to pass a correct BuildContext.'
+      ' It is intended to use a BuildContext passed to a cellBuilder function.',
+    );
 
     var cellRenderObject = controlCellBuildContext.findRenderObject();
     assert(cellRenderObject is RenderBox);
@@ -274,6 +284,11 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
     var state = controlCellBuildContext
         .findAncestorStateOfType<TableColumnControlsControllable>();
     assert(state != null, 'No TableView ancestor found');
+
+    assert(
+      onColumnMove == null || state!.columns[columnIndex].key != null,
+      _movingColumnsWithoutKeyAssertionMessage,
+    );
 
     controlCellBuildContext.findRenderObject() as RenderBox;
 
@@ -471,6 +486,17 @@ class _WidgetState extends State<_Widget>
     tableViewChanged?.addListener(_tableViewChanged);
 
     continuousScroll.addListener(_continuousScrollChanged);
+
+    assert(() {
+      route.onColumnMove.addListener(() {
+        assert(
+        route.onColumnMove.value == null ||
+            columns[columnIndex].key != null,
+        _movingColumnsWithoutKeyAssertionMessage,
+        );
+      });
+      return true;
+    }());
   }
 
   @override
