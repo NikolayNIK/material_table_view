@@ -21,6 +21,7 @@ class TableContentLayout extends StatefulWidget {
   final List<TableColumn> columns;
   final double? minScrollableWidth;
   final double minScrollableWidthRatio;
+  final TextDirection textDirection;
   final EdgeInsets scrollPadding;
   final Widget child;
 
@@ -33,6 +34,7 @@ class TableContentLayout extends StatefulWidget {
     required this.columns,
     this.minScrollableWidth,
     required this.minScrollableWidthRatio,
+    required this.textDirection,
     required this.scrollPadding,
     required this.child,
   });
@@ -293,12 +295,12 @@ class TableContentLayoutState extends State<TableContentLayout>
       return calculateLayoutData(columns, stickyOffset);
     }
 
-    final leftWidth = columnsLeft.isEmpty
+    var leftWidth = columnsLeft.isEmpty
         ? .0
         : columnsLeft.fold<double>(.0, foldColumnsWidth) +
             widget.scrollPadding.left +
             stickyLeftOffset;
-    final rightWidth = columnsRight.isEmpty
+    var rightWidth = columnsRight.isEmpty
         ? .0
         : columnsRight.fold<double>(.0, foldColumnsWidth) +
             widget.scrollPadding.right -
@@ -421,12 +423,52 @@ class TableContentLayoutState extends State<TableContentLayout>
                   .transform(rightDividerAnimationValue);
     }
 
-    for (int i = 0; i < columnsFixed.length; i++) {
-      columnOffsetsFixed[i] += columns[columnsFixed[i]].translation;
-    }
+    var leftDivider = TableContentDividerData(
+      color: leftDividerColor,
+      thickness: widget.verticalDividersStyle.leading.thickness,
+      wigglesPerRow: widget.verticalDividersStyle.leading.wigglesPerRow,
+      wiggleOffset: leftDividerWiggleOffset,
+    );
 
-    for (int i = 0; i < columnsCenter.length; i++) {
-      columnOffsetsCenter[i] += columns[columnsCenter[i]].translation;
+    var rightDivider = TableContentDividerData(
+      color: rightDividerColor,
+      thickness: widget.verticalDividersStyle.trailing.thickness,
+      wigglesPerRow: widget.verticalDividersStyle.trailing.wigglesPerRow,
+      wiggleOffset: rightDividerWiggleOffset,
+    );
+
+    if (widget.textDirection == TextDirection.ltr) {
+      for (int i = 0; i < columnsFixed.length; i++) {
+        columnOffsetsFixed[i] += columns[columnsFixed[i]].translation;
+      }
+
+      for (int i = 0; i < columnsCenter.length; i++) {
+        columnOffsetsCenter[i] += columns[columnsCenter[i]].translation;
+      }
+    } else {
+      for (int i = 0; i < columnsFixed.length; i++) {
+        final column = columns[columnsFixed[i]];
+        columnOffsetsFixed[i] = widget.width -
+            columnOffsetsFixed[i] -
+            column.width +
+            column.translation;
+      }
+
+      for (int i = 0; i < columnsCenter.length; i++) {
+        final column = columns[columnsCenter[i]];
+        columnOffsetsCenter[i] = widget.width -
+            columnOffsetsCenter[i] -
+            column.width +
+            column.translation;
+      }
+
+      final tmp = leftWidth;
+      leftWidth = rightWidth;
+      rightWidth = tmp;
+
+      final tmp2 = leftDivider;
+      leftDivider = rightDivider;
+      rightDivider = tmp2;
     }
 
     final data = TableContentLayoutData(
@@ -451,18 +493,8 @@ class TableContentLayoutState extends State<TableContentLayout>
             .map((e) => columns[e].key ?? ValueKey(e))
             .toList(growable: false),
       ),
-      leftDivider: TableContentDividerData(
-        color: leftDividerColor,
-        thickness: widget.verticalDividersStyle.leading.thickness,
-        wigglesPerRow: widget.verticalDividersStyle.leading.wigglesPerRow,
-        wiggleOffset: leftDividerWiggleOffset,
-      ),
-      rightDivider: TableContentDividerData(
-        color: rightDividerColor,
-        thickness: widget.verticalDividersStyle.trailing.thickness,
-        wigglesPerRow: widget.verticalDividersStyle.trailing.wigglesPerRow,
-        wiggleOffset: rightDividerWiggleOffset,
-      ),
+      leftDivider: leftDivider,
+      rightDivider: rightDivider,
     );
 
     _lastLayoutData.value = data;

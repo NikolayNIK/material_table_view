@@ -40,6 +40,7 @@ class TableView extends StatefulWidget {
     double? footerHeight,
     this.minScrollableWidth,
     this.minScrollableWidthRatio,
+    this.textDirection,
     @Deprecated(
         'Setting this property prevents default behavior of leaving space for scrollbars.'
         ' Use scrollPadding property of TableViewStyle instead.')
@@ -131,6 +132,13 @@ class TableView extends StatefulWidget {
   /// If null, predefined insets will be used based on a target platform.
   final EdgeInsets? scrollPadding;
 
+  /// Text direction of the table. Determines horizontal scroll axis and column
+  /// layout direction as well.
+  ///
+  /// If null, the value from the closest instance
+  /// of the [Directionality] class that encloses the table will be used.
+  final TextDirection? textDirection;
+
   @override
   State<TableView> createState() => _TableViewState();
 }
@@ -139,6 +147,8 @@ class _TableViewState extends State<TableView>
     implements TableColumnControlsControllable<TableView> {
   late TableViewController _controller;
   final _stickyHorizontalOffset = ValueNotifier<double>(.0);
+
+  late TextDirection textDirection;
 
   List<TableColumn>? _columns;
 
@@ -176,6 +186,10 @@ class _TableViewState extends State<TableView>
       widget.footerBuilder == null ? 0 : widget.footerHeight,
     );
 
+    textDirection = widget.textDirection ??
+        Directionality.maybeOf(context) ??
+        TextDirection.ltr;
+
     return TableScrollConfiguration(
       child: SizedBox(
         width: double.infinity,
@@ -194,7 +208,8 @@ class _TableViewState extends State<TableView>
                     child: Scrollable(
                       controller: _controller.horizontalScrollController,
                       clipBehavior: Clip.none,
-                      axisDirection: AxisDirection.right,
+                      axisDirection:
+                          textDirectionToAxisDirection(textDirection),
                       viewportBuilder: (context, position) =>
                           _buildViewport(context, style, position),
                     ),
@@ -227,6 +242,7 @@ class _TableViewState extends State<TableView>
             builder: (context, constraints) => TableContentLayout(
               verticalDividersStyle: style.dividers.vertical,
               scrollPadding: scrollPadding,
+              textDirection: textDirection,
               width: constraints.maxWidth,
               minScrollableWidthRatio: widget.minScrollableWidthRatio ??
                   style.minScrollableWidthRatio,

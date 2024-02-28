@@ -39,6 +39,7 @@ class SliverTableView extends TableView {
     super.footerHeight,
     super.minScrollableWidth,
     super.minScrollableWidthRatio,
+    super.textDirection,
     @Deprecated(
         'Setting this property prevents default behavior of leaving space for scrollbars.'
         ' Use scrollPadding property of TableViewStyle instead.')
@@ -60,6 +61,8 @@ class _SliverTableViewState extends State<SliverTableView>
   List<TableColumn>? _columns;
 
   late double _lastResolvedColumnsWidth;
+
+  late TextDirection textDirection;
 
   @override
   List<TableColumn> get columns => _columns ?? widget.columns;
@@ -105,6 +108,10 @@ class _SliverTableViewState extends State<SliverTableView>
 
     final scrollbarOffset = Offset(0, -footerHeight);
 
+    textDirection = widget.textDirection ??
+        Directionality.maybeOf(context) ??
+        TextDirection.ltr;
+
     return _SliverPassthrough(
       minHeight: scrollPadding.bottom + headerHeight + footerHeight,
       maxHeight: widget.rowCount * widget.rowHeight +
@@ -130,7 +137,7 @@ class _SliverTableViewState extends State<SliverTableView>
               transformHitTests: false,
               child: Scrollable(
                 controller: _horizontalScrollController,
-                axisDirection: AxisDirection.right,
+                axisDirection: textDirectionToAxisDirection(textDirection),
                 viewportBuilder: (context, position) =>
                     ScrollDimensionsApplicator(
                   position: _horizontalScrollController.position,
@@ -149,6 +156,7 @@ class _SliverTableViewState extends State<SliverTableView>
                     minScrollableWidthRatio: widget.minScrollableWidthRatio ??
                         style.minScrollableWidthRatio,
                     minScrollableWidth: widget.minScrollableWidth,
+                    textDirection: textDirection,
                     scrollPadding: scrollPadding,
                     child: Column(
                       children: [
