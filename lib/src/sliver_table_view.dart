@@ -62,6 +62,7 @@ class _SliverTableViewState extends State<SliverTableView>
 
   late double _lastResolvedColumnsWidth;
 
+  @override
   late TextDirection textDirection;
 
   @override

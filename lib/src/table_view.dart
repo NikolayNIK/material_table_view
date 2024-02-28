@@ -148,6 +148,7 @@ class _TableViewState extends State<TableView>
   late TableViewController _controller;
   final _stickyHorizontalOffset = ValueNotifier<double>(.0);
 
+  @override
   late TextDirection textDirection;
 
   List<TableColumn>? _columns;

@@ -7,4 +7,6 @@ abstract class TableColumnControlsControllable<T extends TableView>
   ScrollController get horizontalScrollController;
 
   List<TableColumn> get columns;
+
+  TextDirection get textDirection;
 }
