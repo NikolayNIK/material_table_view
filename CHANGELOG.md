@@ -1,3 +1,6 @@
+## 4.0.1
+- Updated package description.
+
 ## 4.0.0
 - New column controls feature introduced. `TableColumnControlHandlesPopupRoute`
   that displays custom popup as well as column control handles over the table
