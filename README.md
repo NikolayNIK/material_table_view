@@ -4,14 +4,8 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/NikolayNIK/material_table_view/blob/master/LICENSE)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/1e81dcb6-9a0d-4fa1-9f70-fca006e8f122/deploy-status)](https://app.netlify.com/sites/visionary-chimera-cb5753/deploys)
 
-This is an open source Flutter package containing
-a widget that displays your data
-in a both vertically and horizontally scrollable
-material-style table with fixed-width freezable columns
-dynamically adjusting based on a screen size
-with support for billions of on-demand built rows.
-This package prioritizes usability and visual consistency
-above all else.
+Comprehensive, feature-rich and intuitive UI/UX solution for most if not all the data table use cases
+that is easy to integrate into any Flutter app.
 
 <table>
   <tr>
@@ -19,22 +13,36 @@ above all else.
     <td><img src="https://raw.githubusercontent.com/NikolayNIK/material_table_view/8b00a3eecf1be0996715965e3088f95a794a1867/screenshots/demo-slivers-android-dark.gif" height="28%"/></td>
   </tr>
   <tr>
+    <td><img src="https://raw.githubusercontent.com/NikolayNIK/material_table_view/d316133399f4d5092877e0f416340795029e5dbb/screenshots/demo-controls-move-linux-light.gif" height="70%"/></td>
+    <td><img src="https://raw.githubusercontent.com/NikolayNIK/material_table_view/d316133399f4d5092877e0f416340795029e5dbb/screenshots/demo-controls-resize-android-dark.gif" height="28%"/></td>
+  </tr>
+  <tr>
     <td colspan="2">
-      This demo uses the shimmer included in the package.
       The source code for this demo is included in the package example
       and is available <a href="https://github.com/NikolayNIK/material_table_view_demo">here</a>.
     </td>
   </tr>
 </table>
 
+## Project goals
+1. To provide intuitive, visually consistent and customizable UI/UX with opinionated defaults.
+1. To make the solution adaptable to any screen size, any input method and any platform.
+1. To keep public API as stable as possible.
+1. To keep as many features optional as possible.
+1. To leave state management completely up to the developer: although some state management solutions might work better than others, the project should never dictate the choice. 
+1. To avoid dependencies as much as possible.
+1. To keep performance in mind as much as possible
+
 ## Features
 
-- Both horizontally and vertically scrolling meaning that both
-  rows and columns can be scrolled in order to display large
+- Reactivity: all rows and cells are widgets,
+  which makes it easier to handle state changes as well as to infinitely customize the content.
+- Both horizontal and vertical scrolling allowing to display large
   amount of data to the user.
-- Fixed-width columns that can be frozen
-  meaning that it will be docked either at the left or right
-  whenever it would otherwise get scrolled off-screen.
+- Lazily built fixed-height rows allowing for billions of rows
+  to be in one table. Practice commonly known as virtualization.
+- Fixed-width columns that can be frozen (fixed) at the edge of a screen
+  instead of getting scrolled off-screen.
   This helps the user not to lose a row-identifying information
   while scrolling horizontally. Columns will automatically
   be unfrozen in case of insufficient horizontal space based
@@ -43,8 +51,6 @@ above all else.
 - `sticky` column property, which causes frozen columns
   to scroll off of the edge but come back upon scrolling
   in the other direction to conserve the horizontal space when it's limited.
-- Lazily built fixed-height rows allowing for billions of rows
-  to be in one table.
 - Support for a custom individual row widget wrapper allowing
   the developer to wrap each individual row in on InkWell
   while containing all cell widgets inside enabling for
@@ -59,45 +65,46 @@ above all else.
 - Scroll behaviour defined by an application theme used
   including scroll physics, overscroll effects, etc.
   It means that the platform-default scrolling behaviour
-  will be used by default if you haven't overridden it.
+  will be used by default unless overridden.
 - Customizable vertical and horizontal scrollbar.
-- Customizable wiggly dividers separating frozen and scrolled columns.
-- Divider animations: when a column gets scrolled under
-  another column that become frozen at the edge of a screen,
-  a wiggly divider will animate in indicating to the user that
-  the columns have been separated and there is more content to
-  scroll to.
+- Customizable animated wiggly dividers separating frozen and scrolled columns.
 - Horizontally scrollable header and footer support.
 - `SliverTableView` - sliver variant of a table view which can be used
   in a `CustomScrollView` alongside other slivers (including other instances
   of the `SliverTableView`) to be scrolled vertically by a single view.
-  It features sticky header and footer, and the same capabilities as a regular one.
+  It features sticky header and footer, and the same capabilities as a regular `TableView`.
+- `TableColumnControlHandlesPopupRoute` - a route that displays a custom popup
+  as well as column control handles over a `TableView` or a `SliverTableView`
+  that allow user to resize and reorder the columns.
+- Full RTL layout support.
 
 ## Usage
 
     TableView.builder(
       columns: [
-        // TODO specify columns
         const TableColumn(
           width: 56.0,
           freezePriority: 100,
         ),
         for (var i = 1; i < 100; i++)
-          const TableColumn(width: 64), // TODO specify freezePriority to freeze a column
+          const TableColumn(width: 64),
       ],
-      rowCount: 1048576, // TODO specify row count
-      rowHeight: 56.0, // TODO specify row height
+      rowCount: 1048576,
+      rowHeight: 56.0,
       rowBuilder: (context, row, contentBuilder) {
-        // TODO fetch row data
+        if (noDataYetFor(row)) {
+          return null; // to use a placeholder
+        }
+
         return InkWell(
           onTap: () => print('Row $row clicked'),
           child: contentBuilder(
             context,
-            (context, column) => Text('$column'), // TODO build a cell widget
+            (context, column) => Text('$column'), // build a cell widget
           ),
         );
       },
-      // TODO specify other parameters for other features
+      // specify other parameters for other features
     ),
 
 ## Limitations
@@ -123,10 +130,10 @@ are provided by the package that will work for that purpose
   which can be used as a `transitionBuilder` for the `AnimatedSwitcher` in that context
   as a default one will not work.
 
-If any alternative you need are not available,
+If any alternative you need is not available,
 feel free to use [the issue tracker](https://github.com/NikolayNIK/material_table_view/issues).
 
-Drawing on top of the row might not work as expected.
+Drawing on top of cells in the row widget might not work as expected.
 
 These limitations do **not** apply to cell widgets built by a `cellBuilder` closure.
 
@@ -145,7 +152,6 @@ a table widget painting used for optimization purposes.
   when using a stretching overscroll effect for the
   horizontal scroll that is default on Android causing the
   scrollbar to stretch off the screen on overscroll.
-- No support for RTL layout.
 - Enabling/disabling either horizontal or vertical scrollbar
   for currently active tables will lead to a state loss
   and to possible runtime errors.
