@@ -41,10 +41,6 @@ class TableView extends StatefulWidget {
     this.minScrollableWidth,
     this.minScrollableWidthRatio,
     this.textDirection,
-    @Deprecated(
-        'Setting this property prevents default behavior of leaving space for scrollbars.'
-        ' Use scrollPadding property of TableViewStyle instead.')
-    this.scrollPadding,
   })  : assert(rowCount >= 0),
         assert(rowHeight > 0),
         assert(headerHeight == null || headerHeight > 0),
@@ -126,11 +122,6 @@ class TableView extends StatefulWidget {
   /// Used to calculate [minScrollableWidth] depending on an overall table width
   /// if that property is null.
   final double? minScrollableWidthRatio;
-
-  /// Padding for the scrollable part of the table.
-  /// Primarily used to leave space for the scrollbars.
-  /// If null, predefined insets will be used based on a target platform.
-  final EdgeInsets? scrollPadding;
 
   /// Text direction of the table. Determines horizontal scroll axis and column
   /// layout direction as well.
@@ -226,7 +217,7 @@ class _TableViewState extends State<TableView>
     ResolvedTableViewStyle style,
     ViewportOffset horizontalOffset,
   ) {
-    final scrollPadding = widget.scrollPadding ?? style.scrollPadding;
+    final scrollPadding = style.scrollPadding;
 
     return LayoutBuilder(
       builder: (context, constraints) {

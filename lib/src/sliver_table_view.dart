@@ -40,10 +40,6 @@ class SliverTableView extends TableView {
     super.minScrollableWidth,
     super.minScrollableWidthRatio,
     super.textDirection,
-    @Deprecated(
-        'Setting this property prevents default behavior of leaving space for scrollbars.'
-        ' Use scrollPadding property of TableViewStyle instead.')
-    super.scrollPadding,
   }) : super.builder();
 
   /// A scroll controller used for the horizontal scrolling of the table.
@@ -98,7 +94,7 @@ class _SliverTableViewState extends State<SliverTableView>
       sliver: true,
     );
 
-    final scrollPadding = widget.scrollPadding ?? style.scrollPadding;
+    final scrollPadding = style.scrollPadding;
 
     final headerHeight = (widget.headerBuilder == null
         ? .0
