@@ -1,3 +1,14 @@
+## 4.0.0
+- New column controls feature introduced. `TableColumnControlHandlesPopupRoute`
+  that displays custom popup as well as column control handles over the table
+  that allow user to resize and reorder columns.
+- Introduced RTL layout support.
+- Removed deprecated `scrollPadding` argument of the `TableView` and `SliverTableView` constructors.
+- Fix previously ignored by the `SliverTableView` `bodyContainerBuilder` argument to work the same way as does its
+  `TableView` counterpart.
+- `ShimmerPlaceholderShadeProvider`'s state now correctly calls `super.dispose` method.
+- Minor performance enhancements.
+
 ## 3.4.0
 
 - New `flex` property of the `TableColumn` implemented.
