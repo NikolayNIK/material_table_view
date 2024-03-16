@@ -412,14 +412,13 @@ class TableViewScrollbarStyle extends ScrollbarThemeData {
     super.mainAxisMargin,
     super.minThumbLength,
     super.radius,
-    super.showTrackOnHover,
     super.thickness,
     super.thumbColor,
     super.thumbVisibility,
     super.trackBorderColor,
     super.trackColor,
     super.trackVisibility,
-  }) : assert(showTrackOnHover == null);
+  });
 
   @override
   TableViewScrollbarStyle copyWith({

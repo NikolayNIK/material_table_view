@@ -373,7 +373,6 @@ class ResolvedTableViewScrollbarStyle extends TableViewScrollbarStyle {
     super.mainAxisMargin,
     super.minThumbLength,
     super.radius,
-    super.showTrackOnHover,
     super.thickness,
     super.thumbColor,
     super.thumbVisibility,
