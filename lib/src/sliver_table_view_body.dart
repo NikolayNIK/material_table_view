@@ -21,10 +21,7 @@ class SliverTableViewBody extends StatelessWidget {
   Widget build(BuildContext context) {
     late final placeholder = placeholderBuilder.call(
       context,
-      (context, cellBuilder) => TableViewRow(
-        cellBuilder: cellBuilder,
-        usePlaceholderLayers: true,
-      ),
+      placeholderContentBuilder,
     );
 
     return SliverFixedExtentList(

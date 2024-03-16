@@ -13,6 +13,14 @@ import 'package:material_table_view/src/table_typedefs.dart';
 Widget contentBuilder(BuildContext context, TableCellBuilder cellBuilder) =>
     TableViewRow(cellBuilder: cellBuilder);
 
+/// The function that builds a row drawn on a placeholder layers
+/// using a cell builder passed to it.
+/// This both for API compatibility reasons and to not expose [TableViewRow]
+/// widget itself to the user (although I'm not sure about the last point).
+Widget placeholderContentBuilder(
+        BuildContext context, TableCellBuilder cellBuilder) =>
+    TableViewRow(cellBuilder: cellBuilder, usePlaceholderLayers: true);
+
 /// This is the row widget used to build a single row of a table using layout
 /// data provided by the [TableContentLayout] widget.
 ///
