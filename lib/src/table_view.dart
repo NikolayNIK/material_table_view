@@ -360,7 +360,7 @@ Widget _defaultPlaceholderBuilder(
         // get rid of transparency for the sake of a shader
         final color = Color.alphaBlend(
           theme.dividerColor,
-          theme.colorScheme.background,
+          theme.colorScheme.surface,
         );
 
         return Padding(
