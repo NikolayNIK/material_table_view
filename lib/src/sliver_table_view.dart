@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:material_table_view/src/optional_wrap.dart';
 import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/sliver_table_view_body.dart';
 import 'package:material_table_view/src/table_column.dart';
@@ -12,6 +13,7 @@ import 'package:material_table_view/src/table_layout.dart';
 import 'package:material_table_view/src/table_row.dart';
 import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
+import 'package:material_table_view/src/table_section_overlay.dart';
 import 'package:material_table_view/src/table_view.dart';
 import 'package:material_table_view/src/table_view_style_resolved.dart';
 
@@ -31,6 +33,7 @@ class SliverTableView extends TableView {
     this.horizontalScrollController,
     required super.rowBuilder,
     super.placeholderBuilder,
+    super.placeholderRowBuilder,
     super.placeholderShade,
     super.bodyContainerBuilder,
     super.headerBuilder,
@@ -40,6 +43,7 @@ class SliverTableView extends TableView {
     super.minScrollableWidth,
     super.minScrollableWidthRatio,
     super.textDirection,
+    super.onRowReorder,
   }) : super.builder();
 
   /// A scroll controller used for the horizontal scrolling of the table.
@@ -181,18 +185,28 @@ class _SliverTableViewState extends State<SliverTableView>
                                 verticalOffset: ViewportOffset.fixed(
                                     verticalScrollOffsetPixels),
                                 placeholderShade: widget.placeholderShade,
-                                child: sliverBuilder(
-                                  sliver: SliverPadding(
-                                    padding: EdgeInsets.only(
-                                      top: scrollPadding.top,
-                                      bottom: scrollPadding.bottom,
-                                    ),
-                                    sliver: SliverTableViewBody(
-                                      rowHeight: widget.rowHeight,
-                                      rowCount: widget.rowCount,
-                                      rowBuilder: widget.rowBuilder,
-                                      placeholderBuilder:
-                                          widget.placeholderBuilder,
+                                child: OptionalWrap(
+                                  builder: widget.onRowReorder == null
+                                      ? null
+                                      : (context, child) =>
+                                          TableSectionOverlay(child: child),
+                                  child: sliverBuilder(
+                                    sliver: SliverPadding(
+                                      padding: EdgeInsets.only(
+                                        top: scrollPadding.top,
+                                        bottom: scrollPadding.bottom,
+                                      ),
+                                      sliver: SliverTableViewBody(
+                                        rowHeight: widget.rowHeight,
+                                        rowCount: widget.rowCount,
+                                        rowBuilder: widget.rowBuilder,
+                                        placeholderBuilder:
+                                            widget.placeholderBuilder,
+                                        placeholderRowBuilder:
+                                            widget.placeholderRowBuilder,
+                                        useHigherScrollable: true,
+                                        onReorder: widget.onRowReorder,
+                                      ),
                                     ),
                                   ),
                                 ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:material_table_view/src/optional_wrap.dart';
 import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/sliver_table_view_body.dart';
 import 'package:material_table_view/src/table_column.dart';
@@ -12,6 +13,7 @@ import 'package:material_table_view/src/table_row.dart';
 import 'package:material_table_view/src/table_scroll_configuration.dart';
 import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
+import 'package:material_table_view/src/table_section_overlay.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
 import 'package:material_table_view/src/table_view_style.dart';
@@ -32,6 +34,7 @@ class TableView extends StatefulWidget {
     this.controller,
     required this.rowBuilder,
     this.placeholderBuilder = _defaultPlaceholderBuilder,
+    this.placeholderRowBuilder,
     this.placeholderShade,
     this.bodyContainerBuilder = _defaultBodyContainerBuilder,
     this.headerBuilder,
@@ -41,6 +44,7 @@ class TableView extends StatefulWidget {
     this.minScrollableWidth,
     this.minScrollableWidthRatio,
     this.textDirection,
+    this.onRowReorder,
   })  : assert(rowCount >= 0),
         assert(rowHeight > 0),
         assert(headerHeight == null || headerHeight > 0),
@@ -80,6 +84,8 @@ class TableView extends StatefulWidget {
   ///
   /// [placeholderShade] can be used to apply a shader to the widgets painted.
   final TablePlaceholderBuilder placeholderBuilder;
+
+  final TablePlaceholderRowBuilder? placeholderRowBuilder;
 
   /// A callback that allows application of a shader to the placeholder rows.
   final TablePlaceholderShade? placeholderShade;
@@ -129,6 +135,8 @@ class TableView extends StatefulWidget {
   /// If null, the value from the closest instance
   /// of the [Directionality] class that encloses the table will be used.
   final TextDirection? textDirection;
+
+  final void Function(int oldIndex, int newIndex)? onRowReorder;
 
   @override
   State<TableView> createState() => _TableViewState();
@@ -268,24 +276,34 @@ class _TableViewState extends State<TableView>
                               verticalOffset: verticalOffset,
                               rowHeight: widget.rowHeight,
                               placeholderShade: widget.placeholderShade,
-                              child: TableViewport(
-                                clipBehavior: Clip.none,
-                                offset: verticalOffset,
-                                slivers: [
-                                  SliverPadding(
-                                    padding: EdgeInsets.only(
-                                      top: scrollPadding.top,
-                                      bottom: scrollPadding.bottom,
+                              child: OptionalWrap(
+                                builder: widget.onRowReorder == null
+                                    ? null
+                                    : (context, child) =>
+                                        TableSectionOverlay(child: child),
+                                child: TableViewport(
+                                  clipBehavior: Clip.none,
+                                  offset: verticalOffset,
+                                  slivers: [
+                                    SliverPadding(
+                                      padding: EdgeInsets.only(
+                                        top: scrollPadding.top,
+                                        bottom: scrollPadding.bottom,
+                                      ),
+                                      sliver: SliverTableViewBody(
+                                        rowCount: widget.rowCount,
+                                        rowHeight: widget.rowHeight,
+                                        rowBuilder: widget.rowBuilder,
+                                        placeholderBuilder:
+                                            widget.placeholderBuilder,
+                                        placeholderRowBuilder:
+                                            widget.placeholderRowBuilder,
+                                        useHigherScrollable: false,
+                                        onReorder: widget.onRowReorder,
+                                      ),
                                     ),
-                                    sliver: SliverTableViewBody(
-                                      rowCount: widget.rowCount,
-                                      rowHeight: widget.rowHeight,
-                                      rowBuilder: widget.rowBuilder,
-                                      placeholderBuilder:
-                                          widget.placeholderBuilder,
-                                    ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
