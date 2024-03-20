@@ -1,3 +1,8 @@
+## 4.0.2
+- Fix `TableView` overscroll notification silencing preventing `RefreshIndicator` from functioning.
+- Changed color of the default placeholder from deprecated `colorScheme.background` to `colorScheme.surface`.
+- Updated package metadata and README.
+
 ## 4.0.1
 - Updated package description.
 
