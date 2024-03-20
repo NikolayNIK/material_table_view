@@ -4,7 +4,7 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/NikolayNIK/material_table_view/blob/master/LICENSE)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/1e81dcb6-9a0d-4fa1-9f70-fca006e8f122/deploy-status)](https://app.netlify.com/sites/visionary-chimera-cb5753/deploys)
 
-Comprehensive, feature-rich and intuitive UI/UX solution for most if not all the data table use cases
+Comprehensive, feature-rich and intuitive UI/UX widget solution for many data table use cases
 that is easy to integrate into any Flutter app.
 
 <table>
@@ -35,7 +35,7 @@ that is easy to integrate into any Flutter app.
 
 ## Features
 
-- Reactivity: all rows and cells are widgets,
+- Customizability and reactivity: all headers, footers, rows and cells are widgets,
   which makes it easier to handle state changes as well as to infinitely customize the content.
 - Both horizontal and vertical scrolling allowing to display large
   amount of data to the user.
