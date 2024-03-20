@@ -244,12 +244,18 @@ class _TableViewState extends State<TableView>
               minScrollableWidth: widget.minScrollableWidth,
               child: Builder(
                 builder: (context) {
-                  final body = widget.bodyContainerBuilder(
-                    context,
-                    ClipRect(
-                      child: NotificationListener<OverscrollNotification>(
-                        // Suppress OverscrollNotification events that escape from the inner scrollable
-                        onNotification: (notification) => true,
+                  final body = NotificationListener<OverscrollNotification>(
+                    onNotification: (notification) {
+                      // Prevent horizontal scrollable from receiving
+                      // overscroll notification because it starts to freak out.
+                      // Dispatch it out from the TableView instead
+                      // so something like RefreshIndicator can act upon it.
+                      notification.dispatch(this.context);
+                      return true;
+                    },
+                    child: widget.bodyContainerBuilder(
+                      context,
+                      ClipRect(
                         child: TableScrollbar(
                           controller: _controller.verticalScrollController,
                           style: style.scrollbars.vertical,
