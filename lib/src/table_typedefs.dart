@@ -23,7 +23,7 @@ typedef TablePlaceholderBuilder = Widget Function(
   TableRowContentBuilder contentBuilder,
 );
 
-/// Function used to build the final widget representing the placeholder row
+/// Function used to build the final widget representing a placeholder row
 /// of a table.
 typedef TablePlaceholderRowBuilder = Widget? Function(
   BuildContext context,
