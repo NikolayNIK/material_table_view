@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:material_table_view/src/sliver_table_reorderable_list.dart';
 import 'package:material_table_view/src/table_row.dart';
+import 'package:material_table_view/src/table_row_reorder.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 
 /// This is a sliver widget that builds rows of a table.
@@ -10,7 +11,7 @@ class SliverTableViewBody extends StatelessWidget {
   final TableRowBuilder rowBuilder;
   final TablePlaceholderBuilder placeholderBuilder;
   final TablePlaceholderRowBuilder? placeholderRowBuilder;
-  final void Function(int a, int b)? onReorder;
+  final TableRowReorder? rowReorder;
   final bool useHigherScrollable;
 
   const SliverTableViewBody({
@@ -21,14 +22,15 @@ class SliverTableViewBody extends StatelessWidget {
     required this.placeholderBuilder,
     required this.placeholderRowBuilder,
     required this.useHigherScrollable,
-    required this.onReorder,
+    required this.rowReorder,
   });
 
   @override
   Widget build(BuildContext context) {
     Widget? placeholder;
 
-    if (onReorder != null) {
+    final rowReorder = this.rowReorder;
+    if (rowReorder != null) {
       return SliverTableReorderableList(
         itemBuilder: (context, index) =>
             rowBuilder(context, index, contentBuilder) ??
@@ -38,9 +40,14 @@ class SliverTableViewBody extends StatelessWidget {
             (placeholder ??=
                 placeholderBuilder.call(context, placeholderContentBuilder)),
         itemCount: rowCount,
-        onReorder: onReorder!,
         itemExtent: rowHeight,
         useHigherScrollable: useHigherScrollable,
+        onReorder: rowReorder.onReorder,
+        autoScrollerVelocityScalar: rowReorder.autoScrollerVelocityScalar,
+        findChildIndexCallback: rowReorder.findChildIndexCallback,
+        onReorderStart: rowReorder.onReorderStart,
+        onReorderEnd: rowReorder.onReorderEnd,
+        proxyDecorator: rowReorder.proxyDecorator,
       );
     }
 

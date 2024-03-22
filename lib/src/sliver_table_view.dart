@@ -32,6 +32,7 @@ class SliverTableView extends TableView {
     required super.columns,
     this.horizontalScrollController,
     required super.rowBuilder,
+    super.rowReorder,
     super.placeholderBuilder,
     super.placeholderRowBuilder,
     super.placeholderShade,
@@ -43,7 +44,6 @@ class SliverTableView extends TableView {
     super.minScrollableWidth,
     super.minScrollableWidthRatio,
     super.textDirection,
-    super.onRowReorder,
   }) : super.builder();
 
   /// A scroll controller used for the horizontal scrolling of the table.
@@ -186,7 +186,7 @@ class _SliverTableViewState extends State<SliverTableView>
                                     verticalScrollOffsetPixels),
                                 placeholderShade: widget.placeholderShade,
                                 child: OptionalWrap(
-                                  builder: widget.onRowReorder == null
+                                  builder: widget.rowReorder == null
                                       ? null
                                       : (context, child) =>
                                           TableSectionOverlay(child: child),
@@ -200,12 +200,12 @@ class _SliverTableViewState extends State<SliverTableView>
                                         rowHeight: widget.rowHeight,
                                         rowCount: widget.rowCount,
                                         rowBuilder: widget.rowBuilder,
+                                        rowReorder: widget.rowReorder,
                                         placeholderBuilder:
                                             widget.placeholderBuilder,
                                         placeholderRowBuilder:
                                             widget.placeholderRowBuilder,
                                         useHigherScrollable: true,
-                                        onReorder: widget.onRowReorder,
                                       ),
                                     ),
                                   ),

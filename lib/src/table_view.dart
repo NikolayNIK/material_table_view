@@ -10,6 +10,7 @@ import 'package:material_table_view/src/table_horizontal_divider.dart';
 import 'package:material_table_view/src/table_layout.dart';
 import 'package:material_table_view/src/table_placeholder_shade.dart';
 import 'package:material_table_view/src/table_row.dart';
+import 'package:material_table_view/src/table_row_reorder.dart';
 import 'package:material_table_view/src/table_scroll_configuration.dart';
 import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
@@ -44,7 +45,7 @@ class TableView extends StatefulWidget {
     this.minScrollableWidth,
     this.minScrollableWidthRatio,
     this.textDirection,
-    this.onRowReorder,
+    this.rowReorder,
   })  : assert(rowCount >= 0),
         assert(rowHeight > 0),
         assert(headerHeight == null || headerHeight > 0),
@@ -77,6 +78,8 @@ class TableView extends StatefulWidget {
   /// replaced with a placeholder. This enables additional behaviour described in a
   /// [placeholderBuilder] property.
   final TableRowBuilder rowBuilder;
+
+  final TableRowReorder? rowReorder;
 
   /// A function that will be called on-demand for building the placeholder
   /// row widget. It never gets called more than once per build cycle as the
@@ -135,8 +138,6 @@ class TableView extends StatefulWidget {
   /// If null, the value from the closest instance
   /// of the [Directionality] class that encloses the table will be used.
   final TextDirection? textDirection;
-
-  final void Function(int oldIndex, int newIndex)? onRowReorder;
 
   @override
   State<TableView> createState() => _TableViewState();
@@ -277,7 +278,7 @@ class _TableViewState extends State<TableView>
                               rowHeight: widget.rowHeight,
                               placeholderShade: widget.placeholderShade,
                               child: OptionalWrap(
-                                builder: widget.onRowReorder == null
+                                builder: widget.rowReorder == null
                                     ? null
                                     : (context, child) =>
                                         TableSectionOverlay(child: child),
@@ -299,7 +300,7 @@ class _TableViewState extends State<TableView>
                                         placeholderRowBuilder:
                                             widget.placeholderRowBuilder,
                                         useHigherScrollable: false,
-                                        onReorder: widget.onRowReorder,
+                                        rowReorder: widget.rowReorder,
                                       ),
                                     ),
                                   ],

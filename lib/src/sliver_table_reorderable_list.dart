@@ -15,7 +15,7 @@ class SliverTableReorderableList extends SliverReorderableList {
     super.itemExtentBuilder,
     super.prototypeItem,
     super.proxyDecorator,
-    double? autoScrollerVelocityScalar,
+    super.autoScrollerVelocityScalar,
   });
 
   /// Makes the widget use the second next [Scrollable] parent rather than
