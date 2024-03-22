@@ -79,6 +79,15 @@ class TableView extends StatefulWidget {
   /// [placeholderBuilder] property.
   final TableRowBuilder rowBuilder;
 
+  /// When a non-null value is specified, [SliverReorderableList] instantiated
+  /// using properties from this object will be used by the table.
+  /// This enables row reordering using the same way as one would
+  /// working with [ReorderableListView]. This also means that each row widget
+  /// built by a [rowBuilder] is required to have a unique key.
+  ///
+  /// Changing this property from null to non-null value (and vice versa)
+  /// for currently live widget will lead to state loss of all the rows and
+  /// cells.
   final TableRowReorder? rowReorder;
 
   /// A function that will be called on-demand for building the placeholder
@@ -88,6 +97,15 @@ class TableView extends StatefulWidget {
   /// [placeholderShade] can be used to apply a shader to the widgets painted.
   final TablePlaceholderBuilder placeholderBuilder;
 
+  /// A function that will be called on-demand for building a placeholder
+  /// row widget. As oppose to [placeholderBuilder], this function gets called
+  /// to build every placeholder row individually. Consider using
+  /// [placeholderBuilder] when all placeholder rows are the same as each other.
+  ///
+  /// When this function is `null` or it returns `null` the result of
+  /// [placeholderBuilder] function call will be used instead.
+  ///
+  /// [placeholderShade] can be used to apply a shader to the widgets painted.
   final TablePlaceholderRowBuilder? placeholderRowBuilder;
 
   /// A callback that allows application of a shader to the placeholder rows.
