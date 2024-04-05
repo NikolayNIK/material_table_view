@@ -46,6 +46,7 @@ class TableView extends StatefulWidget {
     this.minScrollableWidthRatio,
     this.textDirection,
     this.rowReorder,
+    this.addAutomaticKeepAlives = false,
   })  : assert(rowCount >= 0),
         assert(rowHeight > 0),
         assert(headerHeight == null || headerHeight > 0),
@@ -156,6 +157,8 @@ class TableView extends StatefulWidget {
   /// If null, the value from the closest instance
   /// of the [Directionality] class that encloses the table will be used.
   final TextDirection? textDirection;
+
+  final bool addAutomaticKeepAlives;
 
   @override
   State<TableView> createState() => _TableViewState();
@@ -318,6 +321,8 @@ class _TableViewState extends State<TableView>
                                         placeholderRowBuilder:
                                             widget.placeholderRowBuilder,
                                         useHigherScrollable: false,
+                                        addAutomaticKeepAlives:
+                                            widget.addAutomaticKeepAlives,
                                         rowReorder: widget.rowReorder,
                                       ),
                                     ),
