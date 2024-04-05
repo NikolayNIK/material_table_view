@@ -21,10 +21,10 @@ class SliverTableReorderableList extends SliverReorderableList {
   final bool useHigherScrollable;
 
   @override
-  SliverReorderableListState createState() => _SliverTableViewBodyState();
+  SliverReorderableListState createState() => _SliverTableReorderableListState();
 }
 
-class _SliverTableViewBodyState extends SliverReorderableListState {
+class _SliverTableReorderableListState extends SliverReorderableListState {
   BuildContext? _buildContextOverride;
 
   @override
