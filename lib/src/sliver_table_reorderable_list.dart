@@ -12,10 +12,8 @@ class SliverTableReorderableList extends SliverReorderableList {
     super.onReorderStart,
     super.onReorderEnd,
     super.itemExtent,
-    super.itemExtentBuilder,
     super.prototypeItem,
     super.proxyDecorator,
-    super.autoScrollerVelocityScalar,
   });
 
   /// Makes the widget use the second next [Scrollable] parent rather than
@@ -69,11 +67,6 @@ class _SliverTableViewBodyState extends SliverReorderableListState {
       return SliverFixedExtentList(
         delegate: childrenDelegate,
         itemExtent: widget.itemExtent!,
-      );
-    } else if (widget.itemExtentBuilder != null) {
-      return SliverVariedExtentList(
-        delegate: childrenDelegate,
-        itemExtentBuilder: widget.itemExtentBuilder!,
       );
     } else if (widget.prototypeItem != null) {
       return SliverPrototypeExtentList(

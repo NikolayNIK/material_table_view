@@ -43,7 +43,6 @@ class SliverTableViewBody extends StatelessWidget {
         itemExtent: rowHeight,
         useHigherScrollable: useHigherScrollable,
         onReorder: rowReorder.onReorder,
-        autoScrollerVelocityScalar: rowReorder.autoScrollerVelocityScalar,
         findChildIndexCallback: rowReorder.findChildIndexCallback,
         onReorderStart: rowReorder.onReorderStart,
         onReorderEnd: rowReorder.onReorderEnd,
