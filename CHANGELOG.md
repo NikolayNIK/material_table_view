@@ -1,3 +1,17 @@
+## 5.0.0
+- New row reordering feature.
+- BREAKING: Changed the default scrollbar style values to the Flutter defaults. To restore previous behavior use the following style:
+  ```dart
+  TableViewScrollbarsStyle.symmetric(
+    TableViewScrollbarStyle(
+      interactive: true,
+      thumbVisibility: WidgetStatePropertyAll(true),
+      trackVisibility: WidgetStatePropertyAll(true),
+    ),
+  )
+  ```
+- BREAKING: `AutomaticKeepAlive`s are no longer added in for table rows by default. To restore previous behavior set the `addAutomaticKeepAlives` constuctor argument to `true`.
+
 ## 4.0.2
 - Fix `TableView` overscroll notification silencing preventing `RefreshIndicator` from functioning.
 - Changed color of the default placeholder from deprecated `colorScheme.background` to `colorScheme.surface`.
