@@ -396,14 +396,10 @@ class ResolvedTableViewScrollbarStyle extends TableViewScrollbarStyle {
       effectivelyEnabled: effectivelyEnabled,
       scrollPadding: effectivelyEnabled &&
           (style?.scrollPadding ?? base?.scrollPadding ?? true),
-      thumbVisibility: style?.thumbVisibility ??
-          base?.thumbVisibility ??
-          const MaterialStatePropertyAll(true),
+      thumbVisibility: style?.thumbVisibility ?? base?.thumbVisibility,
       thickness: style?.thickness ?? base?.thickness,
-      trackVisibility: style?.trackVisibility ??
-          base?.trackVisibility ??
-          const MaterialStatePropertyAll(true),
-      interactive: style?.interactive ?? base?.interactive ?? true,
+      trackVisibility: style?.trackVisibility ?? base?.trackVisibility,
+      interactive: style?.interactive ?? base?.interactive,
       radius: style?.radius ?? base?.radius,
       thumbColor: style?.thumbColor ?? base?.thumbColor,
       trackColor: style?.trackColor ?? base?.trackColor,
