@@ -381,6 +381,11 @@ enum TableViewScrollbarEnabled {
   never,
 }
 
+/// Just to silence the deprecation warnings.
+/// We don't want to use an actual [WidgetStateProperty] because of
+/// compatibility with older versions of Flutter.
+typedef MaterialStateProperty<T> = WidgetStateProperty<T>;
+
 @immutable
 class TableViewScrollbarStyle extends ScrollbarThemeData {
   /// Controls whether or not the scrollbar is displayed.
