@@ -76,7 +76,7 @@ that is easy to integrate into any Flutter app.
 - `TableColumnControlHandlesPopupRoute` - a route that displays a custom popup
   as well as column control handles over a `TableView` or a `SliverTableView`
   that allow user to resize and reorder the columns.
-- Row reordering feature implemented with Flutter's reordering list mechanisms.
+- Row reordering feature implemented with Flutter's reorderable list mechanisms.
 - Full RTL layout support.
 
 ## Usage
