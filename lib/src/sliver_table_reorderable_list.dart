@@ -9,6 +9,7 @@ class SliverTableReorderableList extends SliverReorderableList {
     required super.itemCount,
     required super.onReorder,
     required this.useHigherScrollable,
+    required this.addAutomaticKeepAlives,
     super.onReorderStart,
     super.onReorderEnd,
     super.itemExtent,
@@ -20,8 +21,11 @@ class SliverTableReorderableList extends SliverReorderableList {
   /// the first one.
   final bool useHigherScrollable;
 
+  final bool addAutomaticKeepAlives;
+
   @override
-  SliverReorderableListState createState() => _SliverTableReorderableListState();
+  SliverReorderableListState createState() =>
+      _SliverTableReorderableListState();
 }
 
 class _SliverTableReorderableListState extends SliverReorderableListState {
@@ -61,6 +65,8 @@ class _SliverTableReorderableListState extends SliverReorderableListState {
       childCount: originalDelegate.childCount,
       findChildIndexCallback: widget.findChildIndexCallback,
       addRepaintBoundaries: false,
+      addAutomaticKeepAlives:
+          (widget as SliverTableReorderableList).addAutomaticKeepAlives,
     );
 
     if (widget.itemExtent != null) {

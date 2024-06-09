@@ -44,6 +44,7 @@ class SliverTableView extends TableView {
     super.minScrollableWidth,
     super.minScrollableWidthRatio,
     super.textDirection,
+    super.addAutomaticKeepAlives,
   }) : super.builder();
 
   /// A scroll controller used for the horizontal scrolling of the table.
@@ -206,6 +207,8 @@ class _SliverTableViewState extends State<SliverTableView>
                                         placeholderRowBuilder:
                                             widget.placeholderRowBuilder,
                                         useHigherScrollable: true,
+                                        addAutomaticKeepAlives:
+                                            widget.addAutomaticKeepAlives,
                                       ),
                                     ),
                                   ),
