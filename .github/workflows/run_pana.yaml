@@ -11,7 +11,7 @@ jobs:
         with:
           submodules: true
       - id: pana
-        uses: NikolayNIK/dart-package-analyzer@abdfd120261566c162b24c0266f7fc2f75a82c31
+        uses: NikolayNIK/dart-package-analyzer@68258e9415cef73fe2ffe927b53fb958ab17ed96
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: 'Check total package score'
