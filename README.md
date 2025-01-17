@@ -16,13 +16,15 @@ that is easy to integrate into any Flutter app.
     <td><img src="https://raw.githubusercontent.com/NikolayNIK/material_table_view/d316133399f4d5092877e0f416340795029e5dbb/screenshots/demo-controls-move-linux-light.gif" height="70%"/></td>
     <td><img src="https://raw.githubusercontent.com/NikolayNIK/material_table_view/d316133399f4d5092877e0f416340795029e5dbb/screenshots/demo-controls-resize-android-dark.gif" height="28%"/></td>
   </tr>
-  <tr>
-    <td colspan="2">
-      The source code for this demo is included in the package example
-      and is available <a href="https://github.com/NikolayNIK/material_table_view_demo">here</a>.
-    </td>
-  </tr>
 </table>
+
+## Demo app
+The source code for the demo app is included in the package example
+and is available [here](https://github.com/NikolayNIK/material_table_view_demo).
+
+Demo app compiled as an Android app is available on [the Google Play](https://play.google.com/store/apps/details?id=com.nikolaynik.material_table_view_demo).
+
+Demo app compiled as a web app is hosted [here](https://master--material-table-view-demo.nikolaynik.com/).
 
 ## Project goals
 1. To provide intuitive, visually consistent and customizable UI/UX with opinionated defaults.
