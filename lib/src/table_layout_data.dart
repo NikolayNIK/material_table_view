@@ -14,7 +14,7 @@ class TableContentDividerData {
     required this.wiggleOffset,
   });
 
-  bool get visible => color.alpha != 0;
+  bool get visible => color.a >= .003;
 
   @override
   bool operator ==(Object other) =>

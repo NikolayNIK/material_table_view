@@ -362,8 +362,8 @@ class TableContentLayoutState extends State<TableContentLayout>
           ? .0
           : min(1.0, max(.0, leftDividerAnimationValue));
 
-      leftDividerColor = widget.verticalDividersStyle.leading.color.withOpacity(
-          widget.verticalDividersStyle.leading.color.opacity *
+      leftDividerColor = widget.verticalDividersStyle.leading.color.withValues(
+          alpha: widget.verticalDividersStyle.leading.color.a *
               widget.verticalDividersStyle.leading.opacityRevealCurve
                   .transform(leftDividerAnimationValue));
 
@@ -413,9 +413,10 @@ class TableContentLayoutState extends State<TableContentLayout>
           : min(1.0, max(.0, rightDividerAnimationValue));
 
       rightDividerColor = widget.verticalDividersStyle.trailing.color
-          .withOpacity(widget.verticalDividersStyle.trailing.color.opacity *
-              widget.verticalDividersStyle.trailing.opacityRevealCurve
-                  .transform(rightDividerAnimationValue));
+          .withValues(
+              alpha: widget.verticalDividersStyle.trailing.color.a *
+                  widget.verticalDividersStyle.trailing.opacityRevealCurve
+                      .transform(rightDividerAnimationValue));
 
       rightDividerWiggleOffset =
           widget.verticalDividersStyle.trailing.wiggleOffset *
