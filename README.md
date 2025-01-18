@@ -24,7 +24,7 @@ and is available [here](https://github.com/NikolayNIK/material_table_view_demo).
 
 Demo app compiled as an Android app is available on [the Google Play](https://play.google.com/store/apps/details?id=com.nikolaynik.material_table_view_demo).
 
-Demo app compiled as a web app is hosted [here](https://master--material-table-view-demo.nikolaynik.com/).
+Demo app compiled as a web app is hosted [here](https://material-table-view-demo.nikolaynik.com/).
 
 ## Project goals
 1. To provide intuitive, visually consistent and customizable UI/UX with opinionated defaults.
