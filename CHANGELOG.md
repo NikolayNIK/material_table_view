@@ -1,3 +1,8 @@
+## 5.0.1
+- Fixed color precision warnings.
+- Updated example Android project.
+- Updated README.
+
 ## 5.0.0
 - New row reordering feature.
 - BREAKING: Changed the default scrollbar style values to the Flutter defaults. To restore previous behavior use the following style:
