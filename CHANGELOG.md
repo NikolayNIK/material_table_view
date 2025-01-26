@@ -1,3 +1,7 @@
+## 5.0.2
+- Improved error messages when widget not supported in the table row attempts to paint.
+- Updated README to better explain the importance of wrapping table rows with unsupported widgets.
+
 ## 5.0.1
 - Fixed color precision warnings.
 - Updated example Android project.
