@@ -83,32 +83,40 @@ Demo app compiled as a web app is hosted [here](https://master--material-table-v
 
 ## Usage
 
-    TableView.builder(
-      columns: [
-        const TableColumn(
-          width: 56.0,
-          freezePriority: 100,
-        ),
-        for (var i = 1; i < 100; i++)
-          const TableColumn(width: 64),
-      ],
-      rowCount: 1048576,
-      rowHeight: 56.0,
-      rowBuilder: (context, row, contentBuilder) {
-        if (noDataYetFor(row)) {
-          return null; // to use a placeholder
-        }
-
-        return InkWell(
-          onTap: () => print('Row $row clicked'),
-          child: contentBuilder(
-            context,
-            (context, column) => Text('$column'), // build a cell widget
-          ),
-        );
-      },
-      // specify other parameters for other features
+```dart
+TableView.builder(
+  columns: [
+    const TableColumn(
+      width: 56.0,
+      freezePriority: 100,
     ),
+    for (var i = 1; i < 100; i++)
+      const TableColumn(width: 64),
+  ],
+  rowCount: 1048576,
+  rowHeight: 56.0,
+  rowBuilder: (context, row, contentBuilder) {
+    if (noDataYetFor(row)) {
+      return null; // to use a placeholder
+    }
+
+    // Not every widget can be used here.
+    // For more information see the paragraph below.
+    // To set the background color the row can be wrapped in a [ColoredBox].
+    return Material(
+      type: MaterialType.transparency, // only this type may be used to wrap the entire row
+      InkWell(
+        onTap: () => print('Row $row clicked'),
+        child: contentBuilder(
+          context,
+          (context, column) => Text('$column'), // build a cell widget, any widget can be used here
+        ),
+      ),
+    );
+  },
+  // specify other parameters for other features
+),
+```
 
 ## Limitations
 
