@@ -44,6 +44,10 @@ class TablePaintingContext extends PaintingContext {
 
   var _placeholderLayersUsed = false;
 
+  static const _unsupportedCompositionMessage =
+      'Widgets that utilize compositing may not be used to wrap a TableView row. For `Material` widgets make sure to specify the type `MaterialType.transparency`.'
+      ' For more details please visit https://pub.dev/packages/material_table_view#row-wrapping-widgets-restriction';
+
   TablePaintingLayerPair get placeholder {
     _placeholderLayersUsed = true;
     return _placeholder;
@@ -53,32 +57,34 @@ class TablePaintingContext extends PaintingContext {
 
   @override
   VoidCallback addCompositionCallback(CompositionCallback callback) =>
-      throw UnimplementedError();
+      throw UnsupportedError(_unsupportedCompositionMessage);
 
   @override
-  void addLayer(Layer layer) => throw UnimplementedError();
+  void addLayer(Layer layer) =>
+      throw UnsupportedError(_unsupportedCompositionMessage);
 
   @override
-  void appendLayer(Layer layer) => throw UnimplementedError();
+  void appendLayer(Layer layer) =>
+      throw UnsupportedError(_unsupportedCompositionMessage);
 
   @override
   void clipPathAndPaint(
           Path path, Clip clipBehavior, Rect bounds, VoidCallback painter) =>
-      throw UnimplementedError();
+      throw UnsupportedError(_unsupportedCompositionMessage);
 
   @override
   void clipRRectAndPaint(
           RRect rrect, Clip clipBehavior, Rect bounds, VoidCallback painter) =>
-      throw UnimplementedError();
+      throw UnsupportedError(_unsupportedCompositionMessage);
 
   @override
   void clipRectAndPaint(
           Rect rect, Clip clipBehavior, Rect bounds, VoidCallback painter) =>
-      throw UnimplementedError();
+      throw UnsupportedError(_unsupportedCompositionMessage);
 
   @override
   PaintingContext createChildContext(ContainerLayer childLayer, Rect bounds) =>
-      throw UnimplementedError();
+      throw UnsupportedError(_unsupportedCompositionMessage);
 
   @override
   void paintChild(RenderObject child, Offset offset) {
@@ -92,43 +98,43 @@ class TablePaintingContext extends PaintingContext {
   ClipPathLayer? pushClipPath(bool needsCompositing, Offset offset, Rect bounds,
           Path clipPath, PaintingContextCallback painter,
           {Clip clipBehavior = Clip.antiAlias, ClipPathLayer? oldLayer}) =>
-      throw UnimplementedError();
+      throw UnsupportedError(_unsupportedCompositionMessage);
 
   @override
   ClipRRectLayer? pushClipRRect(bool needsCompositing, Offset offset,
           Rect bounds, RRect clipRRect, PaintingContextCallback painter,
           {Clip clipBehavior = Clip.antiAlias, ClipRRectLayer? oldLayer}) =>
-      throw UnimplementedError();
+      throw UnsupportedError(_unsupportedCompositionMessage);
 
   @override
   ClipRectLayer? pushClipRect(bool needsCompositing, Offset offset,
           Rect clipRect, PaintingContextCallback painter,
           {Clip clipBehavior = Clip.hardEdge, ClipRectLayer? oldLayer}) =>
-      throw UnimplementedError();
+      throw UnsupportedError(_unsupportedCompositionMessage);
 
   @override
   ColorFilterLayer pushColorFilter(Offset offset, ColorFilter colorFilter,
           PaintingContextCallback painter,
           {ColorFilterLayer? oldLayer}) =>
-      throw UnimplementedError();
+      throw UnsupportedError(_unsupportedCompositionMessage);
 
   @override
   void pushLayer(ContainerLayer childLayer, PaintingContextCallback painter,
           Offset offset,
           {Rect? childPaintBounds}) =>
-      throw UnimplementedError();
+      throw UnsupportedError(_unsupportedCompositionMessage);
 
   @override
   OpacityLayer pushOpacity(
           Offset offset, int alpha, PaintingContextCallback painter,
           {OpacityLayer? oldLayer}) =>
-      throw UnimplementedError();
+      throw UnsupportedError(_unsupportedCompositionMessage);
 
   @override
   TransformLayer? pushTransform(bool needsCompositing, Offset offset,
           Matrix4 transform, PaintingContextCallback painter,
           {TransformLayer? oldLayer}) =>
-      throw UnimplementedError();
+      throw UnsupportedError(_unsupportedCompositionMessage);
 
   @override
   void setIsComplexHint() {}
