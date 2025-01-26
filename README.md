@@ -105,7 +105,7 @@ TableView.builder(
     // To set the background color the row can be wrapped in a [ColoredBox].
     return Material(
       type: MaterialType.transparency, // only this type may be used to wrap the entire row
-      InkWell(
+      child: InkWell(
         onTap: () => print('Row $row clicked'),
         child: contentBuilder(
           context,
