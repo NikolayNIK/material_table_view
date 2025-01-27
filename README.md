@@ -100,7 +100,7 @@ TableView.builder(
       return null; // to use a placeholder
     }
 
-    // Not every widget can be used here.
+    // Some widgets can not be used here.
     // For more information see the paragraph below.
     // To set the background color the row can be wrapped in a [ColoredBox].
     return Material(
@@ -122,7 +122,7 @@ TableView.builder(
 
 ### Row wrapping widgets restriction
 
-Not every widget can be used to wrap row widget built in
+Some widgets can not be used to wrap row widget built in
 a rowBuilder and placeholderBuilder functions.
 Any widget that may need to utilize compositing will either cause
 an exception or will not work as expected.
