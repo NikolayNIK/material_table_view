@@ -16,6 +16,7 @@ import 'package:material_table_view/src/table_view_style_resolved.dart';
 class TableContentLayout extends StatefulWidget {
   final ResolvedTableViewVerticalDividersStyle verticalDividersStyle;
   final double width;
+  final bool fixedRowHeight;
   final ViewportOffset horizontalOffset;
   final ValueNotifier<double> stickyHorizontalOffset;
   final List<TableColumn> columns;
@@ -29,6 +30,7 @@ class TableContentLayout extends StatefulWidget {
     super.key,
     required this.verticalDividersStyle,
     required this.width,
+    required this.fixedRowHeight,
     required this.horizontalOffset,
     required this.stickyHorizontalOffset,
     required this.columns,
@@ -427,14 +429,16 @@ class TableContentLayoutState extends State<TableContentLayout>
     var leftDivider = TableContentDividerData(
       color: leftDividerColor,
       thickness: widget.verticalDividersStyle.leading.thickness,
-      wigglesPerRow: widget.verticalDividersStyle.leading.wigglesPerRow,
+      wiggleInterval: widget.verticalDividersStyle.leading.wiggleInterval,
+      wiggleCount: widget.verticalDividersStyle.leading.wiggleCount,
       wiggleOffset: leftDividerWiggleOffset,
     );
 
     var rightDivider = TableContentDividerData(
       color: rightDividerColor,
       thickness: widget.verticalDividersStyle.trailing.thickness,
-      wigglesPerRow: widget.verticalDividersStyle.trailing.wigglesPerRow,
+      wiggleInterval: widget.verticalDividersStyle.trailing.wiggleInterval,
+      wiggleCount: widget.verticalDividersStyle.trailing.wiggleCount,
       wiggleOffset: rightDividerWiggleOffset,
     );
 
@@ -496,6 +500,7 @@ class TableContentLayoutState extends State<TableContentLayout>
       ),
       leftDivider: leftDivider,
       rightDivider: rightDivider,
+      fixedRowHeight: widget.fixedRowHeight,
     );
 
     _lastLayoutData.value = data;

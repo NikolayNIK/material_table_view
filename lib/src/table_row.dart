@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -12,6 +14,16 @@ import 'package:material_table_view/src/table_typedefs.dart';
 /// widget itself to the user (although I'm not sure about the last point).
 Widget contentBuilder(BuildContext context, TableCellBuilder cellBuilder) =>
     TableViewRow(cellBuilder: cellBuilder);
+
+/// The function that builds a row using a cell builder passed to it.
+/// This both for API compatibility reasons and to not expose [TableViewRow]
+/// widget itself to the user (although I'm not sure about the last point).
+Widget headerFooterContentBuilder(
+        BuildContext context, TableCellBuilder cellBuilder) =>
+    TableViewRow(
+      cellBuilder: cellBuilder,
+      fixedRowHeightOverride: true,
+    );
 
 /// The function that builds a row drawn on a placeholder layers
 /// using a cell builder passed to it.
@@ -29,11 +41,13 @@ Widget placeholderContentBuilder(
 class TableViewRow extends StatelessWidget {
   final TableCellBuilder cellBuilder;
   final bool usePlaceholderLayers;
+  final bool? fixedRowHeightOverride;
 
   const TableViewRow({
     super.key,
     required this.cellBuilder,
     this.usePlaceholderLayers = false,
+    this.fixedRowHeightOverride,
   });
 
   @override
@@ -76,6 +90,7 @@ class TableViewRow extends StatelessWidget {
 
         return _TableViewRow(
           usePlaceholderLayers: usePlaceholderLayers,
+          fixedRowHeight: fixedRowHeightOverride ?? data.fixedRowHeight,
           children: children,
         );
       },
@@ -85,23 +100,41 @@ class TableViewRow extends StatelessWidget {
 
 class _TableViewRow extends MultiChildRenderObjectWidget {
   final bool usePlaceholderLayers;
+  final bool fixedRowHeight;
 
   const _TableViewRow({
     required this.usePlaceholderLayers,
+    required this.fixedRowHeight,
     required super.children,
   });
 
   @override
-  RenderObject createRenderObject(BuildContext context) =>
-      _RenderTableViewRow(usePlaceholderLayers: usePlaceholderLayers);
+  RenderObject createRenderObject(BuildContext context) => _RenderTableViewRow(
+        usePlaceholderLayers: usePlaceholderLayers,
+        fixedRowHeight: fixedRowHeight,
+      );
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    covariant _RenderTableViewRow renderObject,
+  ) {
+    renderObject.usePlaceholderLayers = usePlaceholderLayers;
+    renderObject.fixedRowHeight = fixedRowHeight;
+  }
 }
 
 class _RenderTableViewRow extends RenderBox
     with ContainerRenderObjectMixin<RenderBox, _TableViewCellParentData> {
-  _RenderTableViewRow({required bool usePlaceholderLayers})
-      : _usePlaceholderLayers = usePlaceholderLayers;
+  _RenderTableViewRow({
+    required bool usePlaceholderLayers,
+    required bool fixedRowHeight,
+  })  : _usePlaceholderLayers = usePlaceholderLayers,
+        _fixedRowHeight = fixedRowHeight;
 
   bool _usePlaceholderLayers;
+
+  bool _fixedRowHeight;
 
   /// Cut off compositing requirement here to let the children use compositing.
   ///
@@ -118,6 +151,13 @@ class _RenderTableViewRow extends RenderBox
     }
   }
 
+  set fixedRowHeight(bool fixedRowHeight) {
+    if (_fixedRowHeight != fixedRowHeight) {
+      _fixedRowHeight = fixedRowHeight;
+      markNeedsLayoutForSizedByParentChange();
+    }
+  }
+
   @override
   void setupParentData(covariant RenderObject child) {
     if (child.parentData is! _TableViewCellParentData) {
@@ -126,26 +166,91 @@ class _RenderTableViewRow extends RenderBox
   }
 
   @override
-  bool get sizedByParent => true;
+  bool get sizedByParent => _fixedRowHeight;
 
   @override
   Size computeDryLayout(BoxConstraints constraints) => constraints.biggest;
 
   @override
-  void performLayout() {
+  double computeMaxIntrinsicHeight(double width) {
+    var height = .0;
+
     var child = firstChild;
     while (child != null) {
       final parentData = child.parentData as _TableViewCellParentData;
-      child.layout(BoxConstraints(
-        minWidth: parentData.width,
-        maxWidth: parentData.width,
-        minHeight: constraints.maxHeight,
-        maxHeight: constraints.maxHeight,
-      ));
+
+      height = max(0, child.getMaxIntrinsicHeight(parentData.width));
+
+      child = parentData.nextSibling;
+    }
+
+    return height;
+  }
+
+  @override
+  double computeMinIntrinsicHeight(double width) {
+    var height = .0;
+
+    var child = firstChild;
+    while (child != null) {
+      final parentData = child.parentData as _TableViewCellParentData;
+
+      height = max(0, child.getMinIntrinsicHeight(parentData.width));
+
+      child = parentData.nextSibling;
+    }
+
+    return height;
+  }
+
+  @override
+  double computeMinIntrinsicWidth(double height) {
+    assert(_debugThrowIfNotCheckingIntrinsics());
+    return super.computeMinIntrinsicWidth(height);
+  }
+
+  @override
+  double computeMaxIntrinsicWidth(double height) {
+    assert(_debugThrowIfNotCheckingIntrinsics());
+    return super.computeMinIntrinsicWidth(height);
+  }
+
+  @override
+  void performLayout() {
+    final computeHeight = constraints.maxHeight.isInfinite;
+
+    final minHeight =
+        computeHeight ? constraints.minHeight : constraints.maxHeight;
+    final maxHeight =
+        computeHeight ? constraints.maxHeight : constraints.maxHeight;
+
+    var determinedHeight = computeHeight ? .0 : constraints.maxHeight;
+
+    var child = firstChild;
+    while (child != null) {
+      final parentData = child.parentData as _TableViewCellParentData;
+
+      child.layout(
+        BoxConstraints(
+          minWidth: parentData.width,
+          maxWidth: parentData.width,
+          minHeight: minHeight,
+          maxHeight: maxHeight,
+        ),
+        parentUsesSize: computeHeight,
+      );
+
+      if (computeHeight) {
+        determinedHeight = max(determinedHeight, child.size.height);
+      }
 
       parentData.offset = Offset(parentData.position, 0);
 
       child = parentData.nextSibling;
+    }
+
+    if (!sizedByParent) {
+      size = Size(constraints.maxWidth, determinedHeight);
     }
   }
 
@@ -203,6 +308,20 @@ class _RenderTableViewRow extends RenderBox
     }
 
     return false;
+  }
+
+  static bool _debugThrowIfNotCheckingIntrinsics() {
+    assert(() {
+      if (!RenderObject.debugCheckingIntrinsics) {
+        throw FlutterError(
+          'material_table_view table row widget does not support intrinsic width at the moment.'
+          ' Feel free to leave your feedback on the issue tracker.',
+        );
+      }
+      return true;
+    }());
+
+    return true;
   }
 }
 

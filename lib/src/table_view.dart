@@ -48,14 +48,20 @@ class TableView extends StatefulWidget {
     this.rowReorder,
     this.addAutomaticKeepAlives = false,
   })  : assert(rowCount >= 0),
-        assert(rowHeight > 0),
+        assert(rowHeight == null || rowHeight > 0),
         assert(headerHeight == null || headerHeight > 0),
         assert(footerHeight == null || footerHeight > 0),
+        assert(
+            headerBuilder == null || headerHeight != null || rowHeight != null,
+            'When the header is used, either headerHeight or rowHeight should be specified'),
+        assert(
+            footerBuilder == null || footerHeight != null || rowHeight != null,
+            'When the footer is used, either footerHeight or rowHeight should be specified'),
         assert(minScrollableWidth == null || minScrollableWidth > 0),
         assert(minScrollableWidthRatio == null ||
             (minScrollableWidthRatio >= 0 && minScrollableWidthRatio <= 1)),
-        headerHeight = headerHeight ?? rowHeight,
-        footerHeight = footerHeight ?? rowHeight;
+        headerHeight = headerHeight ?? rowHeight ?? 0,
+        footerHeight = footerHeight ?? rowHeight ?? 0;
 
   /// Display style of the table.
   final TableViewStyle? style;
@@ -64,7 +70,14 @@ class TableView extends StatefulWidget {
   final int rowCount;
 
   /// Height of each row displayed in a table.
-  final double rowHeight;
+  ///
+  /// When set to [null], the height of each row is computed during layout,
+  /// similar to the [Row] widget, meaning each row can have different height.
+  /// Additionally, wrapping the table row widget in the [IntrinsicHeight]
+  /// will make all cells as tall as the tallest visible cell.
+  ///
+  /// Prefer setting this value to not-null to increase performance.
+  final double? rowHeight;
 
   /// List of column descriptions to display in a table.
   final List<TableColumn> columns;
@@ -266,6 +279,7 @@ class _TableViewState extends State<TableView>
               scrollPadding: scrollPadding,
               textDirection: textDirection,
               width: constraints.maxWidth,
+              fixedRowHeight: widget.rowHeight != null,
               minScrollableWidthRatio: widget.minScrollableWidthRatio ??
                   style.minScrollableWidthRatio,
               columns: columns,
@@ -357,7 +371,8 @@ class _TableViewState extends State<TableView>
                             verticalOffset: null,
                             rowHeight: widget.headerHeight,
                             placeholderShade: null,
-                            child: headerBuilder(context, contentBuilder),
+                            child: headerBuilder(
+                                context, headerFooterContentBuilder),
                           ),
                         ),
                         TableHorizontalDivider(
@@ -376,7 +391,8 @@ class _TableViewState extends State<TableView>
                             verticalOffset: null,
                             rowHeight: widget.footerHeight,
                             placeholderShade: null,
-                            child: footerBuilder(context, contentBuilder),
+                            child: footerBuilder(
+                                context, headerFooterContentBuilder),
                           ),
                         ),
                       ],

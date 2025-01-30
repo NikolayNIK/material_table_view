@@ -244,12 +244,34 @@ class TableViewVerticalDividerStyle {
   /// Defaults to the value defined by the material theme.
   final double? thickness;
 
+  /// The amount of logical pixels the divider will wiggle vertically.
+  /// Wiggling starts at the first row and ends at the specified interval,
+  /// meaning it's always guaranteed to be at 0 offset at the start and at
+  /// the end of this interval.
+  ///
+  /// Has no effect when the [wiggleCount] is set to `0`. Lowering this value
+  /// with [wiggleCount] larger than `0` might worsen the performance.
+  ///
+  /// Defaults to the row height, if any. If an intrinsic row height is used
+  /// instead of a fixed one (`rowHeight` parameter is set to null) wiggling
+  /// will be disabled unless [wiggleInterval] is specified.
+  final double? wiggleInterval;
+
+  /// The amount of times per [wiggleInterval] the divider displayed is going
+  /// to wiggle.
+  /// Increasing this value might worsen the performance.
+  /// Prefer setting it to 0 when not using wiggling dividers.
+  ///
+  /// Defaults to `1`.
+  final int? wiggleCount;
+
   /// The amount of times per row the divider displayed is going to wiggle.
   /// Increasing this value might worsen the performance.
   /// Prefer setting it to 0 when not using wiggling dividers.
   ///
   /// Defaults to `1`.
-  final int? wigglesPerRow;
+  @Deprecated('Use functionally the same wiggleCount property instead.')
+  int? get wigglesPerRow => wiggleCount;
 
   /// The amount of logical pixels the divider will wiggle horizontally.
   ///
@@ -283,19 +305,27 @@ class TableViewVerticalDividerStyle {
   const TableViewVerticalDividerStyle({
     this.color,
     this.thickness,
-    this.wigglesPerRow,
+    this.wiggleInterval,
+    int? wiggleCount,
+    @Deprecated('Use functionally the same wiggleCount parameter instead.')
+    int? wigglesPerRow,
     this.wiggleOffset,
     this.revealOffset,
     this.opacityRevealCurve,
     this.wiggleRevealCurve,
   })  : assert(thickness == null || thickness >= 0),
+        assert(wiggleCount == null || wiggleCount >= 0),
         assert(wigglesPerRow == null || wigglesPerRow >= 0),
         assert(wiggleOffset == null || wiggleOffset >= 0),
-        assert(revealOffset == null || revealOffset >= 0);
+        assert(revealOffset == null || revealOffset >= 0),
+        wiggleCount = wiggleCount ?? wigglesPerRow;
 
   TableViewVerticalDividerStyle copyWith({
     Color? color,
     double? thickness,
+    double? wiggleInterval,
+    int? wiggleCount,
+    @Deprecated('Use functionally the same wiggleCount parameter instead.')
     int? wigglesPerRow,
     double? wiggleOffset,
     double? revealOffset,
@@ -305,7 +335,7 @@ class TableViewVerticalDividerStyle {
       TableViewVerticalDividerStyle(
         color: color ?? this.color,
         thickness: thickness ?? this.thickness,
-        wigglesPerRow: wigglesPerRow ?? this.wigglesPerRow,
+        wiggleCount: wiggleCount ?? wigglesPerRow ?? this.wiggleCount,
         wiggleOffset: wiggleOffset ?? this.wiggleOffset,
         revealOffset: revealOffset ?? this.revealOffset,
         opacityRevealCurve: opacityRevealCurve ?? this.opacityRevealCurve,
@@ -317,8 +347,8 @@ class TableViewVerticalDividerStyle {
       TableViewVerticalDividerStyle(
         color: Color.lerp(color, other.color, t),
         thickness: lerpDouble(thickness, other.thickness, t),
-        wigglesPerRow: // not sure about that
-            lerpDouble(wigglesPerRow, other.wigglesPerRow, t)?.toInt(),
+        wiggleCount: // not sure about that
+            lerpDouble(wiggleCount, other.wiggleCount, t)?.toInt(),
         wiggleOffset: lerpDouble(wiggleOffset, other.wiggleOffset, t),
         revealOffset: lerpDouble(revealOffset, other.revealOffset, t),
         opacityRevealCurve:

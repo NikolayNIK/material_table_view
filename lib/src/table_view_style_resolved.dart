@@ -250,7 +250,7 @@ class ResolvedTableViewVerticalDividerStyle
   double get thickness => super.thickness!;
 
   @override
-  int get wigglesPerRow => super.wigglesPerRow!;
+  int get wiggleCount => super.wiggleCount!;
 
   @override
   double get wiggleOffset => super.wiggleOffset!;
@@ -267,14 +267,15 @@ class ResolvedTableViewVerticalDividerStyle
   const ResolvedTableViewVerticalDividerStyle({
     required Color color,
     required double thickness,
-    required int wigglesPerRow,
+    required super.wiggleInterval,
+    required int wiggleCount,
     required double wiggleOffset,
     required double revealOffset,
     required Curve opacityRevealCurve,
     required Curve wiggleRevealCurve,
   }) : super(
           color: color,
-          wigglesPerRow: wigglesPerRow,
+          wiggleCount: wiggleCount,
           thickness: thickness,
           wiggleOffset: wiggleOffset,
           revealOffset: revealOffset,
@@ -292,7 +293,8 @@ class ResolvedTableViewVerticalDividerStyle
     return ResolvedTableViewVerticalDividerStyle(
       color: style?.color ?? base?.color ?? borderStyle.color,
       thickness: style?.thickness ?? base?.thickness ?? borderStyle.width,
-      wigglesPerRow: style?.wigglesPerRow ?? base?.wigglesPerRow ?? 1,
+      wiggleInterval: style?.wiggleInterval ?? base?.wiggleInterval,
+      wiggleCount: style?.wiggleCount ?? base?.wiggleCount ?? 1,
       wiggleOffset: wiggleOffset,
       revealOffset: style?.revealOffset ?? base?.revealOffset ?? wiggleOffset,
       opacityRevealCurve: style?.opacityRevealCurve ??

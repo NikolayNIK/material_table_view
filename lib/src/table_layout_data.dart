@@ -4,13 +4,15 @@ import 'package:flutter/widgets.dart';
 class TableContentDividerData {
   final Color color;
   final double thickness;
-  final int wigglesPerRow;
+  final double? wiggleInterval;
+  final int wiggleCount;
   final double wiggleOffset;
 
   const TableContentDividerData({
     required this.color,
     required this.thickness,
-    required this.wigglesPerRow,
+    required this.wiggleInterval,
+    required this.wiggleCount,
     required this.wiggleOffset,
   });
 
@@ -50,6 +52,8 @@ class TableContentLayoutData {
   final TableContentDividerData leftDivider, rightDivider;
   final double leftWidth, centerWidth, rightWidth;
 
+  final bool fixedRowHeight;
+
   const TableContentLayoutData({
     required this.scrollableColumns,
     required this.fixedColumns,
@@ -58,5 +62,6 @@ class TableContentLayoutData {
     required this.leftWidth,
     required this.centerWidth,
     required this.rightWidth,
+    required this.fixedRowHeight,
   });
 }

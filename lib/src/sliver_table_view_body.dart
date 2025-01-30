@@ -7,7 +7,7 @@ import 'package:material_table_view/src/table_typedefs.dart';
 /// This is a sliver widget that builds rows of a table.
 class SliverTableViewBody extends StatelessWidget {
   final int rowCount;
-  final double rowHeight;
+  final double? rowHeight;
   final TableRowBuilder rowBuilder;
   final TablePlaceholderBuilder placeholderBuilder;
   final TablePlaceholderRowBuilder? placeholderRowBuilder;
@@ -30,17 +30,20 @@ class SliverTableViewBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget? placeholder;
+    Widget itemBuilder(BuildContext context, int index) =>
+        rowBuilder(context, index, contentBuilder) ??
+        placeholder ??
+        placeholderRowBuilder?.call(
+            context, index, placeholderContentBuilder) ??
+        (placeholder ??=
+            placeholderBuilder.call(context, placeholderContentBuilder));
+
+    final rowHeight = this.rowHeight;
 
     final rowReorder = this.rowReorder;
     if (rowReorder != null) {
       return SliverTableReorderableList(
-        itemBuilder: (context, index) =>
-            rowBuilder(context, index, contentBuilder) ??
-            placeholder ??
-            placeholderRowBuilder?.call(
-                context, index, placeholderContentBuilder) ??
-            (placeholder ??=
-                placeholderBuilder.call(context, placeholderContentBuilder)),
+        itemBuilder: itemBuilder,
         itemCount: rowCount,
         itemExtent: rowHeight,
         useHigherScrollable: useHigherScrollable,
@@ -53,20 +56,22 @@ class SliverTableViewBody extends StatelessWidget {
       );
     }
 
+    final delegate = SliverChildBuilderDelegate(
+      childCount: rowCount,
+      addRepaintBoundaries: false,
+      addAutomaticKeepAlives: addAutomaticKeepAlives,
+      itemBuilder,
+    );
+
+    if (rowHeight == null) {
+      return SliverList(
+        delegate: delegate,
+      );
+    }
+
     return SliverFixedExtentList(
       itemExtent: rowHeight,
-      delegate: SliverChildBuilderDelegate(
-        childCount: rowCount,
-        addRepaintBoundaries: false,
-        addAutomaticKeepAlives: addAutomaticKeepAlives,
-        (context, index) =>
-            rowBuilder(context, index, contentBuilder) ??
-            placeholder ??
-            placeholderRowBuilder?.call(
-                context, index, placeholderContentBuilder) ??
-            (placeholder ??=
-                placeholderBuilder.call(context, placeholderContentBuilder)),
-      ),
+      delegate: delegate,
     );
   }
 }

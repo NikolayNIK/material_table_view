@@ -14,7 +14,7 @@ import 'package:material_table_view/src/table_placeholder_shade.dart';
 /// (including clipping scrolled section, handling repainting, etc).
 class TableSection extends StatelessWidget {
   final ViewportOffset? verticalOffset;
-  final double rowHeight;
+  final double? rowHeight;
   final TablePlaceholderShade? placeholderShade;
   final Widget child;
 
@@ -38,7 +38,7 @@ class TableSection extends StatelessWidget {
 
 class _TableSection extends SingleChildRenderObjectWidget {
   final ViewportOffset? verticalOffset;
-  final double rowHeight;
+  final double? rowHeight;
   final TableContentLayoutData layoutData;
   final TablePlaceholderShade? placeholderShade;
 
@@ -72,7 +72,7 @@ class _TableSection extends SingleChildRenderObjectWidget {
 class RenderTableSection extends RenderProxyBox {
   RenderTableSection({
     required ViewportOffset? verticalOffset,
-    required double rowHeight,
+    required double? rowHeight,
     required TableContentLayoutData layoutData,
     required TablePlaceholderShade? placeholderShade,
   })  : _rowHeight = rowHeight,
@@ -84,7 +84,7 @@ class RenderTableSection extends RenderProxyBox {
   }
 
   ViewportOffset? _verticalOffset;
-  double _rowHeight;
+  double? _rowHeight;
   TableContentLayoutData _layoutData;
   TablePlaceholderShade? _placeholderShade;
 
@@ -110,7 +110,7 @@ class RenderTableSection extends RenderProxyBox {
     _verticalOffsetChanged();
   }
 
-  set rowHeight(double rowHeight) {
+  set rowHeight(double? rowHeight) {
     // this comparison should be fine
     if (_rowHeight != rowHeight) {
       _rowHeight = rowHeight;
@@ -165,70 +165,88 @@ class RenderTableSection extends RenderProxyBox {
     final layoutData = _layoutData;
 
     {
-      final top = -(verticalOffsetPixels % _rowHeight);
-      var bottom = size.height + _rowHeight;
-      bottom += -((bottom + verticalOffsetPixels) % _rowHeight);
+      // left side
+      final dividerData = layoutData.leftDivider;
+      final wiggleInterval = dividerData.wiggleInterval ?? _rowHeight;
 
-      {
-        // left side
-        final dividerData = layoutData.leftDivider;
-
-        final halfDividerThickness = dividerData.thickness / 2;
-        final wiggleEdge = layoutData.leftWidth;
-        final dividerWiggleEdge = wiggleEdge - halfDividerThickness;
-        final wiggleOut = wiggleEdge + dividerData.wiggleOffset;
-        final dividerWiggleOut = wiggleOut - halfDividerThickness;
-
-        leftDividerPath.moveTo(dividerWiggleEdge, top);
-        clipPath.moveTo(wiggleEdge, top);
-
-        if (dividerData.wigglesPerRow == 0 || dividerData.wiggleOffset == .0) {
-          leftDividerPath.lineTo(dividerWiggleEdge, bottom);
-          clipPath.lineTo(wiggleEdge, bottom);
-        } else {
-          final wiggleStep = _rowHeight / (2 * dividerData.wigglesPerRow);
-
-          for (var y = top + wiggleStep; y <= bottom;) {
-            leftDividerPath.lineTo(dividerWiggleOut, y);
-            clipPath.lineTo(wiggleOut, y);
-            y += wiggleStep;
-
-            leftDividerPath.lineTo(dividerWiggleEdge, y);
-            clipPath.lineTo(wiggleEdge, y);
-            y += wiggleStep;
-          }
-        }
+      final double top;
+      double bottom;
+      if (wiggleInterval == null) {
+        top = 0;
+        bottom = size.height;
+      } else {
+        top = -(verticalOffsetPixels % wiggleInterval);
+        bottom = size.height + wiggleInterval;
+        bottom += -((bottom + verticalOffsetPixels) % wiggleInterval);
       }
 
-      {
-        // right size
+      final halfDividerThickness = dividerData.thickness / 2;
+      final wiggleEdge = layoutData.leftWidth;
+      final dividerWiggleEdge = wiggleEdge - halfDividerThickness;
+      final wiggleOut = wiggleEdge + dividerData.wiggleOffset;
+      final dividerWiggleOut = wiggleOut - halfDividerThickness;
 
-        final dividerData = layoutData.rightDivider;
+      leftDividerPath.moveTo(dividerWiggleEdge, top);
+      clipPath.moveTo(wiggleEdge, top);
 
-        final halfDividerThickness = dividerData.thickness / 2;
-        final wiggleEdge = layoutData.leftWidth + layoutData.centerWidth;
-        final dividerWiggleEdge = wiggleEdge + halfDividerThickness;
-        final wiggleOut = wiggleEdge - dividerData.wiggleOffset;
-        final dividerWiggleOut = wiggleOut + halfDividerThickness;
-
-        rightDividerPath.moveTo(dividerWiggleEdge, bottom);
+      if (wiggleInterval == null || dividerData.wiggleCount == 0 || dividerData.wiggleOffset == .0) {
+        leftDividerPath.lineTo(dividerWiggleEdge, bottom);
         clipPath.lineTo(wiggleEdge, bottom);
+      } else {
+        final wiggleStep = wiggleInterval / (2 * dividerData.wiggleCount);
 
-        if (dividerData.wigglesPerRow == 0 || dividerData.wiggleOffset == 0) {
-          rightDividerPath.lineTo(dividerWiggleEdge, top);
-          clipPath.lineTo(wiggleOut, top);
-        } else {
-          final wiggleStep = _rowHeight / (2 * dividerData.wigglesPerRow);
+        for (var y = top + wiggleStep; y <= bottom;) {
+          leftDividerPath.lineTo(dividerWiggleOut, y);
+          clipPath.lineTo(wiggleOut, y);
+          y += wiggleStep;
 
-          for (var y = bottom - wiggleStep; y >= top;) {
-            rightDividerPath.lineTo(dividerWiggleOut, y);
-            clipPath.lineTo(wiggleOut, y);
-            y -= wiggleStep;
+          leftDividerPath.lineTo(dividerWiggleEdge, y);
+          clipPath.lineTo(wiggleEdge, y);
+          y += wiggleStep;
+        }
+      }
+    }
 
-            rightDividerPath.lineTo(dividerWiggleEdge, y);
-            clipPath.lineTo(wiggleEdge, y);
-            y -= wiggleStep;
-          }
+    {
+      // right size
+
+      final dividerData = layoutData.rightDivider;
+      final wiggleInterval = dividerData.wiggleInterval ?? _rowHeight;
+
+      final double top;
+      double bottom;
+      if (wiggleInterval == null) {
+        top = 0;
+        bottom = size.height;
+      } else {
+        top = -(verticalOffsetPixels % wiggleInterval);
+        bottom = size.height + wiggleInterval;
+        bottom += -((bottom + verticalOffsetPixels) % wiggleInterval);
+      }
+
+      final halfDividerThickness = dividerData.thickness / 2;
+      final wiggleEdge = layoutData.leftWidth + layoutData.centerWidth;
+      final dividerWiggleEdge = wiggleEdge + halfDividerThickness;
+      final wiggleOut = wiggleEdge - dividerData.wiggleOffset;
+      final dividerWiggleOut = wiggleOut + halfDividerThickness;
+
+      rightDividerPath.moveTo(dividerWiggleEdge, bottom);
+      clipPath.lineTo(wiggleEdge, bottom);
+
+      if (wiggleInterval == null || dividerData.wiggleCount == 0 || dividerData.wiggleOffset == 0) {
+        rightDividerPath.lineTo(dividerWiggleEdge, top);
+        clipPath.lineTo(wiggleOut, top);
+      } else {
+        final wiggleStep = wiggleInterval / (2 * dividerData.wiggleCount);
+
+        for (var y = bottom - wiggleStep; y >= top;) {
+          rightDividerPath.lineTo(dividerWiggleOut, y);
+          clipPath.lineTo(wiggleOut, y);
+          y -= wiggleStep;
+
+          rightDividerPath.lineTo(dividerWiggleEdge, y);
+          clipPath.lineTo(wiggleEdge, y);
+          y -= wiggleStep;
         }
       }
     }

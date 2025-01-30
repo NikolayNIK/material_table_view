@@ -28,7 +28,7 @@ class SliverTableView extends TableView {
     super.key,
     super.style,
     required super.rowCount,
-    required super.rowHeight,
+    required double rowHeight,
     required super.columns,
     this.horizontalScrollController,
     required super.rowBuilder,
@@ -45,7 +45,7 @@ class SliverTableView extends TableView {
     super.minScrollableWidthRatio,
     super.textDirection,
     super.addAutomaticKeepAlives,
-  }) : super.builder();
+  }) : super.builder(rowHeight: rowHeight);
 
   /// A scroll controller used for the horizontal scrolling of the table.
   final ScrollController? horizontalScrollController;
@@ -116,7 +116,7 @@ class _SliverTableViewState extends State<SliverTableView>
 
     return _SliverPassthrough(
       minHeight: scrollPadding.bottom + headerHeight + footerHeight,
-      maxHeight: widget.rowCount * widget.rowHeight +
+      maxHeight: widget.rowCount * widget.rowHeight! +
           scrollPadding.vertical +
           headerHeight +
           footerHeight,
@@ -152,6 +152,7 @@ class _SliverTableViewState extends State<SliverTableView>
                   child: TableContentLayout(
                     verticalDividersStyle: style.dividers.vertical,
                     width: width,
+                    fixedRowHeight: true,
                     columns: columns,
                     horizontalOffset: position,
                     stickyHorizontalOffset: _horizontalStickyOffset,
@@ -170,7 +171,7 @@ class _SliverTableViewState extends State<SliverTableView>
                               rowHeight: widget.headerHeight,
                               placeholderShade: null,
                               child: widget.headerBuilder!(
-                                  context, contentBuilder),
+                                  context, headerFooterContentBuilder),
                             ),
                           ),
                           TableHorizontalDivider(
@@ -228,7 +229,7 @@ class _SliverTableViewState extends State<SliverTableView>
                               rowHeight: widget.footerHeight,
                               placeholderShade: null,
                               child: widget.footerBuilder!(
-                                  context, contentBuilder),
+                                  context, headerFooterContentBuilder),
                             ),
                           ),
                         ],
