@@ -70,8 +70,8 @@ class SliverTableViewBody extends StatelessWidget {
 
     if (rowHeight != null) {
       return SliverFixedExtentList(
-        itemExtent: rowHeight!,
         delegate: delegate,
+        itemExtent: rowHeight!,
       );
     }
 
