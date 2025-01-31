@@ -106,9 +106,19 @@ class TableView extends StatefulWidget {
   /// cells.
   final TableRowReorder? rowReorder;
 
+  /// Whether to wrap each row in an [AutomaticKeepAlive].
+  ///
+  /// It is generally considered a bad practice to make the rows of a table
+  /// stateful as doing so may significantly impact scrolling performance.
+  /// Whenever scrolling is used more than updating,
+  /// consider rebuilding the entire [TableView] or [SliverTableView] widget
+  /// instead whenever its content gets changed. The widgets are designed to
+  /// be rebuilt in a reasonable processing time.
+  ///
+  /// Defaults to `false`.
   final bool addAutomaticKeepAlives;
 
-  /// Count of fixed-height rows displayed in a table.
+  /// Count of rows displayed in a table.
   final int rowCount;
 
   /// Height of each row displayed in a table.
@@ -123,8 +133,15 @@ class TableView extends StatefulWidget {
   /// [rowPrototype] to improve the performance instead.
   final double? rowHeight;
 
+  /// When this function is set and the [rowHeight] is set to `null`,
+  /// this function will be used to determine the height of each row,
+  /// which will improve performance.
   final ItemExtentBuilder? rowHeightBuilder;
 
+  /// When this property is set, the [rowHeight] is set to `null`
+  /// and the [rowHeightBuilder] is set to `null` this widget will be used
+  /// to determine the height of each row of the table, which will improve
+  /// the performance.
   final Widget? rowPrototype;
 
   /// A function that will be called on-demand for each row displayed
@@ -136,7 +153,8 @@ class TableView extends StatefulWidget {
   final TableRowBuilder rowBuilder;
 
   /// A function that will be called on-demand for building the placeholder
-  /// row widget. It never gets called more than once per build cycle as the
+  /// row widget. As oppose to [placeholderRowBuilder],
+  /// it never gets called more than once per build cycle as the
   /// same widget is reused for every placeholder row built.
   ///
   /// [placeholderShade] can be used to apply a shader to the widgets painted.
@@ -170,6 +188,9 @@ class TableView extends StatefulWidget {
   final TableHeaderBuilder? headerBuilder;
 
   /// Height of a header. If null, [rowHeight] will be used instead.
+  ///
+  /// If [headerBuilder] is specified and [rowHeight] is `null`,
+  /// [headerHeight] becomes required.
   final double headerHeight;
 
   /// A function that will be called on-demand for each cell in a footer
@@ -179,6 +200,8 @@ class TableView extends StatefulWidget {
   final TableFooterBuilder? footerBuilder;
 
   /// Height of a footer. If null, [rowHeight] will be used instead.
+  /// If [footerBuilder] is specified and [rowHeight] is `null`,
+  /// [footerHeight] becomes required.
   final double footerHeight;
 
   @override
