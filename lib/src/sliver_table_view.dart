@@ -51,7 +51,7 @@ class SliverTableView extends TableView {
   final ScrollController? horizontalScrollController;
 
   @override
-  State<TableView> createState() => _SliverTableViewState();
+  State<SliverTableView> createState() => _SliverTableViewState();
 }
 
 class _SliverTableViewState extends State<SliverTableView>
