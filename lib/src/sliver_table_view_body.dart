@@ -49,6 +49,7 @@ class SliverTableViewBody extends StatelessWidget {
         itemBuilder: itemBuilder,
         itemCount: rowCount,
         itemExtent: rowHeight,
+        itemExtentBuilder: rowHeightBuilder,
         prototypeItem: rowPrototype,
         useHigherScrollable: useHigherScrollable,
         addAutomaticKeepAlives: addAutomaticKeepAlives,
