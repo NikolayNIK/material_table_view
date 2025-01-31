@@ -51,6 +51,9 @@ class SliverTableView extends TableView {
   final ScrollController? horizontalScrollController;
 
   @override
+  double get rowHeight => super.rowHeight!;
+
+  @override
   State<SliverTableView> createState() => _SliverTableViewState();
 }
 
@@ -116,7 +119,7 @@ class _SliverTableViewState extends State<SliverTableView>
 
     return _SliverPassthrough(
       minHeight: scrollPadding.bottom + headerHeight + footerHeight,
-      maxHeight: widget.rowCount * widget.rowHeight! +
+      maxHeight: widget.rowCount * widget.rowHeight +
           scrollPadding.vertical +
           headerHeight +
           footerHeight,
@@ -200,6 +203,8 @@ class _SliverTableViewState extends State<SliverTableView>
                                       ),
                                       sliver: SliverTableViewBody(
                                         rowHeight: widget.rowHeight,
+                                        rowHeightBuilder: null,
+                                        rowPrototype: null,
                                         rowCount: widget.rowCount,
                                         rowBuilder: widget.rowBuilder,
                                         rowReorder: widget.rowReorder,

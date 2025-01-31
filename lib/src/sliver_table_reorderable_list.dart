@@ -13,6 +13,7 @@ class SliverTableReorderableList extends SliverReorderableList {
     super.onReorderStart,
     super.onReorderEnd,
     super.itemExtent,
+    super.itemExtentBuilder,
     super.prototypeItem,
     super.proxyDecorator,
   });
@@ -74,7 +75,16 @@ class _SliverTableReorderableListState extends SliverReorderableListState {
         delegate: childrenDelegate,
         itemExtent: widget.itemExtent!,
       );
-    } else if (widget.prototypeItem != null) {
+    }
+
+    if (widget.itemExtentBuilder != null) {
+      return SliverVariedExtentList(
+        delegate: childrenDelegate,
+        itemExtentBuilder: widget.itemExtentBuilder!,
+      );
+    }
+
+    if (widget.prototypeItem != null) {
       return SliverPrototypeExtentList(
         delegate: childrenDelegate,
         prototypeItem: widget.prototypeItem!,

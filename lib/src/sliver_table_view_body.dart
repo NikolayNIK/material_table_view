@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:material_table_view/src/sliver_table_reorderable_list.dart';
 import 'package:material_table_view/src/table_row.dart';
@@ -8,6 +9,8 @@ import 'package:material_table_view/src/table_typedefs.dart';
 class SliverTableViewBody extends StatelessWidget {
   final int rowCount;
   final double? rowHeight;
+  final ItemExtentBuilder? rowHeightBuilder;
+  final Widget? rowPrototype;
   final TableRowBuilder rowBuilder;
   final TablePlaceholderBuilder placeholderBuilder;
   final TablePlaceholderRowBuilder? placeholderRowBuilder;
@@ -19,6 +22,8 @@ class SliverTableViewBody extends StatelessWidget {
     super.key,
     required this.rowCount,
     required this.rowHeight,
+    required this.rowHeightBuilder,
+    required this.rowPrototype,
     required this.rowBuilder,
     required this.placeholderBuilder,
     required this.placeholderRowBuilder,
@@ -38,14 +43,13 @@ class SliverTableViewBody extends StatelessWidget {
         (placeholder ??=
             placeholderBuilder.call(context, placeholderContentBuilder));
 
-    final rowHeight = this.rowHeight;
-
     final rowReorder = this.rowReorder;
     if (rowReorder != null) {
       return SliverTableReorderableList(
         itemBuilder: itemBuilder,
         itemCount: rowCount,
         itemExtent: rowHeight,
+        prototypeItem: rowPrototype,
         useHigherScrollable: useHigherScrollable,
         addAutomaticKeepAlives: addAutomaticKeepAlives,
         onReorder: rowReorder.onReorder,
@@ -63,14 +67,28 @@ class SliverTableViewBody extends StatelessWidget {
       itemBuilder,
     );
 
-    if (rowHeight == null) {
-      return SliverList(
+    if (rowHeight != null) {
+      return SliverFixedExtentList(
+        itemExtent: rowHeight!,
         delegate: delegate,
       );
     }
 
-    return SliverFixedExtentList(
-      itemExtent: rowHeight,
+    if (rowHeightBuilder != null) {
+      return SliverVariedExtentList(
+        delegate: delegate,
+        itemExtentBuilder: rowHeightBuilder!,
+      );
+    }
+
+    if (rowPrototype != null) {
+      return SliverPrototypeExtentList(
+        delegate: delegate,
+        prototypeItem: rowPrototype!,
+      );
+    }
+
+    return SliverList(
       delegate: delegate,
     );
   }

@@ -31,6 +31,8 @@ class TableView extends StatefulWidget {
     this.style,
     required this.rowCount,
     required this.rowHeight,
+    this.rowHeightBuilder,
+    this.rowPrototype,
     required this.columns,
     this.controller,
     required this.rowBuilder,
@@ -77,7 +79,13 @@ class TableView extends StatefulWidget {
   /// will make all cells as tall as the tallest visible cell.
   ///
   /// Prefer setting this value to not-null to increase performance.
+  /// When it is not possible, consider specifying [rowHeightBuilder] or
+  /// [rowPrototype] to improve the performance instead.
   final double? rowHeight;
+
+  final ItemExtentBuilder? rowHeightBuilder;
+
+  final Widget? rowPrototype;
 
   /// List of column descriptions to display in a table.
   final List<TableColumn> columns;
@@ -329,6 +337,9 @@ class _TableViewState extends State<TableView>
                                       sliver: SliverTableViewBody(
                                         rowCount: widget.rowCount,
                                         rowHeight: widget.rowHeight,
+                                        rowHeightBuilder:
+                                            widget.rowHeightBuilder,
+                                        rowPrototype: widget.rowPrototype,
                                         rowBuilder: widget.rowBuilder,
                                         placeholderBuilder:
                                             widget.placeholderBuilder,
