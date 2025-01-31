@@ -27,12 +27,17 @@ class SliverTableView extends TableView {
   const SliverTableView.builder({
     super.key,
     super.style,
+    super.controller,
+    this.horizontalScrollController,
+    required super.columns,
+    super.textDirection,
+    super.minScrollableWidth,
+    super.minScrollableWidthRatio,
+    super.rowReorder,
+    super.addAutomaticKeepAlives,
     required super.rowCount,
     required double rowHeight,
-    required super.columns,
-    this.horizontalScrollController,
     required super.rowBuilder,
-    super.rowReorder,
     super.placeholderBuilder,
     super.placeholderRowBuilder,
     super.placeholderShade,
@@ -41,10 +46,6 @@ class SliverTableView extends TableView {
     super.headerHeight,
     super.footerBuilder,
     super.footerHeight,
-    super.minScrollableWidth,
-    super.minScrollableWidthRatio,
-    super.textDirection,
-    super.addAutomaticKeepAlives,
   }) : super.builder(rowHeight: rowHeight);
 
   /// A scroll controller used for the horizontal scrolling of the table.

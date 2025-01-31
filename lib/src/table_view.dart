@@ -29,12 +29,17 @@ class TableView extends StatefulWidget {
   const TableView.builder({
     super.key,
     this.style,
+    this.controller,
+    required this.columns,
+    this.textDirection,
+    this.minScrollableWidth,
+    this.minScrollableWidthRatio,
+    this.rowReorder,
+    this.addAutomaticKeepAlives = false,
     required this.rowCount,
     required this.rowHeight,
     this.rowHeightBuilder,
     this.rowPrototype,
-    required this.columns,
-    this.controller,
     required this.rowBuilder,
     this.placeholderBuilder = _defaultPlaceholderBuilder,
     this.placeholderRowBuilder,
@@ -44,11 +49,6 @@ class TableView extends StatefulWidget {
     double? headerHeight,
     this.footerBuilder,
     double? footerHeight,
-    this.minScrollableWidth,
-    this.minScrollableWidthRatio,
-    this.textDirection,
-    this.rowReorder,
-    this.addAutomaticKeepAlives = false,
   })  : assert(rowCount >= 0),
         assert(rowHeight == null || rowHeight > 0),
         assert(headerHeight == null || headerHeight > 0),
@@ -67,6 +67,46 @@ class TableView extends StatefulWidget {
 
   /// Display style of the table.
   final TableViewStyle? style;
+
+  /// Controller for the state of a table.
+  final TableViewController? controller;
+
+  /// List of column descriptions to display in a table.
+  final List<TableColumn> columns;
+
+  /// Text direction of the table. Determines horizontal scroll axis and column
+  /// layout direction as well.
+  ///
+  /// If null, the value from the closest instance
+  /// of the [Directionality] class that encloses the table will be used.
+  final TextDirection? textDirection;
+
+  /// Minimum scrollable width that may not be taken up by frozen columns.
+  /// If a resulting scrollable width is less than this property, columns
+  /// will be unfrozen according to freeze priority until scrollable width
+  /// is greater than or equal to this property.
+  ///
+  /// If null, the [minScrollableWidthRatio] is used to calculate the minimum
+  /// scrollable width, otherwise this property takes priority.
+  final double? minScrollableWidth;
+
+  /// Minimum scrollable width ratio in relation to the width of a table.
+  /// Used to calculate [minScrollableWidth] depending on an overall table width
+  /// if that property is null.
+  final double? minScrollableWidthRatio;
+
+  /// When a non-null value is specified, [SliverReorderableList] instantiated
+  /// using properties from this object will be used by the table.
+  /// This enables row reordering using the same way as one would
+  /// working with [ReorderableListView]. This also means that each row widget
+  /// built by a [rowBuilder] is required to have a unique key.
+  ///
+  /// Changing this property from null to non-null value (and vice versa)
+  /// for currently live widget will lead to state loss of all the rows and
+  /// cells.
+  final TableRowReorder? rowReorder;
+
+  final bool addAutomaticKeepAlives;
 
   /// Count of fixed-height rows displayed in a table.
   final int rowCount;
@@ -87,12 +127,6 @@ class TableView extends StatefulWidget {
 
   final Widget? rowPrototype;
 
-  /// List of column descriptions to display in a table.
-  final List<TableColumn> columns;
-
-  /// Controller for the state of a table.
-  final TableViewController? controller;
-
   /// A function that will be called on-demand for each row displayed
   /// in order to build a widget of a row of the table.
   ///
@@ -100,17 +134,6 @@ class TableView extends StatefulWidget {
   /// replaced with a placeholder. This enables additional behaviour described in a
   /// [placeholderBuilder] property.
   final TableRowBuilder rowBuilder;
-
-  /// When a non-null value is specified, [SliverReorderableList] instantiated
-  /// using properties from this object will be used by the table.
-  /// This enables row reordering using the same way as one would
-  /// working with [ReorderableListView]. This also means that each row widget
-  /// built by a [rowBuilder] is required to have a unique key.
-  ///
-  /// Changing this property from null to non-null value (and vice versa)
-  /// for currently live widget will lead to state loss of all the rows and
-  /// cells.
-  final TableRowReorder? rowReorder;
 
   /// A function that will be called on-demand for building the placeholder
   /// row widget. It never gets called more than once per build cycle as the
@@ -157,29 +180,6 @@ class TableView extends StatefulWidget {
 
   /// Height of a footer. If null, [rowHeight] will be used instead.
   final double footerHeight;
-
-  /// Minimum scrollable width that may not be taken up by frozen columns.
-  /// If a resulting scrollable width is less than this property, columns
-  /// will be unfrozen according to freeze priority until scrollable width
-  /// is greater than or equal to this property.
-  ///
-  /// If null, the [minScrollableWidthRatio] is used to calculate the minimum
-  /// scrollable width, otherwise this property takes priority.
-  final double? minScrollableWidth;
-
-  /// Minimum scrollable width ratio in relation to the width of a table.
-  /// Used to calculate [minScrollableWidth] depending on an overall table width
-  /// if that property is null.
-  final double? minScrollableWidthRatio;
-
-  /// Text direction of the table. Determines horizontal scroll axis and column
-  /// layout direction as well.
-  ///
-  /// If null, the value from the closest instance
-  /// of the [Directionality] class that encloses the table will be used.
-  final TextDirection? textDirection;
-
-  final bool addAutomaticKeepAlives;
 
   @override
   State<TableView> createState() => _TableViewState();
