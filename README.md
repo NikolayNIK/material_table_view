@@ -146,7 +146,8 @@ are provided by the package that will work for that purpose
   as a default one will not work.
 
 If any alternative you need is not available,
-feel free to use [the issue tracker](https://github.com/NikolayNIK/material_table_view/issues).
+feel free to use [GitHub Discussions](https://github.com/NikolayNIK/material_table_view/discussions)
+to search for an existing idea or to create a new one.
 
 Drawing on top of cells in the row widget might not work as expected.
 
@@ -171,16 +172,24 @@ a table widget painting used for optimization purposes.
   for currently active tables will lead to a state loss
   and to possible runtime errors.
 
-## Getting help
+## Community
 
-If you encounter any problems or have any feature requests,
-feel free to use [GitHub the issue tracker](https://github.com/NikolayNIK/material_table_view/issues)
-to search for an existing issue or to open a new one.
+Feel free to use [GitHub Discussions](https://github.com/NikolayNIK/material_table_view/discussions) if you want:
+- to ask a question to get help;
+- to influence the project;
+- to share ideas;
+- to share interesting things this project allowed you to make;
+- or to just discuss something related.
 
-## Contribution
+### Reporting bugs
 
-If you have something to contribute to the package
-feel free to send out a pull request on the GitHub.
+If you encounter any bugs, feel free to use [GitHub Issue Tracker](https://github.com/NikolayNIK/material_table_view/issues)
+to search for an existing issue or to open up a new one.
+
+### Contribution
+
+If you have something to contribute to the package, feel free to send out a
+[GitHub Pull Request](https://github.com/NikolayNIK/material_table_view/pulls).
 
 ## License
 
