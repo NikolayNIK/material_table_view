@@ -1,2 +1,9 @@
 export './src/table_typedefs.dart'
-    show TableCellBuilder, TableRowContentBuilder;
+    show
+        TableRowBuilder,
+        TableRowContentBuilder,
+        TableCellBuilder,
+        TablePlaceholderBuilder,
+        TablePlaceholderRowBuilder,
+        TableHeaderBuilder,
+        TableFooterBuilder;
