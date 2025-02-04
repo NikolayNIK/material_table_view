@@ -135,6 +135,10 @@ a specified type of `MaterialType.transparency`, which is the only
 type not requiring compositing.
 To set the background color `ColoredBox` can be used instead.
 
+`Column`, `Row` and `Flex` widgets will throw a runtime exception upon
+painting when their children are overflowing their bounds,
+because they'll try to clip their children in case of overflow.
+
 For some of these, special alternatives
 are provided by the package that will work for that purpose
 (and that purpose only):
