@@ -6,7 +6,7 @@ import 'package:material_table_view/src/table_row_reorder.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 
 /// This is a sliver widget that builds rows of a table.
-class SliverTableViewBody extends StatelessWidget {
+class SliverTableBody extends StatelessWidget {
   final int rowCount;
   final double? rowHeight;
   final ItemExtentBuilder? rowHeightBuilder;
@@ -18,7 +18,7 @@ class SliverTableViewBody extends StatelessWidget {
   final bool addAutomaticKeepAlives;
   final bool useHigherScrollable;
 
-  const SliverTableViewBody({
+  const SliverTableBody({
     super.key,
     required this.rowCount,
     required this.rowHeight,
@@ -45,7 +45,7 @@ class SliverTableViewBody extends StatelessWidget {
 
     final rowReorder = this.rowReorder;
     if (rowReorder != null) {
-      return SliverTableReorderableList(
+      return SliverTableBodyReorderableList(
         itemBuilder: itemBuilder,
         itemCount: rowCount,
         itemExtent: rowHeight,

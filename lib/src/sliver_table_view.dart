@@ -202,7 +202,7 @@ class _SliverTableViewState extends State<SliverTableView>
                                         top: scrollPadding.top,
                                         bottom: scrollPadding.bottom,
                                       ),
-                                      sliver: SliverTableViewBody(
+                                      sliver: SliverTableBody(
                                         rowHeight: widget.rowHeight,
                                         rowHeightBuilder: null,
                                         rowPrototype: null,

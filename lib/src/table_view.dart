@@ -357,7 +357,7 @@ class _TableViewState extends State<TableView>
                                         top: scrollPadding.top,
                                         bottom: scrollPadding.bottom,
                                       ),
-                                      sliver: SliverTableViewBody(
+                                      sliver: SliverTableBody(
                                         rowCount: widget.rowCount,
                                         rowHeight: widget.rowHeight,
                                         rowHeightBuilder:

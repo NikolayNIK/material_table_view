@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
 /// [SliverReorderableList] with workarounds for use in a table.
-class SliverTableReorderableList extends SliverReorderableList {
-  const SliverTableReorderableList({
+class SliverTableBodyReorderableList extends SliverReorderableList {
+  const SliverTableBodyReorderableList({
     super.key,
     required super.itemBuilder,
     super.findChildIndexCallback,
@@ -37,7 +37,7 @@ class _SliverTableReorderableListState extends SliverReorderableListState {
 
   @override
   void didChangeDependencies() {
-    if ((widget as SliverTableReorderableList).useHigherScrollable) {
+    if ((widget as SliverTableBodyReorderableList).useHigherScrollable) {
       // we make the parent state think it is higher on the hierarchy than
       // it actually is for a brief moment so it will grab
       // the correct scrollable
@@ -67,7 +67,7 @@ class _SliverTableReorderableListState extends SliverReorderableListState {
       findChildIndexCallback: widget.findChildIndexCallback,
       addRepaintBoundaries: false,
       addAutomaticKeepAlives:
-          (widget as SliverTableReorderableList).addAutomaticKeepAlives,
+          (widget as SliverTableBodyReorderableList).addAutomaticKeepAlives,
     );
 
     if (widget.itemExtent != null) {
