@@ -1,6 +1,6 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:material_table_view/src/sliver_table_reorderable_list.dart';
+import 'package:material_table_view/src/sliver_table_body_reorderable_list.dart';
 import 'package:material_table_view/src/table_row.dart';
 import 'package:material_table_view/src/table_row_reorder.dart';
 import 'package:material_table_view/src/table_typedefs.dart';

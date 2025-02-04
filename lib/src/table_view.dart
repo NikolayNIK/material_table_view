@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:material_table_view/src/optional_wrap.dart';
 import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
-import 'package:material_table_view/src/sliver_table_view_body.dart';
+import 'package:material_table_view/src/sliver_table_body.dart';
 import 'package:material_table_view/src/table_column.dart';
 import 'package:material_table_view/src/table_column_controls_controllable.dart';
 import 'package:material_table_view/src/table_column_resolve_layout_extension.dart';
