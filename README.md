@@ -95,7 +95,7 @@ TableView.builder(
       const TableColumn(width: 64),
   ],
   rowCount: 1048576,
-  rowHeight: 56.0,
+  rowHeight: 56.0, // optional, but highly recommended
   rowBuilder: (context, row, contentBuilder) {
     if (noDataYetFor(row)) {
       return null; // to use a placeholder
