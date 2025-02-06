@@ -45,7 +45,10 @@ class TablePaintingContext extends PaintingContext {
   var _placeholderLayersUsed = false;
 
   static const _unsupportedCompositionMessage =
-      'Widgets that utilize compositing may not be used to wrap a TableView row. For `Material` widgets make sure to specify the type `MaterialType.transparency`.'
+      'Composition may not be used to paint a TableView row.'
+      ' For `Material` widgets make sure to specify the type `MaterialType.transparency`.'
+      ' For `Column`, `Row` and `Flex` widgets make sure their children do not overflow.'
+      ' Some widgets may not be used at all.'
       ' For more details please visit https://pub.dev/packages/material_table_view#row-wrapping-widgets-restriction';
 
   TablePaintingLayerPair get placeholder {
