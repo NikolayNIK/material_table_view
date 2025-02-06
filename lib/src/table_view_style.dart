@@ -252,7 +252,7 @@ class TableViewVerticalDividerStyle {
   /// Has no effect when the [wiggleCount] is set to `0`. Lowering this value
   /// with [wiggleCount] larger than `0` might worsen the performance.
   ///
-   /// Defaults to the row height, if any. If an dynamic row height is used
+  /// Defaults to the row height, if any. If an dynamic row height is used
   /// instead of a fixed one (`rowHeight` parameter is set to null) wiggling
   /// will be disabled unless [wiggleInterval] is specified.
   final double? wiggleInterval;

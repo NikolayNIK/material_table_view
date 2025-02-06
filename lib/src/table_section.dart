@@ -189,7 +189,9 @@ class RenderTableSection extends RenderProxyBox {
       leftDividerPath.moveTo(dividerWiggleEdge, top);
       clipPath.moveTo(wiggleEdge, top);
 
-      if (wiggleInterval == null || dividerData.wiggleCount == 0 || dividerData.wiggleOffset == .0) {
+      if (wiggleInterval == null ||
+          dividerData.wiggleCount == 0 ||
+          dividerData.wiggleOffset == .0) {
         leftDividerPath.lineTo(dividerWiggleEdge, bottom);
         clipPath.lineTo(wiggleEdge, bottom);
       } else {
@@ -233,7 +235,9 @@ class RenderTableSection extends RenderProxyBox {
       rightDividerPath.moveTo(dividerWiggleEdge, bottom);
       clipPath.lineTo(wiggleEdge, bottom);
 
-      if (wiggleInterval == null || dividerData.wiggleCount == 0 || dividerData.wiggleOffset == 0) {
+      if (wiggleInterval == null ||
+          dividerData.wiggleCount == 0 ||
+          dividerData.wiggleOffset == 0) {
         rightDividerPath.lineTo(dividerWiggleEdge, top);
         clipPath.lineTo(wiggleOut, top);
       } else {
