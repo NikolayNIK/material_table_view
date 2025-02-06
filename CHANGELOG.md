@@ -1,3 +1,9 @@
+## 5.1.0
+- New support for optional `rowHeight` along with `rowHeightBuilder` and `rowPrototype` for `TableView`.
+- `wigglesPerRow` of `TableViewStyle` is now deprecated. Use functionally the same `wiggleCount` instead.
+- Updated example.
+- Updated README.
+
 ## 5.0.2
 - Improved error messages when widget not supported in the table row attempts to paint.
 - Updated README to better explain the importance of wrapping table rows with unsupported widgets.
