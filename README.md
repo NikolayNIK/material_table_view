@@ -101,7 +101,7 @@ TableView.builder(
       return null; // to use a placeholder
     }
 
-    // Some widgets can not be used here.
+    // When [freezePriority] or [placeholderShade] are used, some widgets may not be used here.
     // For more information see the paragraph below.
     // To set the background color the row can be wrapped in a [ColoredBox].
     return Material(
@@ -122,6 +122,10 @@ TableView.builder(
 ## Limitations
 
 ### Row wrapping widgets restriction
+
+Whenever at least one column gets frozen or placeholder shading is being used,
+the table starts using custom composition to paint itself for optimization purposes.
+In this case, restrictions described below start to apply.
 
 Some widgets can not be used to wrap row widget built in
 a rowBuilder and placeholderBuilder functions.
@@ -157,9 +161,6 @@ to search for an existing idea or to create a new one.
 Drawing on top of cells in the row widget might not work as expected.
 
 These limitations do **not** apply to cell widgets built by a `cellBuilder` closure.
-
-These limitations are caused by the custom compositing involved in
-a table widget painting used for optimization purposes.
 
 ## Known issues
 

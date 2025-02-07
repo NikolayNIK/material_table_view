@@ -8,11 +8,9 @@ import 'package:material_table_view/src/table_painting_context.dart';
 /// [Opacity] widget. As a regular [Opacity] widget can not be used to wrap
 /// an entire table row, this one should be used instead.
 ///
-/// Note that this widget is considerably
+/// Note that this widget may be considerably
 /// more expensive to paint compared to already expensive regular counterpart.
 /// This widget is only meant for animating relatively short transitions.
-///
-/// This widget will not work for any other purpose.
 class TableRowOpacity extends SingleChildRenderObjectWidget {
   final double opacity;
 
@@ -53,15 +51,20 @@ class _RenderTableRowOpacity extends RenderProxyBox {
   void paint(PaintingContext context, Offset offset) {
     if (_alpha == 0) return;
 
+    if (context is! TablePaintingContext) {
+      context.pushOpacity(offset, _alpha, (context, offset) => super.paint);
+      return;
+    }
+
     // do we just assume the color space here???
     if (_alpha == 255) {
       super.paint(context, offset);
       return;
     }
 
-    context.requireTablePaintingContext().paintChildrenLayers(
-          () => OpacityLayer(alpha: _alpha),
-          (context) => super.paint(context, offset),
-        );
+    context.paintChildrenLayers(
+      () => OpacityLayer(alpha: _alpha),
+      (context) => super.paint(context, offset),
+    );
   }
 }

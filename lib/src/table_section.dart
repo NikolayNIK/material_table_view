@@ -52,10 +52,12 @@ class _TableSection extends SingleChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) => RenderTableSection(
-      verticalOffset: verticalOffset,
-      rowHeight: rowHeight,
-      layoutData: layoutData,
-      placeholderShade: placeholderShade);
+        verticalOffset: verticalOffset,
+        rowHeight: rowHeight,
+        layoutData: layoutData,
+        placeholderShade: placeholderShade,
+        useTablePaintingContext: useTablePaintingContext,
+      );
 
   @override
   void updateRenderObject(
@@ -66,7 +68,11 @@ class _TableSection extends SingleChildRenderObjectWidget {
     renderObject.rowHeight = rowHeight;
     renderObject.layoutData = layoutData;
     renderObject.placeholderShade = placeholderShade;
+    renderObject.useTablePaintingContext = useTablePaintingContext;
   }
+
+  bool get useTablePaintingContext =>
+      placeholderShade != null || layoutData.fixedColumns.indices.isNotEmpty;
 }
 
 class RenderTableSection extends RenderProxyBox {
@@ -75,9 +81,11 @@ class RenderTableSection extends RenderProxyBox {
     required double? rowHeight,
     required TableContentLayoutData layoutData,
     required TablePlaceholderShade? placeholderShade,
+    required bool useTablePaintingContext,
   })  : _rowHeight = rowHeight,
         _layoutData = layoutData,
-        _placeholderShade = placeholderShade {
+        _placeholderShade = placeholderShade,
+        _useTablePaintingContext = useTablePaintingContext {
     _verticalOffset = verticalOffset;
     _verticalOffset?.addListener(_verticalOffsetChanged);
     _placeholderShade?.addListener(_placeholderShaderChanged);
@@ -88,9 +96,12 @@ class RenderTableSection extends RenderProxyBox {
   TableContentLayoutData _layoutData;
   TablePlaceholderShade? _placeholderShade;
 
-  late Path _scrolledClipPath, _leftDividerPath, _rightDividerPath;
+  /// Whether custom composition will be used to paint the table section
+  bool _useTablePaintingContext;
 
-  Path get scrolledSectionClipPath => _scrolledClipPath;
+  Path? _scrolledClipPath, _leftDividerPath, _rightDividerPath;
+
+  Path? get scrolledSectionClipPath => _scrolledClipPath;
 
   double get _verticalOffsetPixels {
     final verticalOffset = _verticalOffset;
@@ -136,6 +147,16 @@ class RenderTableSection extends RenderProxyBox {
     _placeholderShaderChanged();
   }
 
+  bool get useTablePaintingContext => _useTablePaintingContext;
+
+  set useTablePaintingContext(bool useTablePaintingContext) {
+    if (_useTablePaintingContext != useTablePaintingContext) {
+      _useTablePaintingContext = useTablePaintingContext;
+      markNeedsLayout();
+      markNeedsPaint();
+    }
+  }
+
   @override
   void dispose() {
     _verticalOffset?.removeListener(_verticalOffsetChanged);
@@ -156,7 +177,10 @@ class RenderTableSection extends RenderProxyBox {
     super.performLayout();
 
     // not sure if this should go here but it works well enough for now
+    if (_useTablePaintingContext) _updatePaths();
+  }
 
+  void _updatePaths() {
     final clipPath = _scrolledClipPath = Path(),
         leftDividerPath = _leftDividerPath = Path(),
         rightDividerPath = _rightDividerPath = Path();
@@ -266,6 +290,10 @@ class RenderTableSection extends RenderProxyBox {
       ' Got an offset of $offset, 0 assumed',
     );
 
+    (_useTablePaintingContext ? _customPaint : super.paint)(context, offset);
+  }
+
+  void _customPaint(PaintingContext context, Offset offset) {
     final layoutData = _layoutData;
 
     final clipPath = _scrolledClipPath,
@@ -349,14 +377,14 @@ class RenderTableSection extends RenderProxyBox {
     }
 
     context.canvas.drawPath(
-      leftDividerPath,
+      leftDividerPath!,
       dividerPaint
         ..color = layoutData.leftDivider.color
         ..strokeWidth = layoutData.leftDivider.thickness,
     );
 
     context.canvas.drawPath(
-      rightDividerPath,
+      rightDividerPath!,
       dividerPaint
         ..color = layoutData.rightDivider.color
         ..strokeWidth = layoutData.rightDivider.thickness,

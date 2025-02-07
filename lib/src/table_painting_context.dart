@@ -1,16 +1,5 @@
 import 'package:flutter/rendering.dart';
 
-extension RequireTablePaintingContext on PaintingContext {
-  TablePaintingContext requireTablePaintingContext() {
-    assert(
-      this is TablePaintingContext,
-      'This widget may only be used in a TableView row',
-    );
-
-    return this as TablePaintingContext;
-  }
-}
-
 /// Storage class that holds a pair of layers to be used for cell painting.
 class TablePaintingLayerPair {
   final PaintingContext fixed, scrolled;
@@ -45,7 +34,7 @@ class TablePaintingContext extends PaintingContext {
   var _placeholderLayersUsed = false;
 
   static const _unsupportedCompositionMessage =
-      'Composition may not be used to paint a TableView row.'
+      'When either frozen columns or placeholder shading are used, composition may not be used when painting a TableView row.'
       ' For `Material` widgets make sure to specify the type `MaterialType.transparency`.'
       ' For `Column`, `Row` and `Flex` widgets make sure their children do not overflow.'
       ' Some widgets may not be used at all.'

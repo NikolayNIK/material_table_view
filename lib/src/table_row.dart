@@ -256,16 +256,31 @@ class _RenderTableViewRow extends RenderBox
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    context = context as TablePaintingContext;
-    final pair = _usePlaceholderLayers ? context.placeholder : context.regular;
+    if (context is TablePaintingContext) {
+      final pair =
+          _usePlaceholderLayers ? context.placeholder : context.regular;
 
-    var child = firstChild;
-    while (child != null) {
-      final parentData = child.parentData as _TableViewCellParentData;
-      (parentData.scrollable ? pair.scrolled : pair.fixed).paintChild(
-          child, Offset(offset.dx + parentData.position, offset.dy));
+      var child = firstChild;
+      while (child != null) {
+        final parentData = child.parentData as _TableViewCellParentData;
+        (parentData.scrollable ? pair.scrolled : pair.fixed).paintChild(
+          child,
+          Offset(offset.dx + parentData.position, offset.dy),
+        );
 
-      child = parentData.nextSibling;
+        child = parentData.nextSibling;
+      }
+    } else {
+      var child = firstChild;
+      while (child != null) {
+        final parentData = child.parentData as _TableViewCellParentData;
+        context.paintChild(
+          child,
+          Offset(offset.dx + parentData.position, offset.dy),
+        );
+
+        child = parentData.nextSibling;
+      }
     }
   }
 
@@ -292,7 +307,7 @@ class _RenderTableViewRow extends RenderBox
     while (child != null) {
       final childParentData = child.parentData! as _TableViewCellParentData;
       if ((!childParentData.scrollable ||
-              scrolledClipPath.contains(position)) &&
+              (scrolledClipPath?.contains(position) ?? true)) &&
           result.addWithPaintOffset(
             offset: childParentData.offset,
             position: position,
