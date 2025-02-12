@@ -25,6 +25,7 @@ import 'package:material_table_view/src/table_viewport.dart';
 /// horizontally scrollable table with fixed-width freezable columns.
 ///
 /// This widget will try to expand to the highest constraints given.
+/// Make sure to put it inside a box with a finite size.
 class TableView extends StatefulWidget {
   const TableView.builder({
     super.key,
