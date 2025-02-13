@@ -14,6 +14,7 @@ import 'package:material_table_view/src/table_placeholder_shade.dart';
 /// (including clipping scrolled section, handling repainting, etc).
 class TableSection extends StatelessWidget {
   final ViewportOffset? verticalOffset;
+  final double? verticalOffsetPixels;
   final double? rowHeight;
   final TablePlaceholderShade? placeholderShade;
   final Widget child;
@@ -21,14 +22,16 @@ class TableSection extends StatelessWidget {
   const TableSection({
     super.key,
     required this.verticalOffset,
+    this.verticalOffsetPixels,
     required this.rowHeight,
     required this.placeholderShade,
     required this.child,
-  });
+  }) : assert(verticalOffset != null || verticalOffsetPixels != null);
 
   @override
   Widget build(BuildContext context) => _TableSection(
         verticalOffset: verticalOffset,
+        verticalOffsetPixels: verticalOffsetPixels,
         rowHeight: rowHeight,
         layoutData: TableContentLayout.of(context),
         placeholderShade: placeholderShade,
@@ -38,12 +41,14 @@ class TableSection extends StatelessWidget {
 
 class _TableSection extends SingleChildRenderObjectWidget {
   final ViewportOffset? verticalOffset;
+  final double? verticalOffsetPixels;
   final double? rowHeight;
   final TableContentLayoutData layoutData;
   final TablePlaceholderShade? placeholderShade;
 
   const _TableSection({
     required this.verticalOffset,
+    required this.verticalOffsetPixels,
     required this.rowHeight,
     required this.layoutData,
     required this.placeholderShade,
@@ -53,6 +58,7 @@ class _TableSection extends SingleChildRenderObjectWidget {
   @override
   RenderObject createRenderObject(BuildContext context) => RenderTableSection(
         verticalOffset: verticalOffset,
+        verticalOffsetPixels: verticalOffsetPixels,
         rowHeight: rowHeight,
         layoutData: layoutData,
         placeholderShade: placeholderShade,
@@ -65,6 +71,7 @@ class _TableSection extends SingleChildRenderObjectWidget {
     super.updateRenderObject(context, renderObject);
 
     renderObject.verticalOffset = verticalOffset;
+    renderObject.verticalOffsetPixels = verticalOffsetPixels;
     renderObject.rowHeight = rowHeight;
     renderObject.layoutData = layoutData;
     renderObject.placeholderShade = placeholderShade;
@@ -78,6 +85,7 @@ class _TableSection extends SingleChildRenderObjectWidget {
 class RenderTableSection extends RenderProxyBox {
   RenderTableSection({
     required ViewportOffset? verticalOffset,
+    required double? verticalOffsetPixels,
     required double? rowHeight,
     required TableContentLayoutData layoutData,
     required TablePlaceholderShade? placeholderShade,
@@ -92,6 +100,7 @@ class RenderTableSection extends RenderProxyBox {
   }
 
   ViewportOffset? _verticalOffset;
+  double? _verticalOffsetPixels;
   double? _rowHeight;
   TableContentLayoutData _layoutData;
   TablePlaceholderShade? _placeholderShade;
@@ -103,13 +112,20 @@ class RenderTableSection extends RenderProxyBox {
 
   Path? get scrolledSectionClipPath => _scrolledClipPath;
 
-  double get _verticalOffsetPixels {
+  double get verticalOffsetPixels {
     final verticalOffset = _verticalOffset;
-    if (verticalOffset != null && verticalOffset.hasPixels) {
-      return verticalOffset.pixels;
+    if (verticalOffset == null) {
+      return _verticalOffsetPixels ?? .0;
     } else {
-      return .0;
+      return verticalOffset.hasPixels ? verticalOffset.pixels : .0;
     }
+  }
+
+  set verticalOffsetPixels(double? verticalOffsetPixels) {
+    if (_verticalOffsetPixels == verticalOffsetPixels) return;
+
+    _verticalOffsetPixels = verticalOffsetPixels;
+    _verticalOffsetChanged();
   }
 
   set verticalOffset(ViewportOffset? verticalOffset) {
@@ -185,7 +201,7 @@ class RenderTableSection extends RenderProxyBox {
         leftDividerPath = _leftDividerPath = Path(),
         rightDividerPath = _rightDividerPath = Path();
 
-    final verticalOffsetPixels = _verticalOffsetPixels;
+    final verticalOffsetPixels = this.verticalOffsetPixels;
     final layoutData = _layoutData;
 
     {
@@ -300,7 +316,7 @@ class RenderTableSection extends RenderProxyBox {
         leftDividerPath = _leftDividerPath,
         rightDividerPath = _rightDividerPath;
 
-    final verticalOffsetPixels = _verticalOffsetPixels;
+    final verticalOffsetPixels = this.verticalOffsetPixels;
 
     final TablePaintingContext innerContext;
     {

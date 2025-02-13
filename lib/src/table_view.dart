@@ -404,6 +404,7 @@ class _TableViewState extends State<TableView>
                           height: widget.headerHeight,
                           child: TableSection(
                             verticalOffset: null,
+                            verticalOffsetPixels: .0,
                             rowHeight: widget.headerHeight,
                             placeholderShade: null,
                             child: headerBuilder(
@@ -424,6 +425,7 @@ class _TableViewState extends State<TableView>
                           height: widget.footerHeight,
                           child: TableSection(
                             verticalOffset: null,
+                            verticalOffsetPixels: .0,
                             rowHeight: widget.footerHeight,
                             placeholderShade: null,
                             child: footerBuilder(

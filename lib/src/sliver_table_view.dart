@@ -172,6 +172,7 @@ class _SliverTableViewState extends State<SliverTableView>
                             height: widget.headerHeight,
                             child: TableSection(
                               verticalOffset: null,
+                              verticalOffsetPixels: .0,
                               rowHeight: widget.headerHeight,
                               placeholderShade: null,
                               child: widget.headerBuilder!(
@@ -188,8 +189,9 @@ class _SliverTableViewState extends State<SliverTableView>
                             ClipRect(
                               child: TableSection(
                                 rowHeight: widget.rowHeight,
-                                verticalOffset: ViewportOffset.fixed(
-                                    verticalScrollOffsetPixels),
+                                verticalOffset: null,
+                                verticalOffsetPixels:
+                                    verticalScrollOffsetPixels,
                                 placeholderShade: widget.placeholderShade,
                                 child: OptionalWrap(
                                   builder: widget.rowReorder == null
@@ -232,6 +234,7 @@ class _SliverTableViewState extends State<SliverTableView>
                             height: widget.footerHeight,
                             child: TableSection(
                               verticalOffset: null,
+                              verticalOffsetPixels: .0,
                               rowHeight: widget.footerHeight,
                               placeholderShade: null,
                               child: widget.footerBuilder!(
