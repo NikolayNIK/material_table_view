@@ -3,10 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:material_table_view/src/render_table_section.dart';
 import 'package:material_table_view/src/table_layout.dart';
 import 'package:material_table_view/src/table_layout_data.dart';
 import 'package:material_table_view/src/table_painting_context.dart';
-import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 
 /// The function that builds a row using a cell builder passed to it.
@@ -284,10 +284,10 @@ class _RenderTableViewRow extends RenderBox
     }
   }
 
-  RenderTableSection? get _nearestTableSectionAncestor {
+  RenderTableSectionMixin? get _nearestTableSectionAncestor {
     var node = parent;
     while (node != null) {
-      if (node is RenderTableSection) {
+      if (node is RenderTableSectionMixin) {
         return node;
       }
 

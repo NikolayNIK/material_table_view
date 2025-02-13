@@ -340,7 +340,7 @@ class _TableViewState extends State<TableView>
                             clipBehavior: Clip.none,
                             axisDirection: AxisDirection.down,
                             viewportBuilder: (context, verticalOffset) =>
-                                TableSection(
+                                TableSection.box(
                               verticalOffset: verticalOffset,
                               rowHeight: widget.rowHeight,
                               placeholderShade: widget.placeholderShade,
@@ -402,7 +402,7 @@ class _TableViewState extends State<TableView>
                         SizedBox(
                           width: double.infinity,
                           height: widget.headerHeight,
-                          child: TableSection(
+                          child: TableSection.box(
                             verticalOffset: null,
                             verticalOffsetPixels: .0,
                             rowHeight: widget.headerHeight,
@@ -423,7 +423,7 @@ class _TableViewState extends State<TableView>
                         SizedBox(
                           width: double.infinity,
                           height: widget.footerHeight,
-                          child: TableSection(
+                          child: TableSection.box(
                             verticalOffset: null,
                             verticalOffsetPixels: .0,
                             rowHeight: widget.footerHeight,

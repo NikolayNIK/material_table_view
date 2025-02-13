@@ -170,7 +170,7 @@ class _SliverTableViewState extends State<SliverTableView>
                         if (widget.headerBuilder != null) ...[
                           SizedBox(
                             height: widget.headerHeight,
-                            child: TableSection(
+                            child: TableSection.box(
                               verticalOffset: null,
                               verticalOffsetPixels: .0,
                               rowHeight: widget.headerHeight,
@@ -187,7 +187,7 @@ class _SliverTableViewState extends State<SliverTableView>
                           child: widget.bodyContainerBuilder(
                             context,
                             ClipRect(
-                              child: TableSection(
+                              child: TableSection.box(
                                 rowHeight: widget.rowHeight,
                                 verticalOffset: null,
                                 verticalOffsetPixels:
@@ -232,7 +232,7 @@ class _SliverTableViewState extends State<SliverTableView>
                           ),
                           SizedBox(
                             height: widget.footerHeight,
-                            child: TableSection(
+                            child: TableSection.box(
                               verticalOffset: null,
                               verticalOffsetPixels: .0,
                               rowHeight: widget.footerHeight,
