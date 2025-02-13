@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:material_table_view/src/optional_wrap.dart';
-import 'package:material_table_view/src/scroll_dimensions_applicator.dart';
+import 'package:material_table_view/src/table_column_scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/sliver_table_body.dart';
 import 'package:material_table_view/src/table_column.dart';
 import 'package:material_table_view/src/table_column_controls_controllable.dart';
@@ -299,12 +299,10 @@ class _TableViewState extends State<TableView>
         final columns = _columns = widget.columns
             .resolveLayout(constraints.maxWidth - scrollPadding.horizontal);
 
-        return ScrollDimensionsApplicator(
+        return TableColumnScrollDimensionsApplicator.box(
           position: _controller.horizontalScrollController.position,
-          axis: Axis.horizontal,
-          scrollExtent: columns.fold<double>(.0,
-                  (previousValue, element) => previousValue + element.width) +
-              scrollPadding.horizontal,
+          columns: columns,
+          scrollPadding: scrollPadding,
           child: LayoutBuilder(
             builder: (context, constraints) => TableContentLayout(
               verticalDividersStyle: style.dividers.vertical,
