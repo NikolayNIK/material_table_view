@@ -486,7 +486,7 @@ class TableContentLayoutState extends State<TableContentLayout>
         widths:
             columnsCenter.map((e) => columns[e].width).toList(growable: false),
         keys: columnsCenter
-            .map((e) => columns[e].key ?? ValueKey(e))
+            .map((e) => columns[e].key ?? _DefaultTableColumnKey(e))
             .toList(growable: false),
       ),
       fixedColumns: TableContentColumnData(
@@ -495,7 +495,7 @@ class TableContentLayoutState extends State<TableContentLayout>
         widths:
             columnsFixed.map((e) => columns[e].width).toList(growable: false),
         keys: columnsFixed
-            .map((e) => columns[e].key ?? ValueKey(e))
+            .map((e) => columns[e].key ?? _DefaultTableColumnKey(e))
             .toList(growable: false),
       ),
       leftDivider: leftDivider,
@@ -534,4 +534,21 @@ class _InheritedTableContentLayout extends InheritedWidget {
   @override
   bool updateShouldNotify(covariant _InheritedTableContentLayout oldWidget) =>
       oldWidget.data != data;
+}
+
+class _DefaultTableColumnKey extends LocalKey {
+  const _DefaultTableColumnKey(this.index);
+
+  final int index;
+
+  @override
+  bool operator ==(Object other) =>
+      other.runtimeType == runtimeType &&
+          (other as _DefaultTableColumnKey).index == index;
+
+  @override
+  int get hashCode => index;
+
+  @override
+  String toString() => '[_DefaultTableColumnKey<$index>]';
 }
