@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -65,8 +66,7 @@ class _TableViewRowElement extends RenderObjectElement {
 
   static const _TableCellSlot _slot = null;
 
-  late List<Element> fixedChildren = List.empty();
-  late List<Element> scrolledChildren = List.empty();
+  final children = <Key, Element>{};
 
   bool _debugDoingBuild = false;
 
@@ -82,8 +82,7 @@ class _TableViewRowElement extends RenderObjectElement {
 
   @override
   void visitChildren(ElementVisitor visitor) {
-    fixedChildren.forEach(visitor);
-    scrolledChildren.forEach(visitor);
+    children.values.forEach(visitor);
   }
 
   @override
@@ -103,10 +102,20 @@ class _TableViewRowElement extends RenderObjectElement {
   }
 
   @override
+  // ignore: must_call_super
   void didChangeDependencies() {
-    super.didChangeDependencies();
+    final data = TableContentLayout.of(this);
 
-    _updateRenderObject(TableContentLayout.of(this));
+    _updateRenderObject(data);
+
+    _reconfigureChildren(data);
+  }
+
+  @override
+  void forgetChild(Element child) {
+    super.forgetChild(child);
+
+    children.removeWhere((key, value) => identical(value, child));
   }
 
   @override
@@ -159,242 +168,120 @@ class _TableViewRowElement extends RenderObjectElement {
   }
 
   void _updateChildren(TableContentLayoutData data) {
-    // TODO
-    //  Find a way to somehow avoid running this algorithm for each visible row,
-    //  since all of them should have the same result.
+    final leftoverChildren = Map.of(children);
 
-    final scrolledOldChildren = scrolledChildren;
-    final scrolledNewWidgets =
-        _buildChildWidgetList(data.scrollableColumns, true);
-    final scrolledNewChildren =
-        List<Element?>.filled(scrolledNewWidgets.length, null);
-    int scrolledNewChildrenTop = 0;
-    int scrolledOldChildrenTop = 0;
-    int scrolledNewChildrenBottom = scrolledNewWidgets.length - 1;
-    int scrolledOldChildrenBottom = scrolledOldChildren.length - 1;
+    _updateCells(data.fixedColumns, leftoverChildren, false);
+    _updateCells(data.scrollableColumns, leftoverChildren, true);
 
-    final fixedOldChildren = fixedChildren;
-    final fixedNewWidgets = _buildChildWidgetList(data.fixedColumns, false);
-    final fixedNewChildren =
-        List<Element?>.filled(fixedNewWidgets.length, null);
-    int fixedNewChildrenTop = 0;
-    int fixedOldChildrenTop = 0;
-    int fixedNewChildrenBottom = fixedNewWidgets.length - 1;
-    int fixedOldChildrenBottom = fixedOldChildren.length - 1;
-
-    // Update the top of the list.
-    while ((fixedOldChildrenTop <= fixedOldChildrenBottom) &&
-        (fixedNewChildrenTop <= fixedNewChildrenBottom)) {
-      final Element oldChild = fixedOldChildren[fixedOldChildrenTop];
-      final Widget newWidget = fixedNewWidgets[fixedNewChildrenTop];
-      if (!Widget.canUpdate(oldChild.widget, newWidget)) {
-        break;
-      }
-
-      final Element newChild = updateChild(oldChild, newWidget, _slot)!;
-      fixedNewChildren[fixedNewChildrenTop] = newChild;
-      fixedNewChildrenTop += 1;
-      fixedOldChildrenTop += 1;
-    }
-
-    while ((scrolledOldChildrenTop <= scrolledOldChildrenBottom) &&
-        (scrolledNewChildrenTop <= scrolledNewChildrenBottom)) {
-      final Element oldChild = scrolledOldChildren[scrolledOldChildrenTop];
-      final Widget newWidget = scrolledNewWidgets[scrolledNewChildrenTop];
-      if (!Widget.canUpdate(oldChild.widget, newWidget)) {
-        break;
-      }
-
-      final Element newChild = updateChild(oldChild, newWidget, _slot)!;
-      scrolledNewChildren[scrolledNewChildrenTop] = newChild;
-      scrolledNewChildrenTop += 1;
-      scrolledOldChildrenTop += 1;
-    }
-
-    // Scan the bottom of the list.
-    while ((fixedOldChildrenTop <= fixedOldChildrenBottom) &&
-        (fixedNewChildrenTop <= fixedNewChildrenBottom)) {
-      final Element oldChild = fixedOldChildren[fixedOldChildrenBottom];
-      final Widget newWidget = fixedNewWidgets[fixedNewChildrenBottom];
-      if (!Widget.canUpdate(oldChild.widget, newWidget)) {
-        break;
-      }
-
-      fixedOldChildrenBottom -= 1;
-      fixedNewChildrenBottom -= 1;
-    }
-
-    while ((scrolledOldChildrenTop <= scrolledOldChildrenBottom) &&
-        (scrolledNewChildrenTop <= scrolledNewChildrenBottom)) {
-      final Element oldChild = scrolledOldChildren[scrolledOldChildrenBottom];
-      final Widget newWidget = scrolledNewWidgets[scrolledNewChildrenBottom];
-      if (!Widget.canUpdate(oldChild.widget, newWidget)) {
-        break;
-      }
-
-      scrolledOldChildrenBottom -= 1;
-      scrolledNewChildrenBottom -= 1;
-    }
-
-    // Scan the old children in the middle of the list.
-    Map<Key, Element>? oldKeyedChildren;
-
-    if (fixedOldChildrenTop <= fixedOldChildrenBottom) {
-      oldKeyedChildren = <Key, Element>{};
-      while (fixedOldChildrenTop <= fixedOldChildrenBottom) {
-        final Element oldChild = fixedOldChildren[fixedOldChildrenTop];
-        if (oldChild.widget.key != null) {
-          oldKeyedChildren[oldChild.widget.key!] = oldChild;
-        } else {
-          deactivateChild(oldChild);
-        }
-
-        fixedOldChildrenTop += 1;
-      }
-    }
-
-    if (scrolledOldChildrenTop <= scrolledOldChildrenBottom) {
-      oldKeyedChildren ??= <Key, Element>{};
-      while (scrolledOldChildrenTop <= scrolledOldChildrenBottom) {
-        final Element oldChild = scrolledOldChildren[scrolledOldChildrenTop];
-        if (oldChild.widget.key != null) {
-          oldKeyedChildren[oldChild.widget.key!] = oldChild;
-        } else {
-          deactivateChild(oldChild);
-        }
-
-        scrolledOldChildrenTop += 1;
-      }
-    }
-
-    // Update the middle of the list.
-    while (fixedNewChildrenTop <= fixedNewChildrenBottom) {
-      Element? oldChild;
-      final Widget newWidget = fixedNewWidgets[fixedNewChildrenTop];
-      if (oldKeyedChildren != null) {
-        final Key? key = newWidget.key;
-        if (key != null) {
-          oldChild = oldKeyedChildren[key];
-          if (oldChild != null) {
-            if (Widget.canUpdate(oldChild.widget, newWidget)) {
-              // we found a match!
-              // remove it from oldKeyedChildren so we don't unsync it later
-              oldKeyedChildren.remove(key);
-            } else {
-              // Not a match, let's pretend we didn't see it for now.
-              oldChild = null;
-            }
-          }
-        }
-      }
-
-      final Element newChild = updateChild(oldChild, newWidget, _slot)!;
-      fixedNewChildren[fixedNewChildrenTop] = newChild;
-      fixedNewChildrenTop += 1;
-    }
-
-    while (scrolledNewChildrenTop <= scrolledNewChildrenBottom) {
-      Element? oldChild;
-      final Widget newWidget = scrolledNewWidgets[scrolledNewChildrenTop];
-      if (oldKeyedChildren != null) {
-        final Key? key = newWidget.key;
-        if (key != null) {
-          oldChild = oldKeyedChildren[key];
-          if (oldChild != null) {
-            if (Widget.canUpdate(oldChild.widget, newWidget)) {
-              // we found a match!
-              // remove it from oldKeyedChildren so we don't unsync it later
-              oldKeyedChildren.remove(key);
-            } else {
-              // Not a match, let's pretend we didn't see it for now.
-              oldChild = null;
-            }
-          }
-        }
-      }
-
-      final Element newChild = updateChild(oldChild, newWidget, _slot)!;
-      scrolledNewChildren[scrolledNewChildrenTop] = newChild;
-      scrolledNewChildrenTop += 1;
-    }
-
-    // We've scanned the whole list.
-    assert(fixedOldChildrenTop == fixedOldChildrenBottom + 1);
-    assert(fixedNewChildrenTop == fixedNewChildrenBottom + 1);
-    assert(fixedNewWidgets.length - fixedNewChildrenTop ==
-        fixedOldChildren.length - fixedOldChildrenTop);
-    fixedNewChildrenBottom = fixedNewWidgets.length - 1;
-    fixedOldChildrenBottom = fixedOldChildren.length - 1;
-
-    assert(scrolledOldChildrenTop == scrolledOldChildrenBottom + 1);
-    assert(scrolledNewChildrenTop == scrolledNewChildrenBottom + 1);
-    assert(scrolledNewWidgets.length - scrolledNewChildrenTop ==
-        scrolledOldChildren.length - scrolledOldChildrenTop);
-    scrolledNewChildrenBottom = scrolledNewWidgets.length - 1;
-    scrolledOldChildrenBottom = scrolledOldChildren.length - 1;
-
-    // Update the bottom of the list.
-    while ((fixedOldChildrenTop <= fixedOldChildrenBottom) &&
-        (fixedNewChildrenTop <= fixedNewChildrenBottom)) {
-      final Element oldChild = fixedOldChildren[fixedOldChildrenTop];
-      final Widget newWidget = fixedNewWidgets[fixedNewChildrenTop];
-      assert(Widget.canUpdate(oldChild.widget, newWidget));
-
-      final Element newChild = updateChild(oldChild, newWidget, _slot)!;
-      fixedNewChildren[fixedNewChildrenTop] = newChild;
-      fixedNewChildrenTop += 1;
-      fixedOldChildrenTop += 1;
-    }
-
-    while ((scrolledOldChildrenTop <= scrolledOldChildrenBottom) &&
-        (scrolledNewChildrenTop <= scrolledNewChildrenBottom)) {
-      final Element oldChild = scrolledOldChildren[scrolledOldChildrenTop];
-      final Widget newWidget = scrolledNewWidgets[scrolledNewChildrenTop];
-      assert(Widget.canUpdate(oldChild.widget, newWidget));
-
-      final Element newChild = updateChild(oldChild, newWidget, _slot)!;
-      scrolledNewChildren[scrolledNewChildrenTop] = newChild;
-      scrolledNewChildrenTop += 1;
-      scrolledOldChildrenTop += 1;
-    }
-
-    // Clean up any of the remaining middle nodes from the old list.
-    if (oldKeyedChildren != null && oldKeyedChildren.isNotEmpty) {
-      for (final Element oldChild in oldKeyedChildren.values) {
-        deactivateChild(oldChild);
-      }
-    }
-
-    scrolledChildren = scrolledNewChildren.cast();
-    fixedChildren = fixedNewChildren.cast();
+    leftoverChildren.values.forEach(deactivateChild);
+    leftoverChildren.keys.forEach(children.remove);
   }
 
-  List<Widget> _buildChildWidgetList(
+  void _updateCells(
     TableContentColumnData data,
+    Map<Key, Element> leftoverChildren,
     bool scrolled,
-  ) =>
-      List.generate(
-        growable: false,
-        data.indices.length,
-        (index) {
-          final columnIndex = data.indices[index];
-          final columnKey = data.keys[index];
-          return _TableViewCell(
-            key: columnKey,
-            width: data.widths[index],
-            position: data.positions[index],
-            scrolled: scrolled,
-            child: Builder(
+  ) {
+    final length = data.indices.length;
+    for (var index = 0; index < length; index++) {
+      _updateCell(data, index, scrolled);
+      leftoverChildren.remove(data.keys[index]);
+    }
+  }
+
+  void _updateCell(
+    TableContentColumnData data,
+    int index,
+    bool scrolled,
+  ) {
+    final columnKey = data.keys[index];
+
+    final newChildWidget = _buildCellWidget(data, index, scrolled);
+
+    final oldChild = children[columnKey];
+    final newChild = updateChild(oldChild, newChildWidget, _slot);
+    if (newChild == null) {
+      children.remove(columnKey);
+    } else {
+      children[columnKey] = newChild;
+    }
+  }
+
+  Widget _buildCellWidget(
+    TableContentColumnData data,
+    int index,
+    bool scrolled, [
+    Widget? child,
+  ]) =>
+      _TableViewCell(
+        key: data.keys[index],
+        width: data.widths[index],
+        position: data.positions[index],
+        scrolled: scrolled,
+        child: child ??
+            Builder(
               builder: (context) {
                 // TODO
                 //  Consider removing this Builder along with
                 //  the context parameter from the public API.
-                return widget.cellBuilder(context, columnIndex);
+                return widget.cellBuilder(context, data.indices[index]);
               },
             ),
-          );
-        },
       );
+
+  void _reconfigureChildren(TableContentLayoutData data) {
+    final leftoverChildren = Map.of(children);
+
+    _reconfigureCells(data.fixedColumns, leftoverChildren, false);
+    _reconfigureCells(data.scrollableColumns, leftoverChildren, true);
+
+    leftoverChildren.values.forEach(deactivateChild);
+    leftoverChildren.keys.forEach(children.remove);
+  }
+
+  void _reconfigureCells(
+    TableContentColumnData data,
+    Map<Key, Element> leftoverChildren,
+    bool scrolled,
+  ) {
+    final length = data.indices.length;
+    for (var index = 0; index < length; index++) {
+      _reconfigureCell(data, index, scrolled);
+      leftoverChildren.remove(data.keys[index]);
+    }
+  }
+
+  void _reconfigureCell(
+    TableContentColumnData data,
+    int index,
+    bool scrolled,
+  ) {
+    final columnKey = data.keys[index];
+    final oldChild = children[columnKey];
+    final newChildWidget = _buildCellWidget(
+      data,
+      index,
+      scrolled,
+      oldChild == null ? null : (oldChild.widget as _TableViewCell).child,
+    );
+
+    if (kDebugMode) {
+      // This avoids triggering an assertion in debug mode.
+      // It is caused by a manual widget update we do without rebuild
+      // in [didChangeDependencies].
+      // Release builds **should** handle this situation gracefully.
+      if (oldChild != null && !oldChild.debugIsActive) {
+        return;
+      }
+    }
+
+    final newChild = updateChild(oldChild, newChildWidget, _slot);
+    if (newChild == null) {
+      children.remove(columnKey);
+    } else {
+      children[columnKey] = newChild;
+    }
+  }
 }
 
 class _RenderTableViewRow extends RenderBox
