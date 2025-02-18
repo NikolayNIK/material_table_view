@@ -175,6 +175,7 @@ class _TableViewRowElement extends RenderObjectElement {
     renderObject.usePlaceholderLayers = widget.usePlaceholderLayers;
     renderObject.fixedRowHeight =
         widget.fixedRowHeightOverride ?? data.fixedRowHeight;
+    renderObject.foregroundColumnKey = data.foregroundColumnKey;
   }
 
   void _updateChildren(TableContentLayoutData data) {
@@ -247,6 +248,8 @@ class _RenderTableViewRow extends RenderBox {
 
   bool _fixedRowHeight;
 
+  Key? _foregroundColumnKey;
+
   /// Cut off compositing requirement here to let the children use compositing.
   ///
   /// Operations which may need to know the actual need for compositing
@@ -266,6 +269,13 @@ class _RenderTableViewRow extends RenderBox {
     if (_fixedRowHeight != fixedRowHeight) {
       _fixedRowHeight = fixedRowHeight;
       markNeedsLayoutForSizedByParentChange();
+    }
+  }
+
+  set foregroundColumnKey(Key? foregroundColumnKey) {
+    if (_foregroundColumnKey != foregroundColumnKey) {
+      _foregroundColumnKey = foregroundColumnKey;
+      markNeedsPaint();
     }
   }
 
@@ -424,24 +434,36 @@ class _RenderTableViewRow extends RenderBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
+    final foregroundChild = children[_foregroundColumnKey];
+
     if (context is TablePaintingContext) {
       final pair =
           _usePlaceholderLayers ? context.placeholder : context.regular;
 
       for (final child in children.values) {
+        if (identical(foregroundChild, child)) continue;
+
         final parentData = child.parentData as _TableViewCellParentData;
-        (parentData.scrollable ? pair.scrolled : pair.fixed).paintChild(
-          child,
-          Offset(offset.dx + parentData.position, offset.dy),
-        );
+        (parentData.scrollable ? pair.scrolled : pair.fixed)
+            .paintChild(child, offset + parentData.offset);
+      }
+
+      if (foregroundChild != null) {
+        final parentData = foregroundChild.parentData as _TableViewCellParentData;
+        (parentData.scrollable ? pair.scrolled : pair.fixed)
+            .paintChild(foregroundChild, offset + parentData.offset);
       }
     } else {
       for (final child in children.values) {
+        if (identical(foregroundChild, child)) continue;
+
         final parentData = child.parentData as _TableViewCellParentData;
-        context.paintChild(
-          child,
-          Offset(offset.dx + parentData.position, offset.dy),
-        );
+        context.paintChild(child, offset + parentData.offset);
+      }
+
+      if (foregroundChild != null) {
+        final parentData = foregroundChild.parentData as _TableViewCellParentData;
+        context.paintChild(foregroundChild, offset + parentData.offset);
       }
     }
   }

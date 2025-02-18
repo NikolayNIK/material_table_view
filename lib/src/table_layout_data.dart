@@ -48,6 +48,7 @@ class TableContentColumnData {
 @immutable
 class TableContentLayoutData {
   final TableContentColumnData scrollableColumns, fixedColumns;
+  final Key? foregroundColumnKey;
 
   final TableContentDividerData leftDivider, rightDivider;
   final double leftWidth, centerWidth, rightWidth;
@@ -57,6 +58,7 @@ class TableContentLayoutData {
   const TableContentLayoutData({
     required this.scrollableColumns,
     required this.fixedColumns,
+    required this.foregroundColumnKey,
     required this.leftDivider,
     required this.rightDivider,
     required this.leftWidth,

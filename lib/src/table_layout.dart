@@ -60,6 +60,8 @@ class TableContentLayoutState extends State<TableContentLayout>
   double _maxStickyHorizontalOffset = .0;
   int freezePriority = 0;
 
+  Key? foregroundColumnKey;
+
   TableContentLayoutData get lastLayoutData => _lastLayoutData.value!;
 
   @override
@@ -498,6 +500,7 @@ class TableContentLayoutState extends State<TableContentLayout>
             .map((e) => columns[e].key ?? _DefaultTableColumnKey(e))
             .toList(growable: false),
       ),
+      foregroundColumnKey: foregroundColumnKey,
       leftDivider: leftDivider,
       rightDivider: rightDivider,
       fixedRowHeight: widget.fixedRowHeight,

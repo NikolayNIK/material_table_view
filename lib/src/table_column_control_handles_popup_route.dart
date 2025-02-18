@@ -504,6 +504,8 @@ class _WidgetState extends State<_Widget>
       });
       return true;
     }());
+
+    route._tableContentLayoutState.foregroundColumnKey = route._targetColumnKey;
   }
 
   @override
