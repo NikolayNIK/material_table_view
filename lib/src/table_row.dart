@@ -76,7 +76,7 @@ class _TableCellSlot {
 class _TableViewRowElement extends RenderObjectElement {
   _TableViewRowElement(TableViewRow super.widget);
 
-  final children = <Key, Element>{};
+  final children = <Key, _TableViewCellElement>{};
 
   bool _debugDoingBuild = false;
 
@@ -118,7 +118,7 @@ class _TableViewRowElement extends RenderObjectElement {
 
     _updateRenderObject(data);
 
-    _updateChildren(data);
+    _updateChildren(data, false);
   }
 
   @override
@@ -161,7 +161,7 @@ class _TableViewRowElement extends RenderObjectElement {
 
     _updateRenderObject(data);
 
-    _updateChildren(data);
+    _updateChildren(data, true);
 
     super.performRebuild();
 
@@ -178,11 +178,11 @@ class _TableViewRowElement extends RenderObjectElement {
     renderObject.foregroundColumnKey = data.foregroundColumnKey;
   }
 
-  void _updateChildren(TableContentLayoutData data) {
+  void _updateChildren(TableContentLayoutData data, bool forceRebuild) {
     final leftoverChildren = Map.of(children);
 
-    _updateCells(data.fixedColumns, leftoverChildren, false);
-    _updateCells(data.scrollableColumns, leftoverChildren, true);
+    _updateCells(data.fixedColumns, leftoverChildren, false, forceRebuild);
+    _updateCells(data.scrollableColumns, leftoverChildren, true, forceRebuild);
 
     leftoverChildren.values.forEach(deactivateChild);
     leftoverChildren.keys.forEach(children.remove);
@@ -192,10 +192,11 @@ class _TableViewRowElement extends RenderObjectElement {
     TableContentColumnData data,
     Map<Key, Element> leftoverChildren,
     bool scrolled,
+    bool forceRebuild,
   ) {
     final length = data.indices.length;
     for (var index = 0; index < length; index++) {
-      _updateCell(data, index, scrolled);
+      _updateCell(data, index, scrolled, forceRebuild);
       leftoverChildren.remove(data.keys[index]);
     }
   }
@@ -204,6 +205,7 @@ class _TableViewRowElement extends RenderObjectElement {
     TableContentColumnData data,
     int index,
     bool scrolled,
+    bool forceRebuild,
   ) {
     final columnKey = data.keys[index];
 
@@ -220,17 +222,24 @@ class _TableViewRowElement extends RenderObjectElement {
         scrolled: scrolled,
         position: data.positions[index],
       ),
+      forceRebuild,
     );
   }
 
-  void _updateChild(Key columnKey, Widget newWidget, _TableCellSlot newSlot) {
+  void _updateChild(
+    Key columnKey,
+    _TableViewCell newWidget,
+    _TableCellSlot newSlot,
+    bool forceRebuild,
+  ) {
     final child = children[columnKey];
 
     if (child == null) {
-      children[columnKey] = inflateWidget(newWidget, newSlot);
+      children[columnKey] =
+          inflateWidget(newWidget, newSlot) as _TableViewCellElement;
     } else {
       updateSlotForChild(child, newSlot);
-      child.update(newWidget);
+      child._update(newWidget, forceRebuild);
 
       assert(child.widget == newWidget);
     }
@@ -556,13 +565,12 @@ class _TableViewCell extends Widget {
 class _TableViewCellElement extends ComponentElement {
   _TableViewCellElement(super.widget);
 
-  @override
-  void update(_TableViewCell newWidget) {
-    final needsRebuild = newWidget.index != (widget as _TableViewCell).index;
+  void _update(_TableViewCell newWidget, bool forceRebuild) {
+    forceRebuild |= newWidget.index != (widget as _TableViewCell).index;
 
-    super.update(newWidget);
+    update(newWidget);
 
-    if (needsRebuild) rebuild(force: true);
+    if (forceRebuild) rebuild(force: true);
   }
 
   @override
