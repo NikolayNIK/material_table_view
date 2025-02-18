@@ -118,7 +118,7 @@ class _TableViewRowElement extends RenderObjectElement {
 
     _updateRenderObject(data);
 
-    _updateChildren(data, false);
+    _updateChildren(data);
   }
 
   @override
@@ -161,7 +161,7 @@ class _TableViewRowElement extends RenderObjectElement {
 
     _updateRenderObject(data);
 
-    _updateChildren(data, true);
+    _updateChildren(data);
 
     super.performRebuild();
 
@@ -178,11 +178,11 @@ class _TableViewRowElement extends RenderObjectElement {
     renderObject.foregroundColumnKey = data.foregroundColumnKey;
   }
 
-  void _updateChildren(TableContentLayoutData data, bool forceRebuild) {
+  void _updateChildren(TableContentLayoutData data) {
     final leftoverChildren = Map.of(children);
 
-    _updateCells(data.fixedColumns, leftoverChildren, false, forceRebuild);
-    _updateCells(data.scrollableColumns, leftoverChildren, true, forceRebuild);
+    _updateCells(data.fixedColumns, leftoverChildren, false);
+    _updateCells(data.scrollableColumns, leftoverChildren, true);
 
     leftoverChildren.values.forEach(deactivateChild);
     leftoverChildren.keys.forEach(children.remove);
@@ -192,56 +192,36 @@ class _TableViewRowElement extends RenderObjectElement {
     TableContentColumnData data,
     Map<Key, Element> leftoverChildren,
     bool scrolled,
-    bool forceRebuild,
   ) {
     final length = data.indices.length;
     for (var index = 0; index < length; index++) {
-      _updateCell(data, index, scrolled, forceRebuild);
-      leftoverChildren.remove(data.keys[index]);
-    }
-  }
+      final columnKey = data.keys[index];
 
-  void _updateCell(
-    TableContentColumnData data,
-    int index,
-    bool scrolled,
-    bool forceRebuild,
-  ) {
-    final columnKey = data.keys[index];
-
-    _updateChild(
-      columnKey,
-      _TableViewCell(
-        key: columnKey,
-        cellBuilder: widget.cellBuilder,
-        index: data.indices[index],
-      ),
-      _TableCellSlot(
+      final newSlot = _TableCellSlot(
         key: columnKey,
         width: data.widths[index],
         scrolled: scrolled,
         position: data.positions[index],
-      ),
-      forceRebuild,
-    );
-  }
+      );
 
-  void _updateChild(
-    Key columnKey,
-    _TableViewCell newWidget,
-    _TableCellSlot newSlot,
-    bool forceRebuild,
-  ) {
-    final child = children[columnKey];
+      final child = children[columnKey];
 
-    if (child == null) {
-      children[columnKey] =
-          inflateWidget(newWidget, newSlot) as _TableViewCellElement;
-    } else {
-      updateSlotForChild(child, newSlot);
-      child._update(newWidget, forceRebuild);
+      final newWidget = _TableViewCell(
+        key: columnKey,
+        cellBuilder: widget.cellBuilder,
+        index: data.indices[index],
+      );
 
-      assert(child.widget == newWidget);
+      if (child == null) {
+        children[columnKey] =
+            inflateWidget(newWidget, newSlot) as _TableViewCellElement;
+      } else {
+        updateSlotForChild(child, newSlot);
+        child.update(newWidget);
+        assert(child.widget == newWidget);
+      }
+
+      leftoverChildren.remove(columnKey);
     }
   }
 }
@@ -567,12 +547,16 @@ class _TableViewCell extends Widget {
 class _TableViewCellElement extends ComponentElement {
   _TableViewCellElement(super.widget);
 
-  void _update(_TableViewCell newWidget, bool forceRebuild) {
-    forceRebuild |= newWidget.index != (widget as _TableViewCell).index;
+  @override
+  void update(covariant _TableViewCell newWidget) {
+    final oldWidget = widget as _TableViewCell;
 
-    update(newWidget);
+    super.update(newWidget);
 
-    if (forceRebuild) rebuild(force: true);
+    if (!identical(oldWidget.cellBuilder, newWidget.cellBuilder) ||
+        oldWidget.index != newWidget.index) {
+      rebuild(force: true);
+    }
   }
 
   @override
