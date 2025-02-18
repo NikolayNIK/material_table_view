@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -59,12 +58,23 @@ class TableViewRow extends RenderObjectWidget {
       _RenderTableViewRow();
 }
 
-typedef _TableCellSlot = Object?;
+class _TableCellSlot {
+  final Key key;
+
+  final double width;
+  final bool scrolled;
+  final double position;
+
+  const _TableCellSlot({
+    required this.key,
+    required this.width,
+    required this.scrolled,
+    required this.position,
+  });
+}
 
 class _TableViewRowElement extends RenderObjectElement {
   _TableViewRowElement(TableViewRow super.widget);
-
-  static const _TableCellSlot _slot = null;
 
   final children = <Key, Element>{};
 
@@ -86,7 +96,7 @@ class _TableViewRowElement extends RenderObjectElement {
   }
 
   @override
-  void mount(Element? parent, _TableCellSlot newSlot) {
+  void mount(Element? parent, Object? newSlot) {
     super.mount(parent, newSlot);
 
     markNeedsBuild();
@@ -108,7 +118,7 @@ class _TableViewRowElement extends RenderObjectElement {
 
     _updateRenderObject(data);
 
-    _reconfigureChildren(data);
+    _updateChildren(data);
   }
 
   @override
@@ -119,25 +129,25 @@ class _TableViewRowElement extends RenderObjectElement {
   }
 
   @override
-  void insertRenderObjectChild(RenderBox child, _TableCellSlot? slot) {
-    renderObject.insert(child);
+  void insertRenderObjectChild(RenderBox child, _TableCellSlot slot) {
+    renderObject.insert(child, slot);
   }
 
   @override
   void moveRenderObjectChild(
     RenderBox child,
-    covariant _TableCellSlot oldSlot,
-    covariant _TableCellSlot newSlot,
+    _TableCellSlot oldSlot,
+    _TableCellSlot newSlot,
   ) {
-    // do we even care?
+    renderObject.move(child, oldSlot, newSlot);
   }
 
   @override
   void removeRenderObjectChild(
-    covariant RenderBox child,
-    covariant _TableCellSlot slot,
+    RenderBox child,
+    _TableCellSlot slot,
   ) {
-    renderObject.remove(child);
+    renderObject.remove(child, slot);
   }
 
   @override
@@ -196,86 +206,21 @@ class _TableViewRowElement extends RenderObjectElement {
   ) {
     final columnKey = data.keys[index];
 
-    final newChildWidget = _buildCellWidget(data, index, scrolled);
-
-    final oldChild = children[columnKey];
-    final newChild = updateChild(oldChild, newChildWidget, _slot);
-    if (newChild == null) {
-      children.remove(columnKey);
-    } else {
-      children[columnKey] = newChild;
-    }
-  }
-
-  Widget _buildCellWidget(
-    TableContentColumnData data,
-    int index,
-    bool scrolled, [
-    Widget? child,
-  ]) =>
+    final newChild = updateChild(
+      children[columnKey],
       _TableViewCell(
-        key: data.keys[index],
+        key: columnKey,
+        cellBuilder: widget.cellBuilder,
+        index: data.indices[index],
+      ),
+      _TableCellSlot(
+        key: columnKey,
         width: data.widths[index],
-        position: data.positions[index],
         scrolled: scrolled,
-        child: child ??
-            Builder(
-              builder: (context) {
-                // TODO
-                //  Consider removing this Builder along with
-                //  the context parameter from the public API.
-                return widget.cellBuilder(context, data.indices[index]);
-              },
-            ),
-      );
-
-  void _reconfigureChildren(TableContentLayoutData data) {
-    final leftoverChildren = Map.of(children);
-
-    _reconfigureCells(data.fixedColumns, leftoverChildren, false);
-    _reconfigureCells(data.scrollableColumns, leftoverChildren, true);
-
-    leftoverChildren.values.forEach(deactivateChild);
-    leftoverChildren.keys.forEach(children.remove);
-  }
-
-  void _reconfigureCells(
-    TableContentColumnData data,
-    Map<Key, Element> leftoverChildren,
-    bool scrolled,
-  ) {
-    final length = data.indices.length;
-    for (var index = 0; index < length; index++) {
-      _reconfigureCell(data, index, scrolled);
-      leftoverChildren.remove(data.keys[index]);
-    }
-  }
-
-  void _reconfigureCell(
-    TableContentColumnData data,
-    int index,
-    bool scrolled,
-  ) {
-    final columnKey = data.keys[index];
-    final oldChild = children[columnKey];
-    final newChildWidget = _buildCellWidget(
-      data,
-      index,
-      scrolled,
-      oldChild == null ? null : (oldChild.widget as _TableViewCell).child,
+        position: data.positions[index],
+      ),
     );
 
-    if (kDebugMode) {
-      // This avoids triggering an assertion in debug mode.
-      // It is caused by a manual widget update we do without rebuild
-      // in [didChangeDependencies].
-      // Release builds **should** handle this situation gracefully.
-      if (oldChild != null && !oldChild.debugIsActive) {
-        return;
-      }
-    }
-
-    final newChild = updateChild(oldChild, newChildWidget, _slot);
     if (newChild == null) {
       children.remove(columnKey);
     } else {
@@ -284,11 +229,12 @@ class _TableViewRowElement extends RenderObjectElement {
   }
 }
 
-class _RenderTableViewRow extends RenderBox
-    with ContainerRenderObjectMixin<RenderBox, _TableViewCellParentData> {
+class _RenderTableViewRow extends RenderBox {
   _RenderTableViewRow()
       : _usePlaceholderLayers = false,
         _fixedRowHeight = false;
+
+  final children = <Key, RenderBox>{};
 
   bool _usePlaceholderLayers;
 
@@ -317,14 +263,78 @@ class _RenderTableViewRow extends RenderBox
   }
 
   @override
-  void setupParentData(covariant RenderObject child) {
-    if (child.parentData is! _TableViewCellParentData) {
-      child.parentData = _TableViewCellParentData();
+  bool get sizedByParent => _fixedRowHeight;
+
+  void insert(RenderBox child, _TableCellSlot slot) {
+    children[slot.key] = child;
+    child.parentData = _TableViewCellParentData(
+      width: slot.width,
+      scrollable: slot.scrolled,
+      position: slot.position,
+    );
+
+    adoptChild(child);
+  }
+
+  void move(RenderBox child, _TableCellSlot oldSlot, _TableCellSlot newSlot) {
+    if (oldSlot.key != newSlot.key) {
+      final removedChild = children.remove(oldSlot.key);
+      assert(identical(child, removedChild));
+
+      children[newSlot.key] = child;
+    }
+
+    final parentData = child.parentData as _TableViewCellParentData;
+    if (parentData.width != newSlot.width ||
+        parentData.scrollable != newSlot.scrolled ||
+        parentData.position != newSlot.position) {
+      parentData.width = newSlot.width;
+      parentData.scrollable = newSlot.scrolled;
+      parentData.position = newSlot.position;
+
+      markNeedsLayout();
+    }
+  }
+
+  void remove(RenderBox child, _TableCellSlot slot) {
+    final removedChild = children.remove(slot.key);
+    assert(removedChild == child);
+    dropChild(child);
+  }
+
+  @override
+  void visitChildren(RenderObjectVisitor visitor) =>
+      children.values.forEach(visitor);
+
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+
+    for (final child in children.values) {
+      child.attach(owner);
     }
   }
 
   @override
-  bool get sizedByParent => _fixedRowHeight;
+  void detach() {
+    super.detach();
+
+    for (final child in children.values) {
+      child.detach();
+    }
+  }
+
+  @override
+  void redepthChildren() {
+    for (final child in children.values) {
+      redepthChild(child);
+    }
+  }
+
+  @override
+  List<DiagnosticsNode> debugDescribeChildren() => children.entries
+      .map((e) => e.value.toDiagnosticsNode(name: e.key.toString()))
+      .toList(growable: false);
 
   @override
   Size computeDryLayout(BoxConstraints constraints) => constraints.biggest;
@@ -333,13 +343,12 @@ class _RenderTableViewRow extends RenderBox
   double computeMaxIntrinsicHeight(double width) {
     var height = .0;
 
-    var child = firstChild;
-    while (child != null) {
-      final parentData = child.parentData as _TableViewCellParentData;
-
-      height = max(0, child.getMaxIntrinsicHeight(parentData.width));
-
-      child = parentData.nextSibling;
+    for (final child in children.values) {
+      height = max(
+        0,
+        child.getMaxIntrinsicHeight(
+            (child.parentData as _TableViewCellParentData).width),
+      );
     }
 
     return height;
@@ -349,13 +358,12 @@ class _RenderTableViewRow extends RenderBox
   double computeMinIntrinsicHeight(double width) {
     var height = .0;
 
-    var child = firstChild;
-    while (child != null) {
-      final parentData = child.parentData as _TableViewCellParentData;
-
-      height = max(0, child.getMinIntrinsicHeight(parentData.width));
-
-      child = parentData.nextSibling;
+    for (final child in children.values) {
+      height = max(
+        0,
+        child.getMinIntrinsicHeight(
+            (child.parentData as _TableViewCellParentData).width),
+      );
     }
 
     return height;
@@ -384,8 +392,7 @@ class _RenderTableViewRow extends RenderBox
 
     var determinedHeight = computeHeight ? .0 : constraints.maxHeight;
 
-    var child = firstChild;
-    while (child != null) {
+    for (final child in children.values) {
       final parentData = child.parentData as _TableViewCellParentData;
 
       child.layout(
@@ -401,10 +408,6 @@ class _RenderTableViewRow extends RenderBox
       if (computeHeight) {
         determinedHeight = max(determinedHeight, child.size.height);
       }
-
-      parentData.offset = Offset(parentData.position, 0);
-
-      child = parentData.nextSibling;
     }
 
     if (!sizedByParent) {
@@ -418,26 +421,20 @@ class _RenderTableViewRow extends RenderBox
       final pair =
           _usePlaceholderLayers ? context.placeholder : context.regular;
 
-      var child = firstChild;
-      while (child != null) {
+      for (final child in children.values) {
         final parentData = child.parentData as _TableViewCellParentData;
         (parentData.scrollable ? pair.scrolled : pair.fixed).paintChild(
           child,
           Offset(offset.dx + parentData.position, offset.dy),
         );
-
-        child = parentData.nextSibling;
       }
     } else {
-      var child = firstChild;
-      while (child != null) {
+      for (final child in children.values) {
         final parentData = child.parentData as _TableViewCellParentData;
         context.paintChild(
           child,
           Offset(offset.dx + parentData.position, offset.dy),
         );
-
-        child = parentData.nextSibling;
       }
     }
   }
@@ -461,8 +458,7 @@ class _RenderTableViewRow extends RenderBox
     final scrolledClipPath =
         _nearestTableSectionAncestor!.scrolledSectionClipPath;
 
-    RenderBox? child = lastChild;
-    while (child != null) {
+    for (final child in children.values) {
       final childParentData = child.parentData! as _TableViewCellParentData;
       if ((!childParentData.scrollable ||
               (scrolledClipPath?.contains(position) ?? true)) &&
@@ -471,13 +467,11 @@ class _RenderTableViewRow extends RenderBox
             position: position,
             hitTest: (BoxHitTestResult result, Offset transformed) {
               assert(transformed == position - childParentData.offset);
-              return child!.hitTest(result, position: transformed);
+              return child.hitTest(result, position: transformed);
             },
           )) {
         return true;
       }
-
-      child = childParentData.previousSibling;
     }
 
     return false;
@@ -498,41 +492,53 @@ class _RenderTableViewRow extends RenderBox
   }
 }
 
-class _TableViewCellParentData extends ContainerBoxParentData<RenderBox> {
-  late double width;
-  late double position;
-  late bool scrollable;
+class _TableViewCellParentData extends BoxParentData {
+  _TableViewCellParentData({
+    required this.width,
+    required this.scrollable,
+    required double position,
+  }) {
+    offset = Offset(position, 0);
+  }
 
-  _TableViewCellParentData();
+  double width;
+
+  bool scrollable;
+
+  double get position => offset.dx;
+
+  set position(double position) => offset = Offset(position, offset.dy);
 }
 
-class _TableViewCell extends ParentDataWidget<_TableViewCellParentData> {
-  final double width;
-  final double position;
-  final bool scrolled;
+class _TableViewCell extends Widget {
+  final TableCellBuilder cellBuilder;
+  final int index;
 
   const _TableViewCell({
     super.key,
-    required this.width,
-    required this.position,
-    required this.scrolled,
-    required super.child,
+    required this.cellBuilder,
+    required this.index,
   });
 
   @override
-  void applyParentData(RenderObject renderObject) {
-    final data = renderObject.parentData as _TableViewCellParentData;
-    data.width = width;
-    data.position = position;
-    data.scrollable = scrolled;
+  Element createElement() => _TableViewCellElement(this);
+}
 
-    final parent = renderObject.parent;
-    if (parent is RenderObject) {
-      parent.markNeedsLayout();
-      parent.markNeedsPaint();
-    }
+class _TableViewCellElement extends ComponentElement {
+  _TableViewCellElement(super.widget);
+
+  @override
+  void update(_TableViewCell newWidget) {
+    final needsRebuild = newWidget.index != (widget as _TableViewCell).index;
+
+    super.update(newWidget);
+
+    if (needsRebuild) rebuild(force: true);
   }
 
   @override
-  Type get debugTypicalAncestorWidgetClass => TableViewRow;
+  Widget build() {
+    final widget = super.widget as _TableViewCell;
+    return widget.cellBuilder(this, widget.index);
+  }
 }
