@@ -544,7 +544,7 @@ class _DefaultTableColumnKey extends LocalKey {
   @override
   bool operator ==(Object other) =>
       other.runtimeType == runtimeType &&
-          (other as _DefaultTableColumnKey).index == index;
+      (other as _DefaultTableColumnKey).index == index;
 
   @override
   int get hashCode => index;
