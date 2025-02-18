@@ -302,7 +302,7 @@ class _RenderTableViewRow extends RenderBox {
       parentData.scrollable = newSlot.scrolled;
       parentData.position = newSlot.position;
 
-      markNeedsLayout();
+      markNeedsPaint();
     }
   }
 
