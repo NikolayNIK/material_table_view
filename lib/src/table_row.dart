@@ -99,16 +99,14 @@ class _TableViewRowElement extends RenderObjectElement {
   void mount(Element? parent, Object? newSlot) {
     super.mount(parent, newSlot);
 
-    markNeedsBuild();
-    rebuild();
+    rebuild(force: true);
   }
 
   @override
   void update(covariant RenderObjectWidget newWidget) {
     super.update(newWidget);
 
-    markNeedsBuild();
-    rebuild();
+    rebuild(force: true);
   }
 
   @override
