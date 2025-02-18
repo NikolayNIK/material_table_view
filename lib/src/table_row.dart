@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -214,9 +215,14 @@ class _TableViewRowElement extends RenderObjectElement {
         children[columnKey] =
             inflateWidget(newWidget, newSlot) as _TableViewCellElement;
       } else {
-        updateSlotForChild(child, newSlot);
-        child.update(newWidget);
-        assert(child.widget == newWidget);
+        // because we update children in [didChangeDependencies],
+        // we might end up accidentally updating an inactive child before it is removed,
+        // so we just skip those ones in debug mode as to not trigger an assertion
+        if (!kDebugMode || child.debugIsActive) {
+          updateSlotForChild(child, newSlot);
+          child.update(newWidget);
+          assert(child.widget == newWidget);
+        }
       }
 
       leftoverChildren.remove(columnKey);
