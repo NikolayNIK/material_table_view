@@ -458,7 +458,8 @@ class _RenderTableViewRow extends RenderBox {
       }
 
       if (foregroundChild != null) {
-        final parentData = foregroundChild.parentData as _TableViewCellParentData;
+        final parentData =
+            foregroundChild.parentData as _TableViewCellParentData;
         (parentData.scrollable ? pair.scrolled : pair.fixed)
             .paintChild(foregroundChild, offset + parentData.offset);
       }
@@ -471,7 +472,8 @@ class _RenderTableViewRow extends RenderBox {
       }
 
       if (foregroundChild != null) {
-        final parentData = foregroundChild.parentData as _TableViewCellParentData;
+        final parentData =
+            foregroundChild.parentData as _TableViewCellParentData;
         context.paintChild(foregroundChild, offset + parentData.offset);
       }
     }
