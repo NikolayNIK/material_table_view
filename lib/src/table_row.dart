@@ -206,8 +206,8 @@ class _TableViewRowElement extends RenderObjectElement {
   ) {
     final columnKey = data.keys[index];
 
-    final newChild = updateChild(
-      children[columnKey],
+    _updateChild(
+      columnKey,
       _TableViewCell(
         key: columnKey,
         cellBuilder: widget.cellBuilder,
@@ -220,11 +220,18 @@ class _TableViewRowElement extends RenderObjectElement {
         position: data.positions[index],
       ),
     );
+  }
 
-    if (newChild == null) {
-      children.remove(columnKey);
+  void _updateChild(Key columnKey, Widget newWidget, _TableCellSlot newSlot) {
+    final child = children[columnKey];
+
+    if (child == null) {
+      children[columnKey] = inflateWidget(newWidget, newSlot);
     } else {
-      children[columnKey] = newChild;
+      updateSlotForChild(child, newSlot);
+      child.update(newWidget);
+
+      assert(child.widget == newWidget);
     }
   }
 }
