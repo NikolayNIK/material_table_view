@@ -535,15 +535,6 @@ class _TableViewCellElement extends ComponentElement {
   _TableViewCellElement(super.widget);
 
   @override
-  void update(_TableViewCell newWidget) {
-    final needsRebuild = newWidget.index != (widget as _TableViewCell).index;
-
-    super.update(newWidget);
-
-    if (needsRebuild) rebuild(force: true);
-  }
-
-  @override
   Widget build() {
     final widget = super.widget as _TableViewCell;
     return widget.cellBuilder(this, widget.index);
