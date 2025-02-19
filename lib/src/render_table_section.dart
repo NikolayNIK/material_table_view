@@ -105,9 +105,7 @@ mixin RenderTableSectionMixin on RenderObject {
   }
 
   void _updatePaths() {
-    final clipPath = _scrolledClipPath = Path(),
-        leftDividerPath = _leftDividerPath = Path(),
-        rightDividerPath = _rightDividerPath = Path();
+    final clipPath = _scrolledClipPath = Path();
 
     final verticalOffsetPixels = this.verticalOffsetPixels;
     final layoutData = _layoutData;
@@ -128,32 +126,44 @@ mixin RenderTableSectionMixin on RenderObject {
         bottom += -((bottom + verticalOffsetPixels) % wiggleInterval);
       }
 
-      final halfDividerThickness = dividerData.thickness / 2;
-      final wiggleEdge = layoutData.leftWidth;
-      final dividerWiggleEdge = wiggleEdge - halfDividerThickness;
-      final wiggleOut = wiggleEdge + dividerData.wiggleOffset;
-      final dividerWiggleOut = wiggleOut - halfDividerThickness;
+      if (dividerData.visible) {
+        final leftDividerPath = _leftDividerPath = Path();
 
-      leftDividerPath.moveTo(dividerWiggleEdge, top);
-      clipPath.moveTo(wiggleEdge, top);
+        final halfDividerThickness = dividerData.thickness / 2;
+        final wiggleEdge = layoutData.leftWidth;
+        final dividerWiggleEdge = wiggleEdge - halfDividerThickness;
+        final wiggleOut = wiggleEdge + dividerData.wiggleOffset;
+        final dividerWiggleOut = wiggleOut - halfDividerThickness;
 
-      if (wiggleInterval == null ||
-          dividerData.wiggleCount == 0 ||
-          dividerData.wiggleOffset == .0) {
-        leftDividerPath.lineTo(dividerWiggleEdge, bottom);
-        clipPath.lineTo(wiggleEdge, bottom);
-      } else {
-        final wiggleStep = wiggleInterval / (2 * dividerData.wiggleCount);
+        leftDividerPath.moveTo(dividerWiggleEdge, top);
+        clipPath.moveTo(wiggleEdge, top);
 
-        for (var y = top + wiggleStep; y <= bottom;) {
-          leftDividerPath.lineTo(dividerWiggleOut, y);
-          clipPath.lineTo(wiggleOut, y);
-          y += wiggleStep;
+        if (wiggleInterval == null ||
+            dividerData.wiggleCount == 0 ||
+            dividerData.wiggleOffset == .0) {
+          leftDividerPath.lineTo(dividerWiggleEdge, bottom);
+          clipPath.lineTo(wiggleEdge, bottom);
+        } else {
+          final wiggleStep = wiggleInterval / (2 * dividerData.wiggleCount);
 
-          leftDividerPath.lineTo(dividerWiggleEdge, y);
-          clipPath.lineTo(wiggleEdge, y);
-          y += wiggleStep;
+          for (var y = top + wiggleStep; y <= bottom;) {
+            leftDividerPath.lineTo(dividerWiggleOut, y);
+            clipPath.lineTo(wiggleOut, y);
+            y += wiggleStep;
+
+            leftDividerPath.lineTo(dividerWiggleEdge, y);
+            clipPath.lineTo(wiggleEdge, y);
+            y += wiggleStep;
+          }
         }
+      } else {
+        _leftDividerPath = null;
+
+        const left = .0;
+
+        clipPath
+          ..moveTo(left, top)
+          ..lineTo(left, bottom);
       }
     }
 
@@ -174,32 +184,44 @@ mixin RenderTableSectionMixin on RenderObject {
         bottom += -((bottom + verticalOffsetPixels) % wiggleInterval);
       }
 
-      final halfDividerThickness = dividerData.thickness / 2;
-      final wiggleEdge = layoutData.leftWidth + layoutData.centerWidth;
-      final dividerWiggleEdge = wiggleEdge + halfDividerThickness;
-      final wiggleOut = wiggleEdge - dividerData.wiggleOffset;
-      final dividerWiggleOut = wiggleOut + halfDividerThickness;
+      if (dividerData.visible) {
+        final rightDividerPath = _rightDividerPath = Path();
 
-      rightDividerPath.moveTo(dividerWiggleEdge, bottom);
-      clipPath.lineTo(wiggleEdge, bottom);
+        final halfDividerThickness = dividerData.thickness / 2;
+        final wiggleEdge = layoutData.leftWidth + layoutData.centerWidth;
+        final dividerWiggleEdge = wiggleEdge + halfDividerThickness;
+        final wiggleOut = wiggleEdge - dividerData.wiggleOffset;
+        final dividerWiggleOut = wiggleOut + halfDividerThickness;
 
-      if (wiggleInterval == null ||
-          dividerData.wiggleCount == 0 ||
-          dividerData.wiggleOffset == 0) {
-        rightDividerPath.lineTo(dividerWiggleEdge, top);
-        clipPath.lineTo(wiggleOut, top);
-      } else {
-        final wiggleStep = wiggleInterval / (2 * dividerData.wiggleCount);
+        rightDividerPath.moveTo(dividerWiggleEdge, bottom);
+        clipPath.lineTo(wiggleEdge, bottom);
 
-        for (var y = bottom - wiggleStep; y >= top;) {
-          rightDividerPath.lineTo(dividerWiggleOut, y);
-          clipPath.lineTo(wiggleOut, y);
-          y -= wiggleStep;
+        if (wiggleInterval == null ||
+            dividerData.wiggleCount == 0 ||
+            dividerData.wiggleOffset == 0) {
+          rightDividerPath.lineTo(dividerWiggleEdge, top);
+          clipPath.lineTo(wiggleOut, top);
+        } else {
+          final wiggleStep = wiggleInterval / (2 * dividerData.wiggleCount);
 
-          rightDividerPath.lineTo(dividerWiggleEdge, y);
-          clipPath.lineTo(wiggleEdge, y);
-          y -= wiggleStep;
+          for (var y = bottom - wiggleStep; y >= top;) {
+            rightDividerPath.lineTo(dividerWiggleOut, y);
+            clipPath.lineTo(wiggleOut, y);
+            y -= wiggleStep;
+
+            rightDividerPath.lineTo(dividerWiggleEdge, y);
+            clipPath.lineTo(wiggleEdge, y);
+            y -= wiggleStep;
+          }
         }
+      } else {
+        _rightDividerPath = null;
+
+        final right = visibleSize.width;
+
+        clipPath
+          ..lineTo(right, bottom)
+          ..lineTo(right, top);
       }
     }
 
@@ -300,19 +322,23 @@ mixin RenderTableSectionMixin on RenderObject {
       context.canvas.clipRect(offset & visibleSize);
     }
 
-    context.canvas.drawPath(
-      leftDividerPath!,
-      dividerPaint
-        ..color = layoutData.leftDivider.color
-        ..strokeWidth = layoutData.leftDivider.thickness,
-    );
+    if (leftDividerPath != null) {
+      context.canvas.drawPath(
+        leftDividerPath,
+        dividerPaint
+          ..color = layoutData.leftDivider.color
+          ..strokeWidth = layoutData.leftDivider.thickness,
+      );
+    }
 
-    context.canvas.drawPath(
-      rightDividerPath!,
-      dividerPaint
-        ..color = layoutData.rightDivider.color
-        ..strokeWidth = layoutData.rightDivider.thickness,
-    );
+    if (rightDividerPath != null) {
+      context.canvas.drawPath(
+        rightDividerPath,
+        dividerPaint
+          ..color = layoutData.rightDivider.color
+          ..strokeWidth = layoutData.rightDivider.thickness,
+      );
+    }
 
     if (clipDividers) {
       context.canvas.restore();
