@@ -546,6 +546,11 @@ class _WidgetState extends State<_Widget>
       ?..stop()
       ..dispose();
 
+    if (route._tableContentLayoutState.foregroundColumnKey ==
+        route._targetColumnKey) {
+      route._tableContentLayoutState.foregroundColumnKey = null;
+    }
+
     super.dispose();
   }
 
