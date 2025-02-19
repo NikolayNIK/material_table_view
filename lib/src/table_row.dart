@@ -295,15 +295,15 @@ class _RenderTableViewRow extends RenderBox {
     }
 
     final parentData = child.parentData as _TableViewCellParentData;
-    if (parentData.width != newSlot.width ||
-        parentData.scrollable != newSlot.scrolled ||
-        parentData.position != newSlot.position) {
-      parentData.width = newSlot.width;
-      parentData.scrollable = newSlot.scrolled;
-      parentData.position = newSlot.position;
-
-      markNeedsPaint();
+    if (parentData.width != newSlot.width) {
+      markNeedsLayout();
     }
+
+    parentData.width = newSlot.width;
+    parentData.scrollable = newSlot.scrolled;
+    parentData.position = newSlot.position;
+
+    markNeedsPaint();
   }
 
   void remove(RenderBox child, _TableCellSlot slot) {
