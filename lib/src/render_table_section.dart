@@ -15,6 +15,7 @@ mixin RenderTableSectionMixin on RenderObject {
   bool _useTablePaintingContext = true;
 
   Path? _scrolledClipPath, _leftDividerPath, _rightDividerPath;
+  bool _pathsInvalidated = true;
 
   Size get visibleSize;
 
@@ -51,16 +52,14 @@ mixin RenderTableSectionMixin on RenderObject {
     // this comparison should be fine
     if (_rowHeight != rowHeight) {
       _rowHeight = rowHeight;
-      markNeedsLayout();
-      markNeedsPaint();
+      _invalidatePaths();
     }
   }
 
   set layoutData(TableContentLayoutData layoutData) {
     if (!identical(_layoutData, layoutData)) {
       _layoutData = layoutData;
-      markNeedsLayout();
-      markNeedsPaint();
+      _invalidatePaths();
     }
   }
 
@@ -76,8 +75,7 @@ mixin RenderTableSectionMixin on RenderObject {
   set useTablePaintingContext(bool useTablePaintingContext) {
     if (_useTablePaintingContext != useTablePaintingContext) {
       _useTablePaintingContext = useTablePaintingContext;
-      markNeedsLayout();
-      markNeedsPaint();
+      _invalidatePaths();
     }
   }
 
@@ -89,22 +87,25 @@ mixin RenderTableSectionMixin on RenderObject {
     super.dispose();
   }
 
-  void _verticalOffsetChanged() {
-    markNeedsLayout();
+  VoidCallback get _verticalOffsetChanged => _invalidatePaths;
+
+  VoidCallback get _placeholderShaderChanged => _invalidatePaths;
+
+  void _invalidatePaths() {
+    _pathsInvalidated = true;
+    if (!_useTablePaintingContext) {
+      _scrolledClipPath = null;
+      _rightDividerPath = null;
+      _leftDividerPath = null;
+    }
+
     markNeedsPaint();
   }
 
-  void _placeholderShaderChanged() => markNeedsPaint();
+  void _updatePathsIfInvalidated() {
+    if (!_pathsInvalidated) return;
+    _pathsInvalidated = false;
 
-  @override
-  void performLayout() {
-    super.performLayout();
-
-    // not sure if this should go here but it works well enough for now
-    if (_useTablePaintingContext) _updatePaths();
-  }
-
-  void _updatePaths() {
     final clipPath = _scrolledClipPath = Path();
 
     final verticalOffsetPixels = this.verticalOffsetPixels;
@@ -240,6 +241,8 @@ mixin RenderTableSectionMixin on RenderObject {
   }
 
   void _customPaint(PaintingContext context, Offset offset) {
+    _updatePathsIfInvalidated();
+
     final layoutData = _layoutData;
 
     final clipPath = _scrolledClipPath,
