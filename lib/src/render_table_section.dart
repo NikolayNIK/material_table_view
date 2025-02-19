@@ -315,7 +315,8 @@ mixin RenderTableSectionMixin on RenderObject {
     // if we have vertical offset,
     // assume the dividers will get clipped
     // by whatever clips vertically offset content
-    bool clipDividers = _verticalOffset == null;
+    bool clipDividers = _verticalOffset == null &&
+        (leftDividerPath != null || rightDividerPath != null);
 
     if (clipDividers) {
       context.canvas.save();
