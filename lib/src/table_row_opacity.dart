@@ -50,9 +50,10 @@ class _RenderTableRowOpacity extends RenderProxyBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     if (context is TablePaintingContext) {
-      context.paintChildrenLayers(
+      context.pushLayers(
         () => OpacityLayer(alpha: _alpha, offset: offset),
-        (context) => super.paint(context, Offset.zero),
+        super.paint,
+        Offset.zero,
       );
     } else {
       context.pushOpacity(offset, _alpha, super.paint);

@@ -145,9 +145,10 @@ class TablePaintingContext extends PaintingContext {
     placeholderShaderContext?.stopRecordingIfNeeded();
   }
 
-  void paintChildrenLayers(
+  void pushLayers(
     ContainerLayer Function() createLayer,
-    void Function(PaintingContext context) painter,
+    PaintingContextCallback painter,
+    Offset offset,
   ) {
     final mainLayer = createLayer();
     final regularFixed = mainLayer;
@@ -178,7 +179,7 @@ class TablePaintingContext extends PaintingContext {
       estimatedBounds: estimatedBounds,
     );
 
-    painter(innerContext);
+    painter(innerContext, offset);
     innerContext.stopRecordingIfNeeded();
     _placeholderLayersUsed |= innerContext.placeholderLayersUsed;
   }
