@@ -49,22 +49,13 @@ class _RenderTableRowOpacity extends RenderProxyBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (_alpha == 0) return;
-
-    if (context is! TablePaintingContext) {
-      context.pushOpacity(offset, _alpha, (context, offset) => super.paint);
-      return;
+    if (context is TablePaintingContext) {
+      context.paintChildrenLayers(
+        () => OpacityLayer(alpha: _alpha, offset: offset),
+        (context) => super.paint(context, Offset.zero),
+      );
+    } else {
+      context.pushOpacity(offset, _alpha, super.paint);
     }
-
-    // do we just assume the color space here???
-    if (_alpha == 255) {
-      super.paint(context, offset);
-      return;
-    }
-
-    context.paintChildrenLayers(
-      () => OpacityLayer(alpha: _alpha),
-      (context) => super.paint(context, offset),
-    );
   }
 }
