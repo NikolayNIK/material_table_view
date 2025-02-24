@@ -195,6 +195,7 @@ class _TableViewRowElement extends RenderObjectElement {
     final length = data.indices.length;
     for (var index = 0; index < length; index++) {
       final columnKey = data.keys[index];
+      final columnIndex = data.indices[index];
 
       final newSlot = _TableCellSlot(
         key: columnKey,
@@ -205,23 +206,31 @@ class _TableViewRowElement extends RenderObjectElement {
 
       final child = children[columnKey];
 
-      final newWidget = _TableViewCell(
-        key: columnKey,
-        cellBuilder: widget.cellBuilder,
-        index: data.indices[index],
-      );
-
       if (child == null) {
-        children[columnKey] =
-            inflateWidget(newWidget, newSlot) as _TableViewCellElement;
+        children[columnKey] = inflateWidget(
+          _TableViewCell(
+            key: columnKey,
+            cellBuilder: widget.cellBuilder,
+            index: columnIndex,
+          ),
+          newSlot,
+        ) as _TableViewCellElement;
       } else {
         // because we update children in [didChangeDependencies],
         // we might end up accidentally updating an inactive child before it is removed,
         // so we just skip those ones in debug mode as to not trigger an assertion
         if (!kDebugMode || child.debugIsActive) {
           updateSlotForChild(child, newSlot);
-          child.update(newWidget);
-          assert(child.widget == newWidget);
+
+          final oldWidget = child.widget as _TableViewCell;
+          if (!identical(oldWidget.cellBuilder, widget.cellBuilder) ||
+              oldWidget.index != columnIndex) {
+            child.update(_TableViewCell(
+              key: columnKey,
+              cellBuilder: widget.cellBuilder,
+              index: columnIndex,
+            ));
+          }
         }
       }
 
@@ -553,14 +562,9 @@ class _TableViewCellElement extends ComponentElement {
 
   @override
   void update(covariant _TableViewCell newWidget) {
-    final oldWidget = widget as _TableViewCell;
-
     super.update(newWidget);
 
-    if (!identical(oldWidget.cellBuilder, newWidget.cellBuilder) ||
-        oldWidget.index != newWidget.index) {
-      rebuild(force: true);
-    }
+    rebuild(force: true);
   }
 
   @override
