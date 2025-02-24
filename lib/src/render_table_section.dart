@@ -128,31 +128,31 @@ mixin RenderTableSectionMixin on RenderObject {
       }
 
       if (dividerData.visible) {
-        final leftDividerPath = _leftDividerPath = Path();
+        final path = _leftDividerPath = Path();
 
         final halfDividerThickness = dividerData.thickness / 2;
         final wiggleEdge = layoutData.leftWidth;
         final dividerWiggleEdge = wiggleEdge - halfDividerThickness;
-        final wiggleOut = wiggleEdge + dividerData.wiggleOffset;
-        final dividerWiggleOut = wiggleOut - halfDividerThickness;
 
-        leftDividerPath.moveTo(dividerWiggleEdge, top);
+        path.moveTo(dividerWiggleEdge, top);
         clipPath.moveTo(wiggleEdge, top);
 
         if (wiggleInterval == null ||
             dividerData.wiggleCount == 0 ||
             dividerData.wiggleOffset == .0) {
-          leftDividerPath.lineTo(dividerWiggleEdge, bottom);
+          path.lineTo(dividerWiggleEdge, bottom);
           clipPath.lineTo(wiggleEdge, bottom);
         } else {
           final wiggleStep = wiggleInterval / (2 * dividerData.wiggleCount);
+          final wiggleOut = wiggleEdge + dividerData.wiggleOffset;
+          final dividerWiggleOut = wiggleOut - halfDividerThickness;
 
           for (var y = top + wiggleStep; y <= bottom;) {
-            leftDividerPath.lineTo(dividerWiggleOut, y);
+            path.lineTo(dividerWiggleOut, y);
             clipPath.lineTo(wiggleOut, y);
             y += wiggleStep;
 
-            leftDividerPath.lineTo(dividerWiggleEdge, y);
+            path.lineTo(dividerWiggleEdge, y);
             clipPath.lineTo(wiggleEdge, y);
             y += wiggleStep;
           }
@@ -169,7 +169,7 @@ mixin RenderTableSectionMixin on RenderObject {
     }
 
     {
-      // right size
+      // right side
 
       final dividerData = layoutData.rightDivider;
       final wiggleInterval = dividerData.wiggleInterval ?? _rowHeight;
@@ -186,31 +186,31 @@ mixin RenderTableSectionMixin on RenderObject {
       }
 
       if (dividerData.visible) {
-        final rightDividerPath = _rightDividerPath = Path();
+        final path = _rightDividerPath = Path();
 
         final halfDividerThickness = dividerData.thickness / 2;
         final wiggleEdge = layoutData.leftWidth + layoutData.centerWidth;
         final dividerWiggleEdge = wiggleEdge + halfDividerThickness;
-        final wiggleOut = wiggleEdge - dividerData.wiggleOffset;
-        final dividerWiggleOut = wiggleOut + halfDividerThickness;
 
-        rightDividerPath.moveTo(dividerWiggleEdge, bottom);
+        path.moveTo(dividerWiggleEdge, bottom);
         clipPath.lineTo(wiggleEdge, bottom);
 
         if (wiggleInterval == null ||
             dividerData.wiggleCount == 0 ||
             dividerData.wiggleOffset == 0) {
-          rightDividerPath.lineTo(dividerWiggleEdge, top);
-          clipPath.lineTo(wiggleOut, top);
+          path.lineTo(dividerWiggleEdge, top);
+          clipPath.lineTo(dividerWiggleEdge, top);
         } else {
           final wiggleStep = wiggleInterval / (2 * dividerData.wiggleCount);
+          final wiggleOut = wiggleEdge - dividerData.wiggleOffset;
+          final dividerWiggleOut = wiggleOut + halfDividerThickness;
 
           for (var y = bottom - wiggleStep; y >= top;) {
-            rightDividerPath.lineTo(dividerWiggleOut, y);
+            path.lineTo(dividerWiggleOut, y);
             clipPath.lineTo(wiggleOut, y);
             y -= wiggleStep;
 
-            rightDividerPath.lineTo(dividerWiggleEdge, y);
+            path.lineTo(dividerWiggleEdge, y);
             clipPath.lineTo(wiggleEdge, y);
             y -= wiggleStep;
           }
