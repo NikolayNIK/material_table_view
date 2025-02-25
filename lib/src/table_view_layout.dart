@@ -23,8 +23,8 @@ class TableViewLayout extends SlottedMultiChildRenderObjectWidget<
   final double headerHeight, footerHeight;
 
   @override
-  RenderSliverTableViewLayout createRenderObject(BuildContext context) =>
-      RenderSliverTableViewLayout(
+  RenderBoxTableViewLayout createRenderObject(BuildContext context) =>
+      RenderBoxTableViewLayout(
         headerHeight: headerHeight,
         footerHeight: footerHeight,
       );
@@ -32,7 +32,7 @@ class TableViewLayout extends SlottedMultiChildRenderObjectWidget<
   @override
   void updateRenderObject(
     BuildContext context,
-    RenderSliverTableViewLayout renderObject,
+    RenderBoxTableViewLayout renderObject,
   ) {
     renderObject.headerHeight = headerHeight;
     renderObject.footerHeight = footerHeight;
@@ -70,9 +70,9 @@ enum TableViewLayoutSlotType {
   footerDivider;
 }
 
-class RenderSliverTableViewLayout extends RenderBox
+class RenderBoxTableViewLayout extends RenderBox
     with SlottedContainerRenderObjectMixin<TableViewLayoutSlotType, RenderBox> {
-  RenderSliverTableViewLayout(
+  RenderBoxTableViewLayout(
       {required double headerHeight, required double footerHeight})
       : _headerInnerHeight = headerHeight,
         _footerInnerHeight = footerHeight;
@@ -105,99 +105,89 @@ class RenderSliverTableViewLayout extends RenderBox
     final width = constraints.maxWidth;
     final height = constraints.maxHeight;
 
-    double headerOuterHeight = 0;
-    {
-      final child = childForSlot(TableViewLayoutSlotType.header);
-      if (child != null) {
-        final headerHeight = _headerInnerHeight;
+    final header = childForSlot(TableViewLayoutSlotType.header);
+    final headerDivider = childForSlot(TableViewLayoutSlotType.headerDivider);
+    final footer = childForSlot(TableViewLayoutSlotType.footer);
+    final footerDivider = childForSlot(TableViewLayoutSlotType.footerDivider);
+    final body = childForSlot(TableViewLayoutSlotType.body);
 
-        child.layout(
-          BoxConstraints.tightFor(
-            width: width,
-            height: headerHeight,
-          ),
-        );
+    double headerOuterHeight = .0;
+    double footerOuterHeight = .0;
 
-        (child.parentData as BoxParentData).offset = Offset.zero;
+    if (header != null) {
+      final headerHeight = _headerInnerHeight;
 
-        headerOuterHeight += headerHeight;
+      header.layout(
+        BoxConstraints.tightFor(
+          width: width,
+          height: headerHeight,
+        ),
+      );
 
-        final divider = childForSlot(TableViewLayoutSlotType.headerDivider);
-        if (divider != null) {
-          divider.layout(
-            BoxConstraints(
-              minWidth: width,
-              maxWidth: width,
-              minHeight: 0,
-              maxHeight: height - headerOuterHeight,
-            ),
-            parentUsesSize: true,
-          );
+      (header.parentData as BoxParentData).offset = Offset.zero;
 
-          (divider.parentData as BoxParentData).offset =
-              Offset(0, headerHeight);
-
-          headerOuterHeight += divider.size.height;
-        }
-      }
+      headerOuterHeight += headerHeight;
     }
 
-    double footerOuterHeight = 0;
-    {
-      final child = childForSlot(TableViewLayoutSlotType.footer);
-      if (child != null) {
-        final footerHeight = _footerInnerHeight;
+    if (headerDivider != null) {
+      headerDivider.layout(
+        BoxConstraints(
+          minWidth: width,
+          maxWidth: width,
+          minHeight: 0,
+          maxHeight: height - headerOuterHeight,
+        ),
+        parentUsesSize: true,
+      );
 
-        child.layout(
-          BoxConstraints.tightFor(
-            width: width,
-            height: footerHeight,
-          ),
-        );
+      (headerDivider.parentData as BoxParentData).offset =
+          Offset(0, headerOuterHeight);
 
-        (child.parentData as BoxParentData).offset =
-            Offset(0, height - footerHeight);
-
-        footerOuterHeight += footerHeight;
-
-        final divider = childForSlot(
-          TableViewLayoutSlotType.footerDivider,
-        );
-
-        if (divider != null) {
-          divider.layout(
-            BoxConstraints(
-              minWidth: width,
-              maxWidth: width,
-              minHeight: 0,
-              maxHeight:
-              height - headerOuterHeight - footerOuterHeight,
-            ),
-            parentUsesSize: true,
-          );
-
-          footerOuterHeight += divider.size.height;
-
-          (divider.parentData as BoxParentData).offset =
-              Offset(0, height - footerOuterHeight);
-        }
-      }
+      headerOuterHeight += headerDivider.size.height;
     }
 
-    {
-      final child = childForSlot(TableViewLayoutSlotType.body);
-      if (child != null) {
-        child.layout(
-          BoxConstraints.tightFor(
-            width: width,
-            height:
-            height - headerOuterHeight - footerOuterHeight,
-          ),
-        );
+    if (footer != null) {
+      final footerHeight = _footerInnerHeight;
 
-        (child.parentData as BoxParentData).offset =
-            Offset(0, headerOuterHeight);
-      }
+      footer.layout(
+        BoxConstraints.tightFor(
+          width: width,
+          height: footerHeight,
+        ),
+      );
+
+      (footer.parentData as BoxParentData).offset =
+          Offset(0, height - footerHeight);
+
+      footerOuterHeight += footerHeight;
+    }
+
+    if (footerDivider != null) {
+      footerDivider.layout(
+        BoxConstraints(
+          minWidth: width,
+          maxWidth: width,
+          minHeight: 0,
+          maxHeight: height - headerOuterHeight - footerOuterHeight,
+        ),
+        parentUsesSize: true,
+      );
+
+      footerOuterHeight += footerDivider.size.height;
+
+      (footerDivider.parentData as BoxParentData).offset =
+          Offset(0, height - footerOuterHeight);
+    }
+
+    if (body != null) {
+      body.layout(
+        BoxConstraints.tightFor(
+          width: width,
+          height: height - headerOuterHeight - footerOuterHeight,
+        ),
+      );
+
+      (body.parentData as BoxParentData).offset = Offset(0, headerOuterHeight);
     }
   }
 
