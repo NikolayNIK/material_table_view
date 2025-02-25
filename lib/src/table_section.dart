@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:material_table_view/src/render_table_section.dart';
-import 'package:material_table_view/src/table_layout.dart';
-import 'package:material_table_view/src/table_layout_data.dart';
+import 'package:material_table_view/src/table_content_layout.dart';
+import 'package:material_table_view/src/table_content_layout_data.dart';
 import 'package:material_table_view/src/table_placeholder_shade.dart';
 
 /// This widget represents a single table section:

@@ -6,7 +6,7 @@ import 'package:material_table_view/src/table_column.dart';
 import 'package:material_table_view/src/table_column_controls_controllable.dart';
 import 'package:material_table_view/src/table_column_resolve_layout_extension.dart';
 import 'package:material_table_view/src/table_column_scroll_dimensions_applicator.dart';
-import 'package:material_table_view/src/table_layout.dart';
+import 'package:material_table_view/src/table_content_layout.dart';
 import 'package:material_table_view/src/table_placeholder_shade.dart';
 import 'package:material_table_view/src/table_row.dart';
 import 'package:material_table_view/src/table_row_reorder.dart';

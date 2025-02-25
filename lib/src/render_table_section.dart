@@ -1,6 +1,6 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:material_table_view/src/table_layout_data.dart';
+import 'package:material_table_view/src/table_content_layout_data.dart';
 import 'package:material_table_view/src/table_painting_context.dart';
 import 'package:material_table_view/src/table_placeholder_shade.dart';
 

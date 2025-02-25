@@ -5,7 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:material_table_view/src/iterator_extensions.dart';
 import 'package:material_table_view/src/table_column.dart';
-import 'package:material_table_view/src/table_layout_data.dart';
+import 'package:material_table_view/src/table_content_layout_data.dart';
 import 'package:material_table_view/src/table_view_style_resolved.dart';
 
 /// This widget calculates the horizontal layout of the table using the width

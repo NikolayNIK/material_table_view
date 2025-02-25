@@ -5,8 +5,8 @@ import 'package:flutter/scheduler.dart';
 import 'package:material_table_view/material_table_view.dart';
 import 'package:material_table_view/sliver_table_view.dart';
 import 'package:material_table_view/src/table_column_controls_controllable.dart';
-import 'package:material_table_view/src/table_layout.dart';
-import 'package:material_table_view/src/table_layout_data.dart';
+import 'package:material_table_view/src/table_content_layout.dart';
+import 'package:material_table_view/src/table_content_layout_data.dart';
 
 PreferredSizeWidget _buildAnimatedIconButton(
   BuildContext context,
