@@ -8,13 +8,13 @@ import 'package:material_table_view/src/table_column.dart';
 import 'package:material_table_view/src/table_column_controls_controllable.dart';
 import 'package:material_table_view/src/table_column_resolve_layout_extension.dart';
 import 'package:material_table_view/src/table_column_scroll_dimensions_applicator.dart';
-import 'package:material_table_view/src/table_horizontal_divider.dart';
 import 'package:material_table_view/src/table_layout.dart';
 import 'package:material_table_view/src/table_row.dart';
 import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_section_overlay.dart';
 import 'package:material_table_view/src/table_view.dart';
+import 'package:material_table_view/src/table_view_layout.dart';
 import 'package:material_table_view/src/table_view_style_resolved.dart';
 
 /// This is a sliver variant of the [TableView] widget.
@@ -161,12 +161,11 @@ class _SliverTableViewState extends State<SliverTableView>
                     minScrollableWidth: widget.minScrollableWidth,
                     textDirection: textDirection,
                     scrollPadding: scrollPadding,
-                    child: Column(
-                      children: [
-                        if (widget.headerBuilder != null) ...[
-                          SizedBox(
-                            height: widget.headerHeight,
-                            child: TableSection.box(
+                    child: TableViewLayout.box(
+                      dividersStyle: style.dividers.horizontal,
+                      header: widget.headerBuilder == null
+                          ? null
+                          : TableSection.box(
                               verticalOffset: null,
                               verticalOffsetPixels: .0,
                               rowHeight: widget.headerHeight,
@@ -174,61 +173,50 @@ class _SliverTableViewState extends State<SliverTableView>
                               child: widget.headerBuilder!(
                                   context, headerFooterContentBuilder),
                             ),
-                          ),
-                          TableHorizontalDivider(
-                            style: style.dividers.horizontal.header,
-                          ),
-                        ],
-                        Expanded(
-                          child: widget.bodyContainerBuilder(
-                            context,
-                            ClipRect(
-                              child: TableSection.box(
-                                rowHeight: widget.rowHeight,
-                                verticalOffset: null,
-                                verticalOffsetPixels:
-                                    verticalScrollOffsetPixels,
-                                placeholderShade: widget.placeholderShade,
-                                child: OptionalWrap(
-                                  builder: widget.rowReorder == null
-                                      ? null
-                                      : (context, child) =>
-                                          TableSectionOverlay(child: child),
-                                  child: sliverBuilder(
-                                    sliver: SliverPadding(
-                                      padding: EdgeInsets.only(
-                                        top: scrollPadding.top,
-                                        bottom: scrollPadding.bottom,
-                                      ),
-                                      sliver: SliverTableBody(
-                                        rowHeight: widget.rowHeight,
-                                        rowHeightBuilder: null,
-                                        rowPrototype: null,
-                                        rowCount: widget.rowCount,
-                                        rowBuilder: widget.rowBuilder,
-                                        rowReorder: widget.rowReorder,
-                                        placeholderBuilder:
-                                            widget.placeholderBuilder,
-                                        placeholderRowBuilder:
-                                            widget.placeholderRowBuilder,
-                                        useHigherScrollable: true,
-                                        addAutomaticKeepAlives:
-                                            widget.addAutomaticKeepAlives,
-                                      ),
-                                    ),
+                      headerHeight: headerHeight,
+                      body: widget.bodyContainerBuilder(
+                        context,
+                        ClipRect(
+                          child: TableSection.box(
+                            rowHeight: widget.rowHeight,
+                            verticalOffset: null,
+                            verticalOffsetPixels: verticalScrollOffsetPixels,
+                            placeholderShade: widget.placeholderShade,
+                            child: OptionalWrap(
+                              builder: widget.rowReorder == null
+                                  ? null
+                                  : (context, child) =>
+                                      TableSectionOverlay(child: child),
+                              child: sliverBuilder(
+                                sliver: SliverPadding(
+                                  padding: EdgeInsets.only(
+                                    top: scrollPadding.top,
+                                    bottom: scrollPadding.bottom,
+                                  ),
+                                  sliver: SliverTableBody(
+                                    rowHeight: widget.rowHeight,
+                                    rowHeightBuilder: null,
+                                    rowPrototype: null,
+                                    rowCount: widget.rowCount,
+                                    rowBuilder: widget.rowBuilder,
+                                    rowReorder: widget.rowReorder,
+                                    placeholderBuilder:
+                                        widget.placeholderBuilder,
+                                    placeholderRowBuilder:
+                                        widget.placeholderRowBuilder,
+                                    useHigherScrollable: true,
+                                    addAutomaticKeepAlives:
+                                        widget.addAutomaticKeepAlives,
                                   ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                        if (widget.footerBuilder != null) ...[
-                          TableHorizontalDivider(
-                            style: style.dividers.horizontal.footer,
-                          ),
-                          SizedBox(
-                            height: widget.footerHeight,
-                            child: TableSection.box(
+                      ),
+                      footer: widget.footerBuilder == null
+                          ? null
+                          : TableSection.box(
                               verticalOffset: null,
                               verticalOffsetPixels: .0,
                               rowHeight: widget.footerHeight,
@@ -236,9 +224,7 @@ class _SliverTableViewState extends State<SliverTableView>
                               child: widget.footerBuilder!(
                                   context, headerFooterContentBuilder),
                             ),
-                          ),
-                        ],
-                      ],
+                      footerHeight: footerHeight,
                     ),
                   ),
                 ),

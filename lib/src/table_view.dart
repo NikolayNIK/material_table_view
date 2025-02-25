@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:material_table_view/src/optional_wrap.dart';
-import 'package:material_table_view/src/table_column_scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/sliver_table_body.dart';
 import 'package:material_table_view/src/table_column.dart';
 import 'package:material_table_view/src/table_column_controls_controllable.dart';
 import 'package:material_table_view/src/table_column_resolve_layout_extension.dart';
-import 'package:material_table_view/src/table_horizontal_divider.dart';
+import 'package:material_table_view/src/table_column_scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/table_layout.dart';
 import 'package:material_table_view/src/table_placeholder_shade.dart';
 import 'package:material_table_view/src/table_row.dart';
@@ -17,6 +16,7 @@ import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_section_overlay.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
+import 'package:material_table_view/src/table_view_layout.dart';
 import 'package:material_table_view/src/table_view_style.dart';
 import 'package:material_table_view/src/table_view_style_resolved.dart';
 import 'package:material_table_view/src/table_viewport.dart';
@@ -317,8 +317,20 @@ class _TableViewState extends State<TableView>
               stickyHorizontalOffset: _stickyHorizontalOffset,
               minScrollableWidth: widget.minScrollableWidth,
               child: Builder(
-                builder: (context) {
-                  final body = NotificationListener<OverscrollNotification>(
+                builder: (context) => TableViewLayout.box(
+                  dividersStyle: style.dividers.horizontal,
+                  header: widget.headerBuilder == null
+                      ? null
+                      : TableSection.box(
+                          verticalOffset: null,
+                          verticalOffsetPixels: .0,
+                          rowHeight: widget.headerHeight,
+                          placeholderShade: null,
+                          child: widget.headerBuilder!(
+                              context, headerFooterContentBuilder),
+                        ),
+                  headerHeight: widget.headerHeight,
+                  body: NotificationListener<OverscrollNotification>(
                     onNotification: (notification) {
                       // Prevent horizontal scrollable from receiving
                       // overscroll notification because it starts to freak out.
@@ -381,59 +393,19 @@ class _TableViewState extends State<TableView>
                         ),
                       ),
                     ),
-                  );
-
-                  final headerBuilder = widget.headerBuilder;
-                  final footerBuilder = widget.footerBuilder;
-                  if (headerBuilder == null && footerBuilder == null) {
-                    return SizedBox(
-                      width: double.infinity,
-                      height: double.infinity,
-                      child: body,
-                    );
-                  }
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (headerBuilder != null) ...[
-                        SizedBox(
-                          width: double.infinity,
-                          height: widget.headerHeight,
-                          child: TableSection.box(
-                            verticalOffset: null,
-                            verticalOffsetPixels: .0,
-                            rowHeight: widget.headerHeight,
-                            placeholderShade: null,
-                            child: headerBuilder(
-                                context, headerFooterContentBuilder),
-                          ),
+                  ),
+                  footer: widget.footerBuilder == null
+                      ? null
+                      : TableSection.box(
+                          verticalOffset: null,
+                          verticalOffsetPixels: .0,
+                          rowHeight: widget.footerHeight,
+                          placeholderShade: null,
+                          child: widget.footerBuilder!(
+                              context, headerFooterContentBuilder),
                         ),
-                        TableHorizontalDivider(
-                          style: style.dividers.horizontal.header,
-                        ),
-                      ],
-                      Expanded(child: body),
-                      if (footerBuilder != null) ...[
-                        TableHorizontalDivider(
-                          style: style.dividers.horizontal.footer,
-                        ),
-                        SizedBox(
-                          width: double.infinity,
-                          height: widget.footerHeight,
-                          child: TableSection.box(
-                            verticalOffset: null,
-                            verticalOffsetPixels: .0,
-                            rowHeight: widget.footerHeight,
-                            placeholderShade: null,
-                            child: footerBuilder(
-                                context, headerFooterContentBuilder),
-                          ),
-                        ),
-                      ],
-                    ],
-                  );
-                },
+                  footerHeight: widget.footerHeight,
+                ),
               ),
             ),
           ),
