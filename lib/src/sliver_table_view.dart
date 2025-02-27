@@ -1,9 +1,8 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:material_table_view/src/optional_wrap.dart';
+import 'package:material_table_view/src/sliver_passthrough.dart';
 import 'package:material_table_view/src/sliver_table_body.dart';
+import 'package:material_table_view/src/sliver_width_builder.dart';
 import 'package:material_table_view/src/table_column.dart';
 import 'package:material_table_view/src/table_column_controls_controllable.dart';
 import 'package:material_table_view/src/table_column_resolve_layout_extension.dart';
@@ -65,8 +64,6 @@ class _SliverTableViewState extends State<SliverTableView>
 
   List<TableColumn>? _columns;
 
-  late double _lastResolvedColumnsWidth;
-
   @override
   late TextDirection textDirection;
 
@@ -118,21 +115,16 @@ class _SliverTableViewState extends State<SliverTableView>
         Directionality.maybeOf(context) ??
         TextDirection.ltr;
 
-    return _SliverPassthrough(
-      minHeight: scrollPadding.bottom + headerHeight + footerHeight,
-      maxHeight: widget.rowCount * widget.rowHeight +
-          scrollPadding.vertical +
-          headerHeight +
-          footerHeight,
-      builder: (context, sliverBuilder, width, verticalScrollOffsetPixels) {
-        final columns = _columns != null && width == _lastResolvedColumnsWidth
-            ? _columns!
-            : _columns =
-                widget.columns.resolveLayout(width - scrollPadding.horizontal);
+    return SliverCrossAxisExtentBuilder(builder: (context, width) {
+      final columns =
+          widget.columns.resolveLayout(width - scrollPadding.horizontal);
 
-        _lastResolvedColumnsWidth = width;
-
-        return Transform.translate(
+      return SliverPassthrough(
+        minHeight: headerHeight +
+            style.dividers.horizontal.space +
+            scrollPadding.bottom +
+            footerHeight,
+        child: Transform.translate(
           offset: scrollbarOffset,
           transformHitTests: false,
           child: TableScrollbar(
@@ -180,18 +172,20 @@ class _SliverTableViewState extends State<SliverTableView>
                           child: TableSection.box(
                             rowHeight: widget.rowHeight,
                             verticalOffset: null,
-                            verticalOffsetPixels: verticalScrollOffsetPixels,
+                            verticalOffsetPixels: Scrollable.of(
+                              this.context,
+                              axis: Axis.vertical,
+                            ).position.pixels,
                             placeholderShade: widget.placeholderShade,
                             child: OptionalWrap(
                               builder: widget.rowReorder == null
                                   ? null
                                   : (context, child) =>
                                       TableSectionOverlay(child: child),
-                              child: sliverBuilder(
+                              child: BoxToSliverPassthrough(
                                 sliver: SliverPadding(
                                   padding: EdgeInsets.only(
                                     top: scrollPadding.top,
-                                    bottom: scrollPadding.bottom,
                                   ),
                                   sliver: SliverTableBody(
                                     rowHeight: widget.rowHeight,
@@ -231,132 +225,8 @@ class _SliverTableViewState extends State<SliverTableView>
               ),
             ),
           ),
-        );
-      },
-    );
-  }
-}
-
-/// This widget allows inserting box widget amids the sliver layout protocol
-/// and then continue sliver layout protocol as if nothing happened.
-class _SliverPassthrough extends StatelessWidget {
-  const _SliverPassthrough({
-    required this.minHeight,
-    required this.maxHeight,
-    required this.builder,
-  });
-
-  final double minHeight;
-  final double maxHeight;
-  final Widget Function(
-    BuildContext context,
-    Widget Function({
-      required Widget sliver,
-    }) sliverBuilder,
-    double width,
-    double verticalScrollOffsetPixels,
-  ) builder;
-
-  @override
-  Widget build(BuildContext context) => SliverLayoutBuilder(
-        builder: (context, constraints) {
-          assert(constraints.axis == Axis.vertical);
-
-          var boxHeight = min(constraints.remainingPaintExtent,
-              maxHeight - constraints.scrollOffset);
-
-          if (boxHeight <= 0) {
-            return SliverPadding(
-              padding: EdgeInsets.only(bottom: maxHeight),
-            );
-          }
-
-          var top = constraints.scrollOffset;
-          var bottom = maxHeight - constraints.scrollOffset - boxHeight;
-
-          if (boxHeight < minHeight) {
-            final diff = minHeight - boxHeight;
-            top = max(0, top - diff);
-            boxHeight = minHeight;
-          }
-
-          return SliverPadding(
-            padding: EdgeInsets.only(
-              top: top,
-              bottom: bottom,
-            ),
-            sliver: SliverToBoxAdapter(
-              child: SizedBox(
-                width: double.infinity,
-                height: boxHeight,
-                child: builder(
-                  context,
-                  ({required sliver}) => _BoxToSliverAdapter(
-                    constraints: constraints,
-                    child: sliver,
-                  ),
-                  constraints.crossAxisExtent,
-                  top,
-                ),
-              ),
-            ),
-          );
-        },
+        ),
       );
-}
-
-class _BoxToSliverAdapter extends SingleChildRenderObjectWidget {
-  const _BoxToSliverAdapter({
-    required this.constraints,
-    required super.child,
-  });
-
-  final SliverConstraints constraints;
-
-  @override
-  RenderObject createRenderObject(BuildContext context) => _RenderBoxToSliver(
-        constraints: constraints,
-      );
-
-  @override
-  void updateRenderObject(
-      BuildContext context, covariant _RenderBoxToSliver renderObject) {
-    super.updateRenderObject(context, renderObject);
-
-    renderObject.sliverConstraints = constraints;
+    });
   }
-}
-
-class _RenderBoxToSliver extends RenderBox
-    with RenderObjectWithChildMixin<RenderSliver> {
-  _RenderBoxToSliver({
-    required SliverConstraints constraints,
-  }) : _constraints = constraints;
-
-  SliverConstraints _constraints;
-
-  set sliverConstraints(SliverConstraints constraints) {
-    if (_constraints != constraints) {
-      _constraints = constraints;
-      markNeedsLayout();
-    }
-  }
-
-  @override
-  void performLayout() {
-    child!.layout(_constraints);
-    size = constraints.biggest;
-  }
-
-  @override
-  void paint(PaintingContext context, Offset offset) =>
-      context.paintChild(child!, offset);
-
-  @override
-  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>
-      child!.hitTest(
-        SliverHitTestResult.wrap(result),
-        mainAxisPosition: position.dy,
-        crossAxisPosition: position.dx,
-      );
 }
