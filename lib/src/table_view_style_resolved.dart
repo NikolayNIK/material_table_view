@@ -129,6 +129,8 @@ class ResolvedTableViewHorizontalDividersStyle
   ResolvedTableViewHorizontalDividerStyle get footer =>
       super.footer as ResolvedTableViewHorizontalDividerStyle;
 
+  double get space => header.space + footer.space;
+
   const ResolvedTableViewHorizontalDividersStyle({
     required ResolvedTableViewHorizontalDividerStyle headerDividerStyle,
     required ResolvedTableViewHorizontalDividerStyle footerDividerStyle,
