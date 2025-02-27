@@ -3,10 +3,17 @@ import 'package:flutter/widgets.dart';
 import 'package:material_table_view/src/table_horizontal_divider.dart';
 import 'package:material_table_view/src/table_view_style_resolved.dart';
 
+enum TableViewLayoutSlotType {
+  header,
+  headerDivider,
+  body,
+  footer,
+  footerDivider;
+}
+
 /// This widget lays out table header, body and footer.
 @immutable
-class TableViewLayout extends SlottedMultiChildRenderObjectWidget<
-    TableViewLayoutSlotType, RenderBox> {
+class TableViewLayout extends RenderObjectWidget {
   const TableViewLayout({
     super.key,
     required this.dividersStyle,
@@ -21,6 +28,9 @@ class TableViewLayout extends SlottedMultiChildRenderObjectWidget<
   final Widget body;
   final Widget? header, footer;
   final double headerHeight, footerHeight;
+
+  @override
+  RenderObjectElement createElement() => _TableViewLayoutElement(this);
 
   @override
   RenderTableViewLayout createRenderObject(BuildContext context) =>
@@ -41,41 +51,141 @@ class TableViewLayout extends SlottedMultiChildRenderObjectWidget<
     renderObject.headerDividerHeight = dividersStyle.header.space;
     renderObject.footerDividerHeight = dividersStyle.footer.space;
   }
+}
+
+class _TableViewLayoutElement extends RenderObjectElement {
+  _TableViewLayoutElement(TableViewLayout super.widget);
+
+  Element? _header, _headerDivider, _body, _footerDivider, _footer;
 
   @override
-  Iterable<TableViewLayoutSlotType> get slots => TableViewLayoutSlotType.values;
+  RenderTableViewLayout get renderObject =>
+      super.renderObject as RenderTableViewLayout;
 
   @override
-  Widget? childForSlot(TableViewLayoutSlotType slot) {
+  void visitChildren(ElementVisitor visitor) {
+    if (_header != null) visitor(_header!);
+    if (_headerDivider != null) visitor(_headerDivider!);
+    if (_body != null) visitor(_body!);
+    if (_footerDivider != null) visitor(_footerDivider!);
+    if (_footer != null) visitor(_footer!);
+  }
+
+  @override
+  void forgetChild(Element child) {
+    if (identical(_header, child)) _header = null;
+    if (identical(_headerDivider, child)) _headerDivider = null;
+    if (identical(_body, child)) _body = null;
+    if (identical(_footerDivider, child)) _footerDivider = null;
+    if (identical(_footer, child)) _footer = null;
+
+    super.forgetChild(child);
+  }
+
+  @override
+  void mount(Element? parent, Object? newSlot) {
+    super.mount(parent, newSlot);
+
+    _updateChildren();
+  }
+
+  @override
+  void update(RenderObjectWidget newWidget) {
+    super.update(newWidget);
+
+    _updateChildren();
+  }
+
+  void _updateChildren() {
+    final widget = this.widget as TableViewLayout;
+
+    _header = updateChild(_header, widget.header, TableViewLayoutSlotType.header);
+
+    _headerDivider = updateChild(
+      _headerDivider,
+      _header == null
+          ? null
+          : TableHorizontalDivider(style: widget.dividersStyle.header),
+      TableViewLayoutSlotType.headerDivider,
+    );
+
+    _body = updateChild(_body, widget.body, TableViewLayoutSlotType.body);
+
+    _footerDivider = updateChild(
+      _footerDivider,
+      widget.footer == null
+          ? null
+          : TableHorizontalDivider(style: widget.dividersStyle.footer),
+      TableViewLayoutSlotType.footerDivider,
+    );
+
+    _footer = updateChild(_footer, widget.footer, TableViewLayoutSlotType.footer);
+  }
+
+  @override
+  void insertRenderObjectChild(
+    RenderBox child,
+    TableViewLayoutSlotType slot,
+  ) {
     switch (slot) {
       case TableViewLayoutSlotType.header:
-        return header;
+        renderObject.header = child;
+        break;
       case TableViewLayoutSlotType.headerDivider:
-        return header == null
-            ? null
-            : TableHorizontalDivider(style: dividersStyle.header);
+        renderObject.headerDivider = child;
+        break;
       case TableViewLayoutSlotType.body:
-        return body;
+        renderObject.body = child;
+        break;
       case TableViewLayoutSlotType.footer:
-        return footer;
+        renderObject.footer = child;
+        break;
       case TableViewLayoutSlotType.footerDivider:
-        return footer == null
-            ? null
-            : TableHorizontalDivider(style: dividersStyle.footer);
+        renderObject.footerDivider = child;
+        break;
     }
   }
+
+  @override
+  void removeRenderObjectChild(
+    RenderBox child,
+    TableViewLayoutSlotType slot,
+  ) {
+    switch (slot) {
+      case TableViewLayoutSlotType.header:
+        assert(identical(renderObject.header, child));
+        renderObject.header = null;
+        break;
+      case TableViewLayoutSlotType.headerDivider:
+        assert(identical(renderObject.headerDivider, child));
+        renderObject.headerDivider = null;
+        break;
+      case TableViewLayoutSlotType.body:
+        assert(identical(renderObject.body, child));
+        renderObject.body = null;
+        break;
+      case TableViewLayoutSlotType.footer:
+        assert(identical(renderObject.footer, child));
+        renderObject.footer = null;
+        break;
+      case TableViewLayoutSlotType.footerDivider:
+        assert(identical(renderObject.footerDivider, child));
+        renderObject.footerDivider = null;
+        break;
+    }
+  }
+
+  @override
+  void moveRenderObjectChild(
+    RenderBox child,
+    TableViewLayoutSlotType oldSlot,
+    TableViewLayoutSlotType newSlot,
+  ) =>
+      throw UnsupportedError(
+          'TableViewLayout does not support moving children between slots');
 }
 
-enum TableViewLayoutSlotType {
-  header,
-  headerDivider,
-  body,
-  footer,
-  footerDivider;
-}
-
-class RenderTableViewLayout extends RenderBox
-    with SlottedContainerRenderObjectMixin<TableViewLayoutSlotType, RenderBox> {
+class RenderTableViewLayout extends RenderBox {
   RenderTableViewLayout({
     required double headerHeight,
     required double footerHeight,
@@ -85,6 +195,53 @@ class RenderTableViewLayout extends RenderBox
         _footerHeight = footerHeight,
         _headerDividerHeight = headerDividerHeight,
         _footerDividerHeight = footerDividerHeight;
+
+  RenderBox? _header, _headerDivider, _body, _footerDivider, _footer;
+
+  RenderBox? get header => _header;
+
+  RenderBox? get headerDivider => _headerDivider;
+
+  RenderBox? get body => _body;
+
+  RenderBox? get footerDivider => _footerDivider;
+
+  RenderBox? get footer => _footer;
+
+  set header(RenderBox? newRO) {
+    final old = _header;
+    if (old != null) dropChild(old);
+    _header = newRO;
+    if (newRO != null) adoptChild(newRO);
+  }
+
+  set headerDivider(RenderBox? newRO) {
+    final old = _headerDivider;
+    if (old != null) dropChild(old);
+    _headerDivider = newRO;
+    if (newRO != null) adoptChild(newRO);
+  }
+
+  set body(RenderBox? newRO) {
+    final old = _body;
+    if (old != null) dropChild(old);
+    _body = newRO;
+    if (newRO != null) adoptChild(newRO);
+  }
+
+  set footerDivider(RenderBox? newRO) {
+    final old = _footerDivider;
+    if (old != null) dropChild(old);
+    _footerDivider = newRO;
+    if (newRO != null) adoptChild(newRO);
+  }
+
+  set footer(RenderBox? newRO) {
+    final old = _footer;
+    if (old != null) dropChild(old);
+    _footer = newRO;
+    if (newRO != null) adoptChild(newRO);
+  }
 
   double _headerHeight, _footerHeight;
   double _headerDividerHeight, _footerDividerHeight;
@@ -133,15 +290,46 @@ class RenderTableViewLayout extends RenderBox
       constraints.biggest;
 
   @override
+  void visitChildren(RenderObjectVisitor visitor) {
+    if (header != null) visitor(header!);
+    if (headerDivider != null) visitor(headerDivider!);
+    if (body != null) visitor(body!);
+    if (footerDivider != null) visitor(footerDivider!);
+    if (footer != null) visitor(footer!);
+  }
+
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+
+    if (header != null) header!.attach(owner);
+    if (headerDivider != null) headerDivider!.attach(owner);
+    if (body != null) body!.attach(owner);
+    if (footerDivider != null) footerDivider!.attach(owner);
+    if (footer != null) footer!.attach(owner);
+  }
+
+  @override
+  void detach() {
+    super.detach();
+
+    if (header != null) header!.detach();
+    if (headerDivider != null) headerDivider!.detach();
+    if (body != null) body!.detach();
+    if (footerDivider != null) footerDivider!.detach();
+    if (footer != null) footer!.detach();
+  }
+
+  @override
   void performLayout() {
     final width = constraints.maxWidth;
     final height = constraints.maxHeight;
 
-    final header = childForSlot(TableViewLayoutSlotType.header);
-    final headerDivider = childForSlot(TableViewLayoutSlotType.headerDivider);
-    final footer = childForSlot(TableViewLayoutSlotType.footer);
-    final footerDivider = childForSlot(TableViewLayoutSlotType.footerDivider);
-    final body = childForSlot(TableViewLayoutSlotType.body);
+    final header = this.header;
+    final headerDivider = this.headerDivider;
+    final body = this.body;
+    final footerDivider = this.footerDivider;
+    final footer = this.footer;
 
     if (header != null) {
       header.layout(
@@ -206,19 +394,18 @@ class RenderTableViewLayout extends RenderBox
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    _paintChild(context, offset, TableViewLayoutSlotType.footer);
-    _paintChild(context, offset, TableViewLayoutSlotType.body);
-    _paintChild(context, offset, TableViewLayoutSlotType.header);
-    _paintChild(context, offset, TableViewLayoutSlotType.footerDivider);
-    _paintChild(context, offset, TableViewLayoutSlotType.headerDivider);
+    _paintChild(context, offset, footer);
+    _paintChild(context, offset, body);
+    _paintChild(context, offset, header);
+    _paintChild(context, offset, footerDivider);
+    _paintChild(context, offset, headerDivider);
   }
 
   void _paintChild(
     PaintingContext context,
     Offset offset,
-    TableViewLayoutSlotType childSlot,
+    RenderBox? child,
   ) {
-    final child = childForSlot(childSlot);
     if (child == null) return;
 
     context.paintChild(
@@ -229,15 +416,15 @@ class RenderTableViewLayout extends RenderBox
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
-    if (_hitTestChild(result, position, TableViewLayoutSlotType.header)) {
+    if (_hitTestChild(result, position, header)) {
       return true;
     }
 
-    if (_hitTestChild(result, position, TableViewLayoutSlotType.body)) {
+    if (_hitTestChild(result, position, body)) {
       return true;
     }
 
-    if (_hitTestChild(result, position, TableViewLayoutSlotType.footer)) {
+    if (_hitTestChild(result, position, footer)) {
       return true;
     }
 
@@ -247,9 +434,8 @@ class RenderTableViewLayout extends RenderBox
   bool _hitTestChild(
     BoxHitTestResult result,
     Offset position,
-    TableViewLayoutSlotType childSlot,
+    RenderBox? child,
   ) {
-    final child = childForSlot(childSlot);
     if (child == null) return false;
 
     return result.addWithPaintOffset(
