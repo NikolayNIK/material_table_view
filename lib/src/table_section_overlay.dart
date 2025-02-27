@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 class TableSectionOverlay extends StatefulWidget {
@@ -22,23 +21,8 @@ class _TableSectionOverlayState extends State<TableSectionOverlay> {
   ];
 
   @override
-  Widget build(BuildContext context) {
-    Widget w = Overlay(
-      clipBehavior: Clip.none,
-      initialEntries: _initialEntries,
-    );
-
-    if (kDebugMode) {
-      // This avoids assertion in _ScrollSemantics.assembleSemanticsNode
-      // that checks that semantics children are tagged as
-      // RenderViewport.useTwoPaneSemantics.
-      // Semantics should work just fine at release builds.
-      w = Semantics(
-        excludeSemantics: true,
-        child: w,
+  Widget build(BuildContext context) => Overlay(
+        clipBehavior: Clip.none,
+        initialEntries: _initialEntries,
       );
-    }
-
-    return w;
-  }
 }
