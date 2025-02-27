@@ -27,6 +27,8 @@ class TableViewLayout extends SlottedMultiChildRenderObjectWidget<
       RenderBoxTableViewLayout(
         headerHeight: headerHeight,
         footerHeight: footerHeight,
+        headerDividerHeight: dividersStyle.header.space,
+        footerDividerHeight: dividersStyle.footer.space,
       );
 
   @override
@@ -36,6 +38,8 @@ class TableViewLayout extends SlottedMultiChildRenderObjectWidget<
   ) {
     renderObject.headerHeight = headerHeight;
     renderObject.footerHeight = footerHeight;
+    renderObject.headerDividerHeight = dividersStyle.header.space;
+    renderObject.footerDividerHeight = dividersStyle.footer.space;
   }
 
   @override
@@ -72,29 +76,57 @@ enum TableViewLayoutSlotType {
 
 class RenderBoxTableViewLayout extends RenderBox
     with SlottedContainerRenderObjectMixin<TableViewLayoutSlotType, RenderBox> {
-  RenderBoxTableViewLayout(
-      {required double headerHeight, required double footerHeight})
-      : _headerInnerHeight = headerHeight,
-        _footerInnerHeight = footerHeight;
+  RenderBoxTableViewLayout({
+    required double headerHeight,
+    required double footerHeight,
+    required double headerDividerHeight,
+    required double footerDividerHeight,
+  })  : _headerHeight = headerHeight,
+        _footerHeight = footerHeight,
+        _headerDividerHeight = headerDividerHeight,
+        _footerDividerHeight = footerDividerHeight;
 
-  double _headerInnerHeight, _footerInnerHeight;
+  double _headerHeight, _footerHeight;
+  double _headerDividerHeight, _footerDividerHeight;
 
-  @override
-  bool get sizedByParent => true;
+  double get headerHeight => _headerHeight;
+
+  double get footerHeight => _footerHeight;
+
+  double get headerDividerHeight => _headerDividerHeight;
+
+  double get footerDividerHeight => _footerDividerHeight;
 
   set headerHeight(double value) {
-    if (_headerInnerHeight != value) {
-      _headerInnerHeight = value;
+    if (_headerHeight != value) {
+      _headerHeight = value;
       markNeedsLayout();
     }
   }
 
   set footerHeight(double value) {
-    if (_footerInnerHeight != value) {
-      _footerInnerHeight = value;
+    if (_footerHeight != value) {
+      _footerHeight = value;
       markNeedsLayout();
     }
   }
+
+  set headerDividerHeight(double value) {
+    if (_headerDividerHeight != value) {
+      _headerDividerHeight = value;
+      markNeedsLayout();
+    }
+  }
+
+  set footerDividerHeight(double value) {
+    if (_footerDividerHeight != value) {
+      _footerDividerHeight = value;
+      markNeedsLayout();
+    }
+  }
+
+  @override
+  bool get sizedByParent => true;
 
   @override
   Size computeDryLayout(covariant BoxConstraints constraints) =>
@@ -111,12 +143,7 @@ class RenderBoxTableViewLayout extends RenderBox
     final footerDivider = childForSlot(TableViewLayoutSlotType.footerDivider);
     final body = childForSlot(TableViewLayoutSlotType.body);
 
-    double headerOuterHeight = .0;
-    double footerOuterHeight = .0;
-
     if (header != null) {
-      final headerHeight = _headerInnerHeight;
-
       header.layout(
         BoxConstraints.tightFor(
           width: width,
@@ -125,30 +152,18 @@ class RenderBoxTableViewLayout extends RenderBox
       );
 
       (header.parentData as BoxParentData).offset = Offset.zero;
-
-      headerOuterHeight += headerHeight;
     }
 
     if (headerDivider != null) {
       headerDivider.layout(
-        BoxConstraints(
-          minWidth: width,
-          maxWidth: width,
-          minHeight: 0,
-          maxHeight: height - headerOuterHeight,
-        ),
-        parentUsesSize: true,
+        BoxConstraints.tightFor(width: width, height: headerDividerHeight),
       );
 
       (headerDivider.parentData as BoxParentData).offset =
-          Offset(0, headerOuterHeight);
-
-      headerOuterHeight += headerDivider.size.height;
+          Offset(0, headerHeight);
     }
 
     if (footer != null) {
-      final footerHeight = _footerInnerHeight;
-
       footer.layout(
         BoxConstraints.tightFor(
           width: width,
@@ -158,36 +173,34 @@ class RenderBoxTableViewLayout extends RenderBox
 
       (footer.parentData as BoxParentData).offset =
           Offset(0, height - footerHeight);
-
-      footerOuterHeight += footerHeight;
     }
 
     if (footerDivider != null) {
       footerDivider.layout(
-        BoxConstraints(
-          minWidth: width,
-          maxWidth: width,
-          minHeight: 0,
-          maxHeight: height - headerOuterHeight - footerOuterHeight,
+        BoxConstraints.tightFor(
+          width: width,
+          height: footerDividerHeight,
         ),
-        parentUsesSize: true,
       );
 
-      footerOuterHeight += footerDivider.size.height;
-
       (footerDivider.parentData as BoxParentData).offset =
-          Offset(0, height - footerOuterHeight);
+          Offset(0, height - footerHeight - footerDividerHeight);
     }
 
     if (body != null) {
       body.layout(
         BoxConstraints.tightFor(
           width: width,
-          height: height - headerOuterHeight - footerOuterHeight,
+          height: height -
+              headerHeight -
+              headerDividerHeight -
+              footerHeight -
+              footerDividerHeight,
         ),
       );
 
-      (body.parentData as BoxParentData).offset = Offset(0, headerOuterHeight);
+      (body.parentData as BoxParentData).offset =
+          Offset(0, headerHeight + headerDividerHeight);
     }
   }
 
