@@ -153,7 +153,7 @@ class _SliverTableViewState extends State<SliverTableView>
                     minScrollableWidth: widget.minScrollableWidth,
                     textDirection: textDirection,
                     scrollPadding: scrollPadding,
-                    child: TableViewLayout.box(
+                    child: TableViewLayout(
                       dividersStyle: style.dividers.horizontal,
                       header: widget.headerBuilder == null
                           ? null

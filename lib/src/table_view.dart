@@ -317,7 +317,7 @@ class _TableViewState extends State<TableView>
               stickyHorizontalOffset: _stickyHorizontalOffset,
               minScrollableWidth: widget.minScrollableWidth,
               child: Builder(
-                builder: (context) => TableViewLayout.box(
+                builder: (context) => TableViewLayout(
                   dividersStyle: style.dividers.horizontal,
                   header: widget.headerBuilder == null
                       ? null

@@ -7,7 +7,7 @@ import 'package:material_table_view/src/table_view_style_resolved.dart';
 @immutable
 class TableViewLayout extends SlottedMultiChildRenderObjectWidget<
     TableViewLayoutSlotType, RenderBox> {
-  const TableViewLayout.box({
+  const TableViewLayout({
     super.key,
     required this.dividersStyle,
     required this.header,
@@ -23,8 +23,8 @@ class TableViewLayout extends SlottedMultiChildRenderObjectWidget<
   final double headerHeight, footerHeight;
 
   @override
-  RenderBoxTableViewLayout createRenderObject(BuildContext context) =>
-      RenderBoxTableViewLayout(
+  RenderTableViewLayout createRenderObject(BuildContext context) =>
+      RenderTableViewLayout(
         headerHeight: headerHeight,
         footerHeight: footerHeight,
         headerDividerHeight: dividersStyle.header.space,
@@ -34,7 +34,7 @@ class TableViewLayout extends SlottedMultiChildRenderObjectWidget<
   @override
   void updateRenderObject(
     BuildContext context,
-    RenderBoxTableViewLayout renderObject,
+    RenderTableViewLayout renderObject,
   ) {
     renderObject.headerHeight = headerHeight;
     renderObject.footerHeight = footerHeight;
@@ -74,9 +74,9 @@ enum TableViewLayoutSlotType {
   footerDivider;
 }
 
-class RenderBoxTableViewLayout extends RenderBox
+class RenderTableViewLayout extends RenderBox
     with SlottedContainerRenderObjectMixin<TableViewLayoutSlotType, RenderBox> {
-  RenderBoxTableViewLayout({
+  RenderTableViewLayout({
     required double headerHeight,
     required double footerHeight,
     required double headerDividerHeight,
