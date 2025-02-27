@@ -35,7 +35,9 @@ class SliverTableView extends TableView {
     super.rowReorder,
     super.addAutomaticKeepAlives,
     required super.rowCount,
-    required double rowHeight,
+    required super.rowHeight,
+    super.rowHeightBuilder,
+    super.rowPrototype,
     required super.rowBuilder,
     super.placeholderBuilder,
     super.placeholderRowBuilder,
@@ -45,13 +47,10 @@ class SliverTableView extends TableView {
     super.headerHeight,
     super.footerBuilder,
     super.footerHeight,
-  }) : super.builder(rowHeight: rowHeight);
+  }) : super.builder();
 
   /// A scroll controller used for the horizontal scrolling of the table.
   final ScrollController? horizontalScrollController;
-
-  @override
-  double get rowHeight => super.rowHeight!;
 
   @override
   State<SliverTableView> createState() => _SliverTableViewState();
@@ -188,10 +187,10 @@ class _SliverTableViewState extends State<SliverTableView>
                                     top: scrollPadding.top,
                                   ),
                                   sliver: SliverTableBody(
-                                    rowHeight: widget.rowHeight,
-                                    rowHeightBuilder: null,
-                                    rowPrototype: null,
                                     rowCount: widget.rowCount,
+                                    rowHeight: widget.rowHeight,
+                                    rowHeightBuilder: widget.rowHeightBuilder,
+                                    rowPrototype: widget.rowPrototype,
                                     rowBuilder: widget.rowBuilder,
                                     rowReorder: widget.rowReorder,
                                     placeholderBuilder:
