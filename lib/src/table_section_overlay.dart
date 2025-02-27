@@ -21,6 +21,7 @@ class _TableSectionOverlayState extends State<TableSectionOverlay> {
     super.initState();
 
     _overlayEntry = OverlayEntry(
+      canSizeOverlay: true,
       builder: (context) => widget.child,
     );
   }
