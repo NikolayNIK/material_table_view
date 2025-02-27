@@ -157,7 +157,7 @@ class _SliverTableViewState extends State<SliverTableView>
                       dividersStyle: style.dividers.horizontal,
                       header: widget.headerBuilder == null
                           ? null
-                          : TableSection.box(
+                          : TableSection(
                               verticalOffset: null,
                               verticalOffsetPixels: .0,
                               rowHeight: widget.headerHeight,
@@ -169,7 +169,7 @@ class _SliverTableViewState extends State<SliverTableView>
                       body: widget.bodyContainerBuilder(
                         context,
                         ClipRect(
-                          child: TableSection.box(
+                          child: TableSection(
                             rowHeight: widget.rowHeight,
                             verticalOffset: null,
                             verticalOffsetPixels: Scrollable.of(
@@ -210,7 +210,7 @@ class _SliverTableViewState extends State<SliverTableView>
                       ),
                       footer: widget.footerBuilder == null
                           ? null
-                          : TableSection.box(
+                          : TableSection(
                               verticalOffset: null,
                               verticalOffsetPixels: .0,
                               rowHeight: widget.footerHeight,

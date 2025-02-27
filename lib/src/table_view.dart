@@ -321,7 +321,7 @@ class _TableViewState extends State<TableView>
                   dividersStyle: style.dividers.horizontal,
                   header: widget.headerBuilder == null
                       ? null
-                      : TableSection.box(
+                      : TableSection(
                           verticalOffset: null,
                           verticalOffsetPixels: .0,
                           rowHeight: widget.headerHeight,
@@ -350,7 +350,7 @@ class _TableViewState extends State<TableView>
                             clipBehavior: Clip.none,
                             axisDirection: AxisDirection.down,
                             viewportBuilder: (context, verticalOffset) =>
-                                TableSection.box(
+                                TableSection(
                               verticalOffset: verticalOffset,
                               rowHeight: widget.rowHeight,
                               placeholderShade: widget.placeholderShade,
@@ -396,7 +396,7 @@ class _TableViewState extends State<TableView>
                   ),
                   footer: widget.footerBuilder == null
                       ? null
-                      : TableSection.box(
+                      : TableSection(
                           verticalOffset: null,
                           verticalOffsetPixels: .0,
                           rowHeight: widget.footerHeight,

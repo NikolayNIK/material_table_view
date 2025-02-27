@@ -4,7 +4,24 @@ import 'package:material_table_view/src/table_content_layout_data.dart';
 import 'package:material_table_view/src/table_painting_context.dart';
 import 'package:material_table_view/src/table_placeholder_shade.dart';
 
-mixin RenderTableSectionMixin on RenderObject {
+class RenderTableSection extends RenderProxyBox {
+  RenderTableSection({
+    required ViewportOffset? verticalOffset,
+    required double? verticalOffsetPixels,
+    required double? rowHeight,
+    required TableContentLayoutData layoutData,
+    required TablePlaceholderShade? placeholderShade,
+    required bool useTablePaintingContext,
+  }) {
+    _rowHeight = rowHeight;
+    _layoutData = layoutData;
+    _placeholderShade = placeholderShade;
+    _useTablePaintingContext = useTablePaintingContext;
+    _verticalOffset = verticalOffset;
+    _verticalOffset?.addListener(_verticalOffsetChanged);
+    _placeholderShade?.addListener(_placeholderShaderChanged);
+  }
+
   ViewportOffset? _verticalOffset;
   double? _verticalOffsetPixels;
   double? _rowHeight;
@@ -17,7 +34,7 @@ mixin RenderTableSectionMixin on RenderObject {
   Path? _scrolledClipPath, _leftDividerPath, _rightDividerPath;
   bool _pathsInvalidated = true;
 
-  Size get visibleSize;
+  Size get visibleSize => size;
 
   Path? get scrolledSectionClipPath => _scrolledClipPath;
 
@@ -369,56 +386,4 @@ mixin RenderTableSectionMixin on RenderObject {
 
   @override
   bool get isRepaintBoundary => true;
-}
-
-class RenderBoxTableSection extends RenderProxyBox
-    with RenderTableSectionMixin {
-  RenderBoxTableSection({
-    required ViewportOffset? verticalOffset,
-    required double? verticalOffsetPixels,
-    required double? rowHeight,
-    required TableContentLayoutData layoutData,
-    required TablePlaceholderShade? placeholderShade,
-    required bool useTablePaintingContext,
-  }) {
-    _rowHeight = rowHeight;
-    _layoutData = layoutData;
-    _placeholderShade = placeholderShade;
-    _useTablePaintingContext = useTablePaintingContext;
-    _verticalOffset = verticalOffset;
-    _verticalOffset?.addListener(_verticalOffsetChanged);
-    _placeholderShade?.addListener(_placeholderShaderChanged);
-  }
-
-  @override
-  Size get visibleSize => size;
-}
-
-class RenderSliverTableSection extends RenderProxySliver
-    with RenderTableSectionMixin {
-  RenderSliverTableSection({
-    required ViewportOffset? verticalOffset,
-    required double? verticalOffsetPixels,
-    required double? rowHeight,
-    required TableContentLayoutData layoutData,
-    required TablePlaceholderShade? placeholderShade,
-    required bool useTablePaintingContext,
-  }) {
-    _rowHeight = rowHeight;
-    _layoutData = layoutData;
-    _placeholderShade = placeholderShade;
-    _useTablePaintingContext = useTablePaintingContext;
-    _verticalOffset = verticalOffset;
-    _verticalOffset?.addListener(_verticalOffsetChanged);
-    _placeholderShade?.addListener(_placeholderShaderChanged);
-  }
-
-  @override
-  Size get visibleSize {
-    final geometry = this.geometry!;
-    return Size(
-      geometry.crossAxisExtent!,
-      geometry.paintExtent - geometry.paintOrigin,
-    );
-  }
 }

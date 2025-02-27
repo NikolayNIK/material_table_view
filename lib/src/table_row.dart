@@ -472,10 +472,10 @@ class _RenderTableViewRow extends RenderBox {
     }
   }
 
-  RenderTableSectionMixin? get _nearestTableSectionAncestor {
+  RenderTableSection? get _nearestTableSectionAncestor {
     var node = parent;
     while (node != null) {
-      if (node is RenderTableSectionMixin) {
+      if (node is RenderTableSection) {
         return node;
       }
 

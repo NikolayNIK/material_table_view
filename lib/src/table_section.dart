@@ -18,27 +18,15 @@ class TableSection extends StatelessWidget {
   final double? rowHeight;
   final TablePlaceholderShade? placeholderShade;
   final Widget child;
-  final bool _box;
 
-  const TableSection.box({
+  const TableSection({
     super.key,
     required this.verticalOffset,
     this.verticalOffsetPixels,
     required this.rowHeight,
     required this.placeholderShade,
     required this.child,
-  })  : _box = true,
-        assert(verticalOffset != null || verticalOffsetPixels != null);
-
-  const TableSection.sliver({
-    super.key,
-    required this.verticalOffset,
-    this.verticalOffsetPixels,
-    required this.rowHeight,
-    required this.placeholderShade,
-    required this.child,
-  })  : _box = false,
-        assert(verticalOffset != null || verticalOffsetPixels != null);
+  }) : assert(verticalOffset != null || verticalOffsetPixels != null);
 
   @override
   Widget build(BuildContext context) => _TableSection(
@@ -47,7 +35,6 @@ class TableSection extends StatelessWidget {
         rowHeight: rowHeight,
         layoutData: TableContentLayout.of(context),
         placeholderShade: placeholderShade,
-        box: _box,
         child: child,
       );
 }
@@ -58,7 +45,6 @@ class _TableSection extends SingleChildRenderObjectWidget {
   final double? rowHeight;
   final TableContentLayoutData layoutData;
   final TablePlaceholderShade? placeholderShade;
-  final bool box;
 
   const _TableSection({
     required this.verticalOffset,
@@ -66,38 +52,24 @@ class _TableSection extends SingleChildRenderObjectWidget {
     required this.rowHeight,
     required this.layoutData,
     required this.placeholderShade,
-    required this.box,
     required Widget child,
   }) : super(child: child);
 
   @override
-  RenderObject createRenderObject(BuildContext context) => box
-      ? RenderBoxTableSection(
-          verticalOffset: verticalOffset,
-          verticalOffsetPixels: verticalOffsetPixels,
-          rowHeight: rowHeight,
-          layoutData: layoutData,
-          placeholderShade: placeholderShade,
-          useTablePaintingContext: useTablePaintingContext,
-        )
-      : RenderSliverTableSection(
-          verticalOffset: verticalOffset,
-          verticalOffsetPixels: verticalOffsetPixels,
-          rowHeight: rowHeight,
-          layoutData: layoutData,
-          placeholderShade: placeholderShade,
-          useTablePaintingContext: useTablePaintingContext,
-        );
+  RenderObject createRenderObject(BuildContext context) => RenderTableSection(
+        verticalOffset: verticalOffset,
+        verticalOffsetPixels: verticalOffsetPixels,
+        rowHeight: rowHeight,
+        layoutData: layoutData,
+        placeholderShade: placeholderShade,
+        useTablePaintingContext: useTablePaintingContext,
+      );
 
   @override
   void updateRenderObject(
     BuildContext context,
-    covariant RenderTableSectionMixin renderObject,
+    RenderTableSection renderObject,
   ) {
-    assert(box
-        ? renderObject is RenderBoxTableSection
-        : renderObject is RenderSliverTableSection);
-
     super.updateRenderObject(context, renderObject);
 
     renderObject.verticalOffset = verticalOffset;
