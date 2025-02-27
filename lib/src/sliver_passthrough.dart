@@ -31,6 +31,8 @@ class SliverPassthrough extends SingleChildRenderObjectWidget {
 class RenderSliverPassthrough extends RenderSliverSingleBoxAdapter {
   double _minHeight = .0;
 
+  get passthroughConstraints => constraints;
+
   set minHeight(double value) {
     if (_minHeight != value) {
       _minHeight = value;
@@ -53,7 +55,7 @@ class RenderSliverPassthrough extends RenderSliverSingleBoxAdapter {
     final sliverChild = passthroughChild.child!;
 
     // layout sliver passthrough descendant first
-    sliverChild.layout(constraints);
+    sliverChild.layout(passthroughConstraints);
 
     final childGeometry = sliverChild.geometry!;
 
@@ -132,11 +134,21 @@ class _RenderBoxToSliverPassthrough extends RenderBox
   }
 
   @override
+  void markNeedsLayout() {
+    super.markNeedsLayout();
+
+    passthroughParent.markNeedsLayout();
+  }
+
+  @override
   Size computeDryLayout(covariant BoxConstraints constraints) =>
       constraints.biggest;
 
   @override
-  void performLayout() => child!.layout(passthroughParent.constraints);
+  void performLayout() => child!.layout(
+        passthroughParent.constraints,
+        parentUsesSize: true,
+      );
 
   @override
   void paint(PaintingContext context, Offset offset) {
