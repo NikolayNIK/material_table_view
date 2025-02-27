@@ -47,12 +47,19 @@ class TableColumnScrollDimensionsApplicator
 
 class RenderScrollDimensionsApplicator extends RenderProxyBox {
   RenderScrollDimensionsApplicator(
-    this.scrollPosition,
+    this._scrollPosition,
     this._scrollExtent,
   );
 
-  ScrollPosition scrollPosition;
+  ScrollPosition _scrollPosition;
   double _scrollExtent;
+
+  set scrollPosition(ScrollPosition scrollPosition) {
+    if (!identical(_scrollPosition, scrollPosition)) {
+      _scrollPosition = scrollPosition;
+      markNeedsLayout();
+    }
+  }
 
   set scrollExtent(double scrollExtent) {
     if (scrollExtent != _scrollExtent) {
@@ -69,8 +76,8 @@ class RenderScrollDimensionsApplicator extends RenderProxyBox {
     super.performLayout();
 
     final viewportDimension = size.width;
-    scrollPosition.applyViewportDimension(viewportDimension);
-    scrollPosition.applyContentDimensions(
+    _scrollPosition.applyViewportDimension(viewportDimension);
+    _scrollPosition.applyContentDimensions(
       0,
       max(.0, _scrollExtent - viewportDimension),
     );
