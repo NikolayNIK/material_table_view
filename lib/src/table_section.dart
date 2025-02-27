@@ -12,12 +12,11 @@ import 'package:material_table_view/src/table_placeholder_shade.dart';
 /// - paints wiggly dividers separating scrolled and fixed sections;
 /// - serves as a starting point of a custom painting composition process
 /// (including clipping scrolled section, handling repainting, etc).
-class TableSection extends StatelessWidget {
+class TableSection extends SingleChildRenderObjectWidget {
   final ViewportOffset? verticalOffset;
   final double? verticalOffsetPixels;
   final double? rowHeight;
   final TablePlaceholderShade? placeholderShade;
-  final Widget child;
 
   const TableSection({
     super.key,
@@ -25,45 +24,25 @@ class TableSection extends StatelessWidget {
     this.verticalOffsetPixels,
     required this.rowHeight,
     required this.placeholderShade,
-    required this.child,
+    required super.child,
   }) : assert(verticalOffset != null || verticalOffsetPixels != null);
 
-  @override
-  Widget build(BuildContext context) => _TableSection(
-        verticalOffset: verticalOffset,
-        verticalOffsetPixels: verticalOffsetPixels,
-        rowHeight: rowHeight,
-        layoutData: TableContentLayout.of(context),
-        placeholderShade: placeholderShade,
-        child: child,
-      );
-}
-
-class _TableSection extends SingleChildRenderObjectWidget {
-  final ViewportOffset? verticalOffset;
-  final double? verticalOffsetPixels;
-  final double? rowHeight;
-  final TableContentLayoutData layoutData;
-  final TablePlaceholderShade? placeholderShade;
-
-  const _TableSection({
-    required this.verticalOffset,
-    required this.verticalOffsetPixels,
-    required this.rowHeight,
-    required this.layoutData,
-    required this.placeholderShade,
-    required Widget child,
-  }) : super(child: child);
+  bool useTablePaintingContext(TableContentLayoutData layoutData) =>
+      placeholderShade != null || layoutData.fixedColumns.indices.isNotEmpty;
 
   @override
-  RenderObject createRenderObject(BuildContext context) => RenderTableSection(
-        verticalOffset: verticalOffset,
-        verticalOffsetPixels: verticalOffsetPixels,
-        rowHeight: rowHeight,
-        layoutData: layoutData,
-        placeholderShade: placeholderShade,
-        useTablePaintingContext: useTablePaintingContext,
-      );
+  RenderObject createRenderObject(BuildContext context) {
+    final layoutData = TableContentLayout.of(context);
+
+    return RenderTableSection(
+      verticalOffset: verticalOffset,
+      verticalOffsetPixels: verticalOffsetPixels,
+      rowHeight: rowHeight,
+      layoutData: layoutData,
+      placeholderShade: placeholderShade,
+      useTablePaintingContext: useTablePaintingContext(layoutData),
+    );
+  }
 
   @override
   void updateRenderObject(
@@ -72,14 +51,13 @@ class _TableSection extends SingleChildRenderObjectWidget {
   ) {
     super.updateRenderObject(context, renderObject);
 
+    final layoutData = TableContentLayout.of(context);
+
     renderObject.verticalOffset = verticalOffset;
     renderObject.verticalOffsetPixels = verticalOffsetPixels;
     renderObject.rowHeight = rowHeight;
     renderObject.layoutData = layoutData;
     renderObject.placeholderShade = placeholderShade;
-    renderObject.useTablePaintingContext = useTablePaintingContext;
+    renderObject.useTablePaintingContext = useTablePaintingContext(layoutData);
   }
-
-  bool get useTablePaintingContext =>
-      placeholderShade != null || layoutData.fixedColumns.indices.isNotEmpty;
 }
