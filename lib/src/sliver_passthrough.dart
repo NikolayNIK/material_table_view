@@ -31,6 +31,8 @@ class SliverPassthrough extends SingleChildRenderObjectWidget {
 class RenderSliverPassthrough extends RenderSliverSingleBoxAdapter {
   double _minHeight = .0;
 
+  _RenderBoxToSliverPassthrough? _passthroughChild;
+
   get passthroughConstraints => constraints;
 
   set minHeight(double value) {
@@ -50,9 +52,7 @@ class RenderSliverPassthrough extends RenderSliverSingleBoxAdapter {
 
     final SliverConstraints constraints = this.constraints;
 
-    final passthroughChild = this.passthroughChild;
-
-    final sliverChild = passthroughChild.child!;
+    final sliverChild = _passthroughChild!.child!;
 
     // layout sliver passthrough descendant first
     sliverChild.layout(passthroughConstraints);
@@ -117,10 +117,12 @@ class _RenderBoxToSliverPassthrough extends RenderBox
     with RenderObjectWithChildMixin<RenderSliver> {
   _RenderBoxToSliverPassthrough();
 
+  RenderSliverPassthrough? passthroughParent;
+
   @override
   bool get sizedByParent => true;
 
-  RenderSliverPassthrough get passthroughParent {
+  RenderSliverPassthrough findPassthroughParent() {
     RenderObject? parent = this.parent;
     while (parent != null) {
       if (parent is RenderSliverPassthrough) {
@@ -134,10 +136,25 @@ class _RenderBoxToSliverPassthrough extends RenderBox
   }
 
   @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+
+    (passthroughParent = findPassthroughParent())._passthroughChild = this;
+  }
+
+  @override
+  void detach() {
+    super.detach();
+
+    passthroughParent?._passthroughChild = null;
+    passthroughParent = null;
+  }
+
+  @override
   void markNeedsLayout() {
     super.markNeedsLayout();
 
-    passthroughParent.markNeedsLayout();
+    passthroughParent?.markNeedsLayout();
   }
 
   @override
@@ -146,7 +163,7 @@ class _RenderBoxToSliverPassthrough extends RenderBox
 
   @override
   void performLayout() => child!.layout(
-        passthroughParent.constraints,
+        passthroughParent!.constraints,
         parentUsesSize: true,
       );
 
@@ -165,23 +182,4 @@ class _RenderBoxToSliverPassthrough extends RenderBox
         mainAxisPosition: position.dy,
         crossAxisPosition: position.dx,
       );
-}
-
-extension _PassthroughChild on RenderObject {
-  _RenderBoxToSliverPassthrough get passthroughChild {
-    _RenderBoxToSliverPassthrough? result;
-
-    void visitor(RenderObject child) {
-      if (child is _RenderBoxToSliverPassthrough) {
-        result = child;
-        return;
-      }
-
-      child.visitChildren(visitor);
-    }
-
-    visitChildren(visitor);
-
-    return result!;
-  }
 }
