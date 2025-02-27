@@ -230,6 +230,20 @@ mixin RenderTableSectionMixin on RenderObject {
   }
 
   @override
+  void performResize() {
+    super.performResize();
+
+    _invalidatePaths();
+  }
+
+  @override
+  void performLayout() {
+    super.performLayout();
+
+    _invalidatePaths();
+  }
+
+  @override
   void paint(PaintingContext context, Offset offset) {
     assert(
       offset.distanceSquared < .01,
