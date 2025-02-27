@@ -299,7 +299,7 @@ class _TableViewState extends State<TableView>
         final columns = _columns = widget.columns
             .resolveLayout(constraints.maxWidth - scrollPadding.horizontal);
 
-        return TableColumnScrollDimensionsApplicator.box(
+        return TableColumnScrollDimensionsApplicator(
           position: _controller.horizontalScrollController.position,
           columns: columns,
           scrollPadding: scrollPadding,

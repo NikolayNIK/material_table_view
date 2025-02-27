@@ -11,46 +11,27 @@ class TableColumnScrollDimensionsApplicator
   final ScrollPosition position;
   final List<TableColumn> columns;
   final EdgeInsets scrollPadding;
-  final bool _box;
 
-  const TableColumnScrollDimensionsApplicator.box({
+  const TableColumnScrollDimensionsApplicator({
     super.key,
     required this.position,
     required this.columns,
     required this.scrollPadding,
     required super.child,
-  }) : _box = true;
-
-  const TableColumnScrollDimensionsApplicator.sliver({
-    super.key,
-    required this.position,
-    required this.columns,
-    required this.scrollPadding,
-    required super.child,
-  }) : _box = false;
+  });
 
   @override
-  RenderObject createRenderObject(BuildContext context) => _box
-      ? _RenderBoxScrollDimensionsApplicator(
-          position,
-          _scrollExtent,
-        )
-      : _RenderSliverScrollDimensionsApplicator(
-          position,
-          _scrollExtent,
-        );
+  RenderObject createRenderObject(BuildContext context) =>
+      RenderScrollDimensionsApplicator(
+        position,
+        _scrollExtent,
+      );
 
   @override
   void updateRenderObject(
     BuildContext context,
     covariant RenderScrollDimensionsApplicator renderObject,
   ) {
-    assert(
-      _box
-          ? renderObject is _RenderBoxScrollDimensionsApplicator
-          : renderObject is _RenderSliverScrollDimensionsApplicator,
-    );
-
     super.updateRenderObject(context, renderObject);
 
     renderObject
@@ -64,23 +45,15 @@ class TableColumnScrollDimensionsApplicator
       scrollPadding.horizontal;
 }
 
-mixin RenderScrollDimensionsApplicator on RenderObject {
-  set scrollPosition(ScrollPosition position);
-
-  set scrollExtent(double scrollExtent);
-}
-
-class _RenderBoxScrollDimensionsApplicator extends RenderProxyBox
-    with RenderScrollDimensionsApplicator {
-  ScrollPosition scrollPosition;
-  double _scrollExtent;
-
-  _RenderBoxScrollDimensionsApplicator(
+class RenderScrollDimensionsApplicator extends RenderProxyBox {
+  RenderScrollDimensionsApplicator(
     this.scrollPosition,
     this._scrollExtent,
   );
 
-  @override
+  ScrollPosition scrollPosition;
+  double _scrollExtent;
+
   set scrollExtent(double scrollExtent) {
     if (scrollExtent != _scrollExtent) {
       _scrollExtent = scrollExtent;
@@ -96,37 +69,6 @@ class _RenderBoxScrollDimensionsApplicator extends RenderProxyBox
     super.performLayout();
 
     final viewportDimension = size.width;
-    scrollPosition.applyViewportDimension(viewportDimension);
-    scrollPosition.applyContentDimensions(
-      0,
-      max(.0, _scrollExtent - viewportDimension),
-    );
-  }
-}
-
-class _RenderSliverScrollDimensionsApplicator extends RenderProxySliver
-    with RenderScrollDimensionsApplicator {
-  ScrollPosition scrollPosition;
-  double _scrollExtent;
-
-  _RenderSliverScrollDimensionsApplicator(
-    this.scrollPosition,
-    this._scrollExtent,
-  );
-
-  @override
-  set scrollExtent(double scrollExtent) {
-    if (scrollExtent != _scrollExtent) {
-      _scrollExtent = scrollExtent;
-      markNeedsLayout();
-    }
-  }
-
-  @override
-  void performLayout() {
-    super.performLayout();
-
-    final viewportDimension = geometry!.crossAxisExtent!;
     scrollPosition.applyViewportDimension(viewportDimension);
     scrollPosition.applyContentDimensions(
       0,

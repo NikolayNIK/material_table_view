@@ -136,7 +136,7 @@ class _SliverTableViewState extends State<SliverTableView>
                 controller: _horizontalScrollController,
                 axisDirection: textDirectionToAxisDirection(textDirection),
                 viewportBuilder: (context, position) =>
-                    TableColumnScrollDimensionsApplicator.box(
+                    TableColumnScrollDimensionsApplicator(
                   position: _horizontalScrollController.position,
                   columns: columns,
                   scrollPadding: scrollPadding,
