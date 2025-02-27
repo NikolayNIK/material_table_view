@@ -14,23 +14,18 @@ class TableSectionOverlay extends StatefulWidget {
 }
 
 class _TableSectionOverlayState extends State<TableSectionOverlay> {
-  late OverlayEntry _overlayEntry;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _overlayEntry = OverlayEntry(
+  late final List<OverlayEntry> _initialEntries = [
+    OverlayEntry(
       canSizeOverlay: true,
       builder: (context) => widget.child,
-    );
-  }
+    )
+  ];
 
   @override
   Widget build(BuildContext context) {
     Widget w = Overlay(
       clipBehavior: Clip.none,
-      initialEntries: [_overlayEntry],
+      initialEntries: _initialEntries,
     );
 
     if (kDebugMode) {
