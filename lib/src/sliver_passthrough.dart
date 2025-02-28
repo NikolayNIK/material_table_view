@@ -52,11 +52,12 @@ class RenderSliverPassthrough extends RenderSliverSingleBoxAdapter {
 
     final SliverConstraints constraints = this.constraints;
 
-    final sliverChild = _passthroughChild!.child!;
+    final passthroughChild = _passthroughChild!;
 
     // layout sliver passthrough descendant first
-    sliverChild.layout(passthroughConstraints);
+    passthroughChild._performEarlyLayout();
 
+    final sliverChild = _passthroughChild!.child!;
     final childGeometry = sliverChild.geometry!;
 
     // layout ourselves based on a sliver descendant
@@ -103,10 +104,10 @@ class RenderSliverPassthrough extends RenderSliverSingleBoxAdapter {
 
 @immutable
 class BoxToSliverPassthrough extends SingleChildRenderObjectWidget {
-  const BoxToSliverPassthrough({
+  BoxToSliverPassthrough({
     super.key,
     required Widget sliver,
-  }) : super(child: sliver);
+  }) : super(child: _SliverPassthroughAdapter(sliver: sliver));
 
   @override
   RenderBox createRenderObject(BuildContext context) =>
@@ -151,21 +152,13 @@ class _RenderBoxToSliverPassthrough extends RenderBox
   }
 
   @override
-  void markNeedsLayout() {
-    super.markNeedsLayout();
-
-    passthroughParent?.markNeedsLayout();
-  }
-
-  @override
   Size computeDryLayout(covariant BoxConstraints constraints) =>
       constraints.biggest;
 
+  void _performEarlyLayout() => performLayout();
+
   @override
-  void performLayout() => child!.layout(
-        passthroughParent!.constraints,
-        parentUsesSize: true,
-      );
+  void performLayout() => child!.layout(passthroughParent!.constraints);
 
   @override
   void paint(PaintingContext context, Offset offset) {
@@ -176,10 +169,38 @@ class _RenderBoxToSliverPassthrough extends RenderBox
   }
 
   @override
-  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>
-      child!.hitTest(
-        SliverHitTestResult.wrap(result),
-        mainAxisPosition: position.dy,
-        crossAxisPosition: position.dx,
-      );
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    final child = this.child!;
+
+    return child.geometry!.visible &&
+        child.hitTest(
+          SliverHitTestResult.wrap(result),
+          mainAxisPosition: position.dy,
+          crossAxisPosition: position.dx,
+        );
+  }
+}
+
+@immutable
+class _SliverPassthroughAdapter extends SingleChildRenderObjectWidget {
+  const _SliverPassthroughAdapter({required Widget sliver})
+      : super(child: sliver);
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderSliverPassthroughAdapter();
+}
+
+class _RenderSliverPassthroughAdapter extends RenderProxySliver {
+  @override
+  void markNeedsLayout() {
+    super.markNeedsLayout();
+
+    final parent = this.parent;
+    if (parent != null) {
+      (parent as _RenderBoxToSliverPassthrough)
+          .passthroughParent
+          ?.markNeedsLayout();
+    }
+  }
 }
