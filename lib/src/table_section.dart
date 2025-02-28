@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:material_table_view/src/render_table_section.dart';
 import 'package:material_table_view/src/table_content_layout.dart';
 import 'package:material_table_view/src/table_content_layout_data.dart';
 import 'package:material_table_view/src/table_placeholder_shade.dart';
+import 'package:material_table_view/src/table_section_vertical_scroll_offset.dart';
 
 /// This widget represents a single table section:
 /// either a header, a body or a footer.
@@ -13,19 +13,17 @@ import 'package:material_table_view/src/table_placeholder_shade.dart';
 /// - serves as a starting point of a custom painting composition process
 /// (including clipping scrolled section, handling repainting, etc).
 class TableSection extends SingleChildRenderObjectWidget {
-  final ViewportOffset? verticalOffset;
-  final double? verticalOffsetPixels;
+  final TableSectionOffset verticalOffset;
   final double? rowHeight;
   final TablePlaceholderShade? placeholderShade;
 
   const TableSection({
     super.key,
-    required this.verticalOffset,
-    this.verticalOffsetPixels,
+    this.verticalOffset = TableSectionOffset.zero,
     required this.rowHeight,
     required this.placeholderShade,
     required super.child,
-  }) : assert(verticalOffset != null || verticalOffsetPixels != null);
+  });
 
   bool useTablePaintingContext(TableContentLayoutData layoutData) =>
       placeholderShade != null || layoutData.fixedColumns.indices.isNotEmpty;
@@ -36,7 +34,6 @@ class TableSection extends SingleChildRenderObjectWidget {
 
     return RenderTableSection(
       verticalOffset: verticalOffset,
-      verticalOffsetPixels: verticalOffsetPixels,
       rowHeight: rowHeight,
       layoutData: layoutData,
       placeholderShade: placeholderShade,
@@ -54,7 +51,6 @@ class TableSection extends SingleChildRenderObjectWidget {
     final layoutData = TableContentLayout.of(context);
 
     renderObject.verticalOffset = verticalOffset;
-    renderObject.verticalOffsetPixels = verticalOffsetPixels;
     renderObject.rowHeight = rowHeight;
     renderObject.layoutData = layoutData;
     renderObject.placeholderShade = placeholderShade;

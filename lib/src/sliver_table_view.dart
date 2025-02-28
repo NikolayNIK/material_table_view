@@ -12,6 +12,7 @@ import 'package:material_table_view/src/table_row.dart';
 import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_section_overlay.dart';
+import 'package:material_table_view/src/table_section_vertical_scroll_offset.dart';
 import 'package:material_table_view/src/table_view.dart';
 import 'package:material_table_view/src/table_view_layout.dart';
 import 'package:material_table_view/src/table_view_style_resolved.dart';
@@ -157,8 +158,6 @@ class _SliverTableViewState extends State<SliverTableView>
                       header: widget.headerBuilder == null
                           ? null
                           : TableSection(
-                              verticalOffset: null,
-                              verticalOffsetPixels: .0,
                               rowHeight: widget.headerHeight,
                               placeholderShade: null,
                               child: widget.headerBuilder!(
@@ -170,10 +169,11 @@ class _SliverTableViewState extends State<SliverTableView>
                         ClipRect(
                           child: TableSection(
                             rowHeight: widget.rowHeight,
-                            verticalOffset: Scrollable.of(
+                            verticalOffset:
+                            TableSectionOffset.wrap(Scrollable.of(
                               this.context,
                               axis: Axis.vertical,
-                            ).position,
+                            ).position),
                             placeholderShade: widget.placeholderShade,
                             child: OptionalWrap(
                               builder: widget.rowReorder == null
@@ -209,8 +209,6 @@ class _SliverTableViewState extends State<SliverTableView>
                       footer: widget.footerBuilder == null
                           ? null
                           : TableSection(
-                              verticalOffset: null,
-                              verticalOffsetPixels: .0,
                               rowHeight: widget.footerHeight,
                               placeholderShade: null,
                               child: widget.footerBuilder!(

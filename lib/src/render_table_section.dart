@@ -3,27 +3,25 @@ import 'package:flutter/widgets.dart';
 import 'package:material_table_view/src/table_content_layout_data.dart';
 import 'package:material_table_view/src/table_painting_context.dart';
 import 'package:material_table_view/src/table_placeholder_shade.dart';
+import 'package:material_table_view/src/table_section_vertical_scroll_offset.dart';
 
 class RenderTableSection extends RenderProxyBox {
   RenderTableSection({
-    required ViewportOffset? verticalOffset,
-    required double? verticalOffsetPixels,
+    required TableSectionOffset verticalOffset,
     required double? rowHeight,
     required TableContentLayoutData layoutData,
     required TablePlaceholderShade? placeholderShade,
     required bool useTablePaintingContext,
-  }) {
+  }) : _verticalOffset = verticalOffset {
     _rowHeight = rowHeight;
     _layoutData = layoutData;
     _placeholderShade = placeholderShade;
     _useTablePaintingContext = useTablePaintingContext;
-    _verticalOffset = verticalOffset;
-    _verticalOffset?.addListener(_verticalOffsetChanged);
+    _verticalOffset.addListener(_verticalOffsetChanged);
     _placeholderShade?.addListener(_placeholderShaderChanged);
   }
 
-  ViewportOffset? _verticalOffset;
-  double? _verticalOffsetPixels;
+  TableSectionOffset _verticalOffset;
   double? _rowHeight;
   late TableContentLayoutData _layoutData;
   TablePlaceholderShade? _placeholderShade;
@@ -38,30 +36,16 @@ class RenderTableSection extends RenderProxyBox {
 
   Path? get scrolledSectionClipPath => _scrolledClipPath;
 
-  double get verticalOffsetPixels {
-    final verticalOffset = _verticalOffset;
-    if (verticalOffset == null) {
-      return _verticalOffsetPixels ?? .0;
-    } else {
-      return verticalOffset.hasPixels ? verticalOffset.pixels : .0;
-    }
-  }
+  double get verticalOffsetPixels => _verticalOffset.value;
 
   bool get useTablePaintingContext => _useTablePaintingContext;
 
-  set verticalOffsetPixels(double? verticalOffsetPixels) {
-    if (_verticalOffsetPixels == verticalOffsetPixels) return;
+  set verticalOffset(TableSectionOffset verticalOffset) {
+    if (_verticalOffset == verticalOffset) return;
 
-    _verticalOffsetPixels = verticalOffsetPixels;
-    _verticalOffsetChanged();
-  }
-
-  set verticalOffset(ViewportOffset? verticalOffset) {
-    if (identical(_verticalOffset, verticalOffset)) return;
-
-    _verticalOffset?.removeListener(_verticalOffsetChanged);
+    _verticalOffset.removeListener(_verticalOffsetChanged);
     _verticalOffset = verticalOffset;
-    _verticalOffset?.addListener(_verticalOffsetChanged);
+    _verticalOffset.addListener(_verticalOffsetChanged);
     _verticalOffsetChanged();
   }
 
@@ -98,7 +82,7 @@ class RenderTableSection extends RenderProxyBox {
 
   @override
   void dispose() {
-    _verticalOffset?.removeListener(_verticalOffsetChanged);
+    _verticalOffset.removeListener(_verticalOffsetChanged);
     _placeholderShade?.removeListener(_placeholderShaderChanged);
 
     super.dispose();
@@ -349,7 +333,7 @@ class RenderTableSection extends RenderProxyBox {
     // if we have vertical offset,
     // assume the dividers will get clipped
     // by whatever clips vertically offset content
-    bool clipDividers = _verticalOffset == null &&
+    bool clipDividers = _verticalOffset == TableSectionOffset.zero &&
         (leftDividerPath != null || rightDividerPath != null);
 
     if (clipDividers) {

@@ -14,6 +14,7 @@ import 'package:material_table_view/src/table_scroll_configuration.dart';
 import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_section_overlay.dart';
+import 'package:material_table_view/src/table_section_vertical_scroll_offset.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
 import 'package:material_table_view/src/table_view_layout.dart';
@@ -322,8 +323,6 @@ class _TableViewState extends State<TableView>
                   header: widget.headerBuilder == null
                       ? null
                       : TableSection(
-                          verticalOffset: null,
-                          verticalOffsetPixels: .0,
                           rowHeight: widget.headerHeight,
                           placeholderShade: null,
                           child: widget.headerBuilder!(
@@ -351,7 +350,8 @@ class _TableViewState extends State<TableView>
                             axisDirection: AxisDirection.down,
                             viewportBuilder: (context, verticalOffset) =>
                                 TableSection(
-                              verticalOffset: verticalOffset,
+                              verticalOffset:
+                                  TableSectionOffset.wrap(verticalOffset),
                               rowHeight: widget.rowHeight,
                               placeholderShade: widget.placeholderShade,
                               child: OptionalWrap(
@@ -397,8 +397,6 @@ class _TableViewState extends State<TableView>
                   footer: widget.footerBuilder == null
                       ? null
                       : TableSection(
-                          verticalOffset: null,
-                          verticalOffsetPixels: .0,
                           rowHeight: widget.footerHeight,
                           placeholderShade: null,
                           child: widget.footerBuilder!(
