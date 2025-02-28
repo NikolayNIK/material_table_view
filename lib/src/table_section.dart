@@ -3,7 +3,7 @@ import 'package:material_table_view/src/render_table_section.dart';
 import 'package:material_table_view/src/table_content_layout.dart';
 import 'package:material_table_view/src/table_content_layout_data.dart';
 import 'package:material_table_view/src/table_placeholder_shade.dart';
-import 'package:material_table_view/src/table_section_vertical_scroll_offset.dart';
+import 'package:material_table_view/src/table_section_offset.dart';
 
 /// This widget represents a single table section:
 /// either a header, a body or a footer.

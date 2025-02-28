@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:material_table_view/src/table_section_vertical_scroll_offset.dart';
+import 'package:material_table_view/src/table_section_offset.dart';
 
 /// This widget allows inserting box widget amids the sliver layout protocol
 /// and then continue sliver layout protocol as if nothing happened.

@@ -14,7 +14,7 @@ import 'package:material_table_view/src/table_scroll_configuration.dart';
 import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_section_overlay.dart';
-import 'package:material_table_view/src/table_section_vertical_scroll_offset.dart';
+import 'package:material_table_view/src/table_section_offset.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
 import 'package:material_table_view/src/table_view_layout.dart';
