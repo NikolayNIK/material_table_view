@@ -333,7 +333,7 @@ class RenderTableSection extends RenderProxyBox {
     // if we have vertical offset,
     // assume the dividers will get clipped
     // by whatever clips vertically offset content
-    bool clipDividers = _verticalOffset == TableSectionOffset.zero &&
+    bool clipDividers = identical(_verticalOffset, TableSectionOffset.zero) &&
         (leftDividerPath != null || rightDividerPath != null);
 
     if (clipDividers) {
