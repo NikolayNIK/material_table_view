@@ -170,11 +170,10 @@ class _SliverTableViewState extends State<SliverTableView>
                         ClipRect(
                           child: TableSection(
                             rowHeight: widget.rowHeight,
-                            verticalOffset: null,
-                            verticalOffsetPixels: Scrollable.of(
+                            verticalOffset: Scrollable.of(
                               this.context,
                               axis: Axis.vertical,
-                            ).position.pixels,
+                            ).position,
                             placeholderShade: widget.placeholderShade,
                             child: OptionalWrap(
                               builder: widget.rowReorder == null
