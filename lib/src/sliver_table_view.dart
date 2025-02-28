@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:material_table_view/src/optional_wrap.dart';
 import 'package:material_table_view/src/sliver_passthrough.dart';
@@ -12,7 +14,6 @@ import 'package:material_table_view/src/table_row.dart';
 import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_section_overlay.dart';
-import 'package:material_table_view/src/table_section_vertical_scroll_offset.dart';
 import 'package:material_table_view/src/table_view.dart';
 import 'package:material_table_view/src/table_view_layout.dart';
 import 'package:material_table_view/src/table_view_style_resolved.dart';
@@ -121,10 +122,9 @@ class _SliverTableViewState extends State<SliverTableView>
 
       return SliverPassthrough(
         minHeight: headerHeight +
-            style.dividers.horizontal.space +
-            scrollPadding.bottom +
+            max(scrollPadding.vertical, style.dividers.horizontal.space) +
             footerHeight,
-        child: Transform.translate(
+        builder: (context, verticalOffset) => Transform.translate(
           offset: scrollbarOffset,
           transformHitTests: false,
           child: TableScrollbar(
@@ -169,11 +169,7 @@ class _SliverTableViewState extends State<SliverTableView>
                         ClipRect(
                           child: TableSection(
                             rowHeight: widget.rowHeight,
-                            verticalOffset:
-                            TableSectionOffset.wrap(Scrollable.of(
-                              this.context,
-                              axis: Axis.vertical,
-                            ).position),
+                            verticalOffset: verticalOffset,
                             placeholderShade: widget.placeholderShade,
                             child: OptionalWrap(
                               builder: widget.rowReorder == null

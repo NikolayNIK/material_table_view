@@ -2,18 +2,27 @@ import 'dart:math';
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:material_table_view/src/table_section_vertical_scroll_offset.dart';
 
 /// This widget allows inserting box widget amids the sliver layout protocol
 /// and then continue sliver layout protocol as if nothing happened.
 @immutable
-class SliverPassthrough extends SingleChildRenderObjectWidget {
+class SliverPassthrough extends RenderObjectWidget {
   const SliverPassthrough({
     super.key,
-    required this.minHeight,
-    required Widget child,
-  }) : super(child: child);
+    this.minHeight = .0,
+    required this.builder,
+  }) : super();
 
   final double minHeight;
+
+  final Widget Function(
+    BuildContext context,
+    TableSectionOffset verticalOffset,
+  ) builder;
+
+  @override
+  RenderObjectElement createElement() => _SliverPassthroughElement(this);
 
   @override
   RenderObject createRenderObject(BuildContext context) =>
@@ -28,7 +37,94 @@ class SliverPassthrough extends SingleChildRenderObjectWidget {
   }
 }
 
+class _SliverPassthroughElement extends RenderObjectElement {
+  _SliverPassthroughElement(SliverPassthrough super.widget);
+
+  ShiftedTableSectionOffset? _verticalOffset;
+
+  Element? _child;
+
+  ScrollPosition get _scrollablePosition =>
+      Scrollable.of(this, axis: Axis.vertical).position;
+
+  @override
+  void visitChildren(ElementVisitor visitor) {
+    if (_child != null) visitor(_child!);
+  }
+
+  @override
+  void forgetChild(Element child) {
+    assert(child == _child);
+    _child = null;
+
+    super.forgetChild(child);
+  }
+
+  @override
+  void mount(Element? parent, Object? newSlot) {
+    super.mount(parent, newSlot);
+
+    _verticalOffset = ShiftedTableSectionOffset(_scrollablePosition);
+
+    rebuild(force: true);
+  }
+
+  @override
+  void update(SliverPassthrough newWidget) {
+    super.update(newWidget);
+
+    rebuild(force: true);
+  }
+
+  @override
+  void performRebuild() {
+    super.performRebuild();
+
+    _verticalOffset!.offset = _scrollablePosition;
+    (renderObject as RenderSliverPassthrough)._offsetCorrection =
+        _verticalOffset!.shift;
+
+    _updateChild();
+  }
+
+  void _updateChild() {
+    _child = updateChild(
+      _child,
+      (widget as SliverPassthrough).builder(this, _verticalOffset!),
+      null,
+    );
+  }
+
+  @override
+  void insertRenderObjectChild(RenderObject child, Object? slot) {
+    final RenderObjectWithChildMixin<RenderObject> renderObject =
+        this.renderObject as RenderObjectWithChildMixin<RenderObject>;
+    assert(slot == null);
+    assert(renderObject.debugValidateChild(child));
+    renderObject.child = child;
+    assert(renderObject == this.renderObject);
+  }
+
+  @override
+  void moveRenderObjectChild(
+      RenderObject child, Object? oldSlot, Object? newSlot) {
+    assert(false);
+  }
+
+  @override
+  void removeRenderObjectChild(RenderObject child, Object? slot) {
+    final RenderObjectWithChildMixin<RenderObject> renderObject =
+        this.renderObject as RenderObjectWithChildMixin<RenderObject>;
+    assert(slot == null);
+    assert(renderObject.child == child);
+    renderObject.child = null;
+    assert(renderObject == this.renderObject);
+  }
+}
+
 class RenderSliverPassthrough extends RenderSliverSingleBoxAdapter {
+  ValueNotifier<double>? _offsetCorrection;
+
   double _minHeight = .0;
 
   _RenderBoxToSliverPassthrough? _passthroughChild;
@@ -84,12 +180,13 @@ class RenderSliverPassthrough extends RenderSliverSingleBoxAdapter {
     );
 
     final childParentData = child.parentData! as SliverPhysicalParentData;
-    childParentData.paintOffset = Offset(
-      .0,
-      childHeight > constraints.remainingPaintExtent || paintExtent > _minHeight
-          ? .0
-          : paintExtent - _minHeight,
-    );
+    final correction = childHeight > constraints.remainingPaintExtent ||
+            paintExtent > _minHeight
+        ? .0
+        : paintExtent - _minHeight;
+
+    childParentData.paintOffset = Offset(.0, correction);
+    _offsetCorrection?.value = correction;
   }
 
   @override
