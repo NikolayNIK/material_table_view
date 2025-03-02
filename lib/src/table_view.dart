@@ -17,7 +17,7 @@ import 'package:material_table_view/src/table_section_offset.dart';
 import 'package:material_table_view/src/table_section_overlay.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
-import 'package:material_table_view/src/table_view_layout.dart';
+import 'package:material_table_view/src/table_scaffold.dart';
 import 'package:material_table_view/src/table_view_style.dart';
 import 'package:material_table_view/src/table_view_style_resolved.dart';
 import 'package:material_table_view/src/table_viewport.dart';
@@ -318,7 +318,7 @@ class _TableViewState extends State<TableView>
               stickyHorizontalOffset: _stickyHorizontalOffset,
               minScrollableWidth: widget.minScrollableWidth,
               child: Builder(
-                builder: (context) => TableViewLayout(
+                builder: (context) => TableScaffold(
                   dividersStyle: style.dividers.horizontal,
                   header: widget.headerBuilder == null
                       ? null

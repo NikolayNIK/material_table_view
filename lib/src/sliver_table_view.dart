@@ -16,7 +16,7 @@ import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_section_offset.dart';
 import 'package:material_table_view/src/table_section_overlay.dart';
 import 'package:material_table_view/src/table_view.dart';
-import 'package:material_table_view/src/table_view_layout.dart';
+import 'package:material_table_view/src/table_scaffold.dart';
 import 'package:material_table_view/src/table_view_style_resolved.dart';
 
 /// This is a sliver variant of the [TableView] widget.
@@ -154,7 +154,7 @@ class _SliverTableViewState extends State<SliverTableView>
                     minScrollableWidth: widget.minScrollableWidth,
                     textDirection: textDirection,
                     scrollPadding: scrollPadding,
-                    child: TableViewLayout(
+                    child: TableScaffold(
                       dividersStyle: style.dividers.horizontal,
                       header: widget.headerBuilder == null
                           ? null

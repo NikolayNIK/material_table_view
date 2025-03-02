@@ -13,8 +13,8 @@ enum TableViewLayoutSlotType {
 
 /// This widget lays out table header, body and footer.
 @immutable
-class TableViewLayout extends RenderObjectWidget {
-  const TableViewLayout({
+class TableScaffold extends RenderObjectWidget {
+  const TableScaffold({
     super.key,
     required this.dividersStyle,
     required this.header,
@@ -54,7 +54,7 @@ class TableViewLayout extends RenderObjectWidget {
 }
 
 class _TableViewLayoutElement extends RenderObjectElement {
-  _TableViewLayoutElement(TableViewLayout super.widget);
+  _TableViewLayoutElement(TableScaffold super.widget);
 
   Element? _header, _headerDivider, _body, _footerDivider, _footer;
 
@@ -97,7 +97,7 @@ class _TableViewLayoutElement extends RenderObjectElement {
   }
 
   void _updateChildren() {
-    final widget = this.widget as TableViewLayout;
+    final widget = this.widget as TableScaffold;
 
     _header = updateChild(_header, widget.header, TableViewLayoutSlotType.header);
 
