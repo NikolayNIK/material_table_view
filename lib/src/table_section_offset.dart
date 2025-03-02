@@ -9,8 +9,11 @@ abstract class TableSectionOffset implements ValueListenable<double> {
   const factory TableSectionOffset.fixed(double value) =
       _FixedTableSectionOffset._;
 
-  factory TableSectionOffset.wrap(ViewportOffset offset) =
+  factory TableSectionOffset.wrapViewportOffset(ViewportOffset offset) =
       _ViewportTableSectionOffset._;
+
+  factory TableSectionOffset.wrapValueNotifier(ValueNotifier<double> offset) =
+      _ValueNotifierSectionOffset._;
 
   @override
   operator ==(Object other);
@@ -69,45 +72,26 @@ class _ViewportTableSectionOffset extends TableSectionOffset {
       _offset.removeListener(listener);
 }
 
-class ShiftedTableSectionOffset extends TableSectionOffset with ChangeNotifier {
-  ShiftedTableSectionOffset(
-    this._offset, [
-    double initialShift = .0,
-  ])  : shift = ValueNotifier(initialShift),
-        super._() {
-    _offset.addListener(notifyListeners);
-    shift.addListener(notifyListeners);
-  }
+class _ValueNotifierSectionOffset extends TableSectionOffset {
+  _ValueNotifierSectionOffset._(this._offset) : super._();
 
-  final ValueNotifier<double> shift;
-
-  ViewportOffset _offset;
-
-  ViewportOffset get offset => _offset;
-
-  set offset(ViewportOffset offset) {
-    if (identical(_offset, offset)) return;
-
-    _offset.removeListener(notifyListeners);
-    _offset = offset;
-    _offset.addListener(notifyListeners);
-    notifyListeners();
-  }
+  final ValueNotifier<double> _offset;
 
   @override
-  double get value => (_offset.hasPixels ? _offset.pixels : .0) + shift.value;
+  double get value => _offset.value;
 
   @override
-  int get hashCode => 0;
+  int get hashCode => value.toInt();
 
   @override
-  bool operator ==(Object other) => identical(other, this);
+  bool operator ==(Object other) =>
+      other.runtimeType == runtimeType &&
+      identical((other as _ValueNotifierSectionOffset)._offset, _offset);
 
   @override
-  void dispose() {
-    _offset.removeListener(notifyListeners);
-    shift.removeListener(notifyListeners);
+  void addListener(VoidCallback listener) => _offset.addListener(listener);
 
-    super.dispose();
-  }
+  @override
+  void removeListener(VoidCallback listener) =>
+      _offset.removeListener(listener);
 }

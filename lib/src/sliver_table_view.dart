@@ -13,6 +13,7 @@ import 'package:material_table_view/src/table_content_layout.dart';
 import 'package:material_table_view/src/table_row.dart';
 import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
+import 'package:material_table_view/src/table_section_offset.dart';
 import 'package:material_table_view/src/table_section_overlay.dart';
 import 'package:material_table_view/src/table_view.dart';
 import 'package:material_table_view/src/table_view_layout.dart';
@@ -169,7 +170,9 @@ class _SliverTableViewState extends State<SliverTableView>
                         ClipRect(
                           child: TableSection(
                             rowHeight: widget.rowHeight,
-                            verticalOffset: verticalOffset,
+                            verticalOffset:
+                                TableSectionOffset.wrapValueNotifier(
+                                    verticalOffset),
                             placeholderShade: widget.placeholderShade,
                             child: OptionalWrap(
                               builder: widget.rowReorder == null

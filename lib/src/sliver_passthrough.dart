@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:material_table_view/src/table_section_offset.dart';
 
 /// This widget allows inserting box widget amids the sliver layout protocol
 /// and then continue sliver layout protocol as if nothing happened.
@@ -18,7 +17,7 @@ class SliverPassthrough extends RenderObjectWidget {
 
   final Widget Function(
     BuildContext context,
-    TableSectionOffset verticalOffset,
+    ValueNotifier<double> verticalOffset,
   ) builder;
 
   @override
@@ -40,12 +39,9 @@ class SliverPassthrough extends RenderObjectWidget {
 class _SliverPassthroughElement extends RenderObjectElement {
   _SliverPassthroughElement(SliverPassthrough super.widget);
 
-  ShiftedTableSectionOffset? _verticalOffset;
+  final _verticalOffset = ValueNotifier<double>(.0);
 
   Element? _child;
-
-  ScrollPosition get _scrollablePosition =>
-      Scrollable.of(this, axis: Axis.vertical).position;
 
   @override
   void visitChildren(ElementVisitor visitor) {
@@ -64,8 +60,6 @@ class _SliverPassthroughElement extends RenderObjectElement {
   void mount(Element? parent, Object? newSlot) {
     super.mount(parent, newSlot);
 
-    _verticalOffset = ShiftedTableSectionOffset(_scrollablePosition);
-
     rebuild(force: true);
   }
 
@@ -80,9 +74,7 @@ class _SliverPassthroughElement extends RenderObjectElement {
   void performRebuild() {
     super.performRebuild();
 
-    _verticalOffset!.offset = _scrollablePosition;
-    (renderObject as RenderSliverPassthrough)._offsetCorrection =
-        _verticalOffset!.shift;
+    (renderObject as RenderSliverPassthrough)._verticalOffset = _verticalOffset;
 
     _updateChild();
   }
@@ -90,7 +82,7 @@ class _SliverPassthroughElement extends RenderObjectElement {
   void _updateChild() {
     _child = updateChild(
       _child,
-      (widget as SliverPassthrough).builder(this, _verticalOffset!),
+      (widget as SliverPassthrough).builder(this, _verticalOffset),
       null,
     );
   }
@@ -123,7 +115,7 @@ class _SliverPassthroughElement extends RenderObjectElement {
 }
 
 class RenderSliverPassthrough extends RenderSliverSingleBoxAdapter {
-  ValueNotifier<double>? _offsetCorrection;
+  ValueNotifier<double>? _verticalOffset;
 
   double _minHeight = .0;
 
@@ -179,14 +171,16 @@ class RenderSliverPassthrough extends RenderSliverSingleBoxAdapter {
       ),
     );
 
-    final childParentData = child.parentData! as SliverPhysicalParentData;
-    final correction = childHeight > constraints.remainingPaintExtent ||
-            paintExtent > _minHeight
-        ? .0
-        : paintExtent - _minHeight;
+    // whether we've reached the full box child height
+    final fullBox = childHeight > constraints.remainingPaintExtent ||
+        paintExtent > _minHeight;
 
-    childParentData.paintOffset = Offset(.0, correction);
-    _offsetCorrection?.value = correction;
+    (child.parentData! as SliverPhysicalParentData).paintOffset = Offset(
+      .0,
+      fullBox ? .0 : paintExtent - _minHeight,
+    );
+
+    _verticalOffset?.value = fullBox ? constraints.scrollOffset : .0;
   }
 
   @override

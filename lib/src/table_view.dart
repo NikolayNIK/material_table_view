@@ -13,8 +13,8 @@ import 'package:material_table_view/src/table_row_reorder.dart';
 import 'package:material_table_view/src/table_scroll_configuration.dart';
 import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
-import 'package:material_table_view/src/table_section_overlay.dart';
 import 'package:material_table_view/src/table_section_offset.dart';
+import 'package:material_table_view/src/table_section_overlay.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
 import 'package:material_table_view/src/table_view_layout.dart';
@@ -351,7 +351,8 @@ class _TableViewState extends State<TableView>
                             viewportBuilder: (context, verticalOffset) =>
                                 TableSection(
                               verticalOffset:
-                                  TableSectionOffset.wrap(verticalOffset),
+                                  TableSectionOffset.wrapViewportOffset(
+                                      verticalOffset),
                               rowHeight: widget.rowHeight,
                               placeholderShade: widget.placeholderShade,
                               child: OptionalWrap(
