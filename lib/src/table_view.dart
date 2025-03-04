@@ -51,6 +51,7 @@ class TableView extends StatefulWidget {
     double? headerHeight,
     this.footerBuilder,
     double? footerHeight,
+    this.physics,
   })  : assert(rowCount >= 0),
         assert(rowHeight == null || rowHeight > 0),
         assert(headerHeight == null || headerHeight > 0),
@@ -206,6 +207,48 @@ class TableView extends StatefulWidget {
   /// [footerHeight] becomes required.
   final double footerHeight;
 
+  /// {@template flutter.widgets.scroll_view.physics}
+  /// How the scroll view should respond to user input.
+  ///
+  /// For example, determines how the scroll view continues to animate after the
+  /// user stops dragging the scroll view.
+  ///
+  /// Defaults to matching platform conventions. Furthermore, if [primary] is
+  /// false, then the user cannot scroll if there is insufficient content to
+  /// scroll, while if [primary] is true, they can always attempt to scroll.
+  ///
+  /// To force the scroll view to always be scrollable even if there is
+  /// insufficient content, as if [primary] was true but without necessarily
+  /// setting it to true, provide an [AlwaysScrollableScrollPhysics] physics
+  /// object, as in:
+  ///
+  /// ```dart
+  ///   physics: const AlwaysScrollableScrollPhysics(),
+  /// ```
+  ///
+  /// To force the scroll view to use the default platform conventions and not
+  /// be scrollable if there is insufficient content, regardless of the value of
+  /// [primary], provide an explicit [ScrollPhysics] object, as in:
+  ///
+  /// ```dart
+  ///   physics: const ScrollPhysics(),
+  /// ```
+  ///
+  /// The physics can be changed dynamically (by providing a new object in a
+  /// subsequent build), but new physics will only take effect if the _class_ of
+  /// the provided object changes. Merely constructing a new instance with a
+  /// different configuration is insufficient to cause the physics to be
+  /// reapplied. (This is because the final object used is generated
+  /// dynamically, which can be relatively expensive, and it would be
+  /// inefficient to speculatively create this object each frame to see if the
+  /// physics should be updated.)
+  /// {@endtemplate}
+  ///
+  /// If an explicit [ScrollBehavior] is provided to [scrollBehavior], the
+  /// [ScrollPhysics] provided by that behavior will take precedence after
+  /// [physics].
+  final ScrollPhysics? physics;
+
   @override
   State<TableView> createState() => _TableViewState();
 }
@@ -348,6 +391,7 @@ class _TableViewState extends State<TableView>
                             controller: _controller.verticalScrollController,
                             clipBehavior: Clip.none,
                             axisDirection: AxisDirection.down,
+                            physics: widget.physics,
                             viewportBuilder: (context, verticalOffset) =>
                                 TableSection(
                               verticalOffset:
