@@ -50,6 +50,7 @@ class SliverTableView extends TableView {
     super.headerHeight,
     super.footerBuilder,
     super.footerHeight,
+    super.physics,
   }) : super.builder();
 
   /// A scroll controller used for the horizontal scrolling of the table.
@@ -137,6 +138,7 @@ class _SliverTableViewState extends State<SliverTableView>
               child: Scrollable(
                 controller: _horizontalScrollController,
                 axisDirection: textDirectionToAxisDirection(textDirection),
+                physics: widget.physics,
                 viewportBuilder: (context, position) =>
                     TableColumnScrollDimensionsApplicator(
                   position: _horizontalScrollController.position,
