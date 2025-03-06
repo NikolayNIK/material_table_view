@@ -50,8 +50,7 @@ class SliverTableView extends TableView {
     super.headerHeight,
     super.footerBuilder,
     super.footerHeight,
-    super.physics,
-  }) : super.builder();
+  }) : super.builder(physics: null);
 
   /// A scroll controller used for the horizontal scrolling of the table.
   final ScrollController? horizontalScrollController;
