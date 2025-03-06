@@ -138,7 +138,6 @@ class _SliverTableViewState extends State<SliverTableView>
               child: Scrollable(
                 controller: _horizontalScrollController,
                 axisDirection: textDirectionToAxisDirection(textDirection),
-                physics: widget.physics,
                 viewportBuilder: (context, position) =>
                     TableColumnScrollDimensionsApplicator(
                   position: _horizontalScrollController.position,
