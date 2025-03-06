@@ -11,12 +11,12 @@ import 'package:material_table_view/src/table_column_resolve_layout_extension.da
 import 'package:material_table_view/src/table_column_scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/table_content_layout.dart';
 import 'package:material_table_view/src/table_row.dart';
+ import 'package:material_table_view/src/table_scaffold.dart';
 import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_section_offset.dart';
 import 'package:material_table_view/src/table_section_overlay.dart';
 import 'package:material_table_view/src/table_view.dart';
-import 'package:material_table_view/src/table_scaffold.dart';
 import 'package:material_table_view/src/table_view_style_resolved.dart';
 
 /// This is a sliver variant of the [TableView] widget.
