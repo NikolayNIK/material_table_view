@@ -207,8 +207,7 @@ class TableView extends StatefulWidget {
   /// [footerHeight] becomes required.
   final double footerHeight;
 
-  /// {@template flutter.widgets.scroll_view.physics}
-  /// How the scroll view should respond to user input.
+  /// How the vertical scroll view should respond to user input.
   ///
   /// For example, determines how the scroll view continues to animate after the
   /// user stops dragging the scroll view.
@@ -242,7 +241,6 @@ class TableView extends StatefulWidget {
   /// dynamically, which can be relatively expensive, and it would be
   /// inefficient to speculatively create this object each frame to see if the
   /// physics should be updated.)
-  /// {@endtemplate}
   ///
   /// If an explicit [ScrollBehavior] is provided to [scrollBehavior], the
   /// [ScrollPhysics] provided by that behavior will take precedence after
