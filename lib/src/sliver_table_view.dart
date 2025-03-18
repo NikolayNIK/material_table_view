@@ -11,7 +11,7 @@ import 'package:material_table_view/src/table_column_resolve_layout_extension.da
 import 'package:material_table_view/src/table_column_scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/table_content_layout.dart';
 import 'package:material_table_view/src/table_row.dart';
- import 'package:material_table_view/src/table_scaffold.dart';
+import 'package:material_table_view/src/table_scaffold.dart';
 import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
 import 'package:material_table_view/src/table_section_offset.dart';
@@ -117,111 +117,115 @@ class _SliverTableViewState extends State<SliverTableView>
         Directionality.maybeOf(context) ??
         TextDirection.ltr;
 
-    return SliverCrossAxisExtentBuilder(builder: (context, width) {
-      final columns =
-          widget.columns.resolveLayout(width - scrollPadding.horizontal);
+    return MediaQuery.removePadding(
+      context: context,
+      removeBottom: true,
+      child: SliverCrossAxisExtentBuilder(builder: (context, width) {
+        final columns =
+            widget.columns.resolveLayout(width - scrollPadding.horizontal);
 
-      return SliverPassthrough(
-        minHeight: headerHeight +
-            max(scrollPadding.vertical, style.dividers.horizontal.space) +
-            footerHeight,
-        builder: (context, verticalOffset) => Transform.translate(
-          offset: scrollbarOffset,
-          transformHitTests: false,
-          child: TableScrollbar(
-            controller: _horizontalScrollController,
-            style: style.scrollbars.horizontal,
-            child: Transform.translate(
-              offset: -scrollbarOffset,
-              transformHitTests: false,
-              child: Scrollable(
-                controller: _horizontalScrollController,
-                axisDirection: textDirectionToAxisDirection(textDirection),
-                viewportBuilder: (context, position) =>
-                    TableColumnScrollDimensionsApplicator(
-                  position: _horizontalScrollController.position,
-                  columns: columns,
-                  scrollPadding: scrollPadding,
-                  child: TableContentLayout(
-                    verticalDividersStyle: style.dividers.vertical,
-                    width: width,
-                    fixedRowHeight: true,
+        return SliverPassthrough(
+          minHeight: headerHeight +
+              max(scrollPadding.vertical, style.dividers.horizontal.space) +
+              footerHeight,
+          builder: (context, verticalOffset) => Transform.translate(
+            offset: scrollbarOffset,
+            transformHitTests: false,
+            child: TableScrollbar(
+              controller: _horizontalScrollController,
+              style: style.scrollbars.horizontal,
+              child: Transform.translate(
+                offset: -scrollbarOffset,
+                transformHitTests: false,
+                child: Scrollable(
+                  controller: _horizontalScrollController,
+                  axisDirection: textDirectionToAxisDirection(textDirection),
+                  viewportBuilder: (context, position) =>
+                      TableColumnScrollDimensionsApplicator(
+                    position: _horizontalScrollController.position,
                     columns: columns,
-                    horizontalOffset: position,
-                    stickyHorizontalOffset: _horizontalStickyOffset,
-                    minScrollableWidthRatio: widget.minScrollableWidthRatio ??
-                        style.minScrollableWidthRatio,
-                    minScrollableWidth: widget.minScrollableWidth,
-                    textDirection: textDirection,
                     scrollPadding: scrollPadding,
-                    child: TableScaffold(
-                      dividersStyle: style.dividers.horizontal,
-                      header: widget.headerBuilder == null
-                          ? null
-                          : TableSection(
-                              rowHeight: widget.headerHeight,
-                              placeholderShade: null,
-                              child: widget.headerBuilder!(
-                                  context, headerFooterContentBuilder),
-                            ),
-                      headerHeight: headerHeight,
-                      body: widget.bodyContainerBuilder(
-                        context,
-                        ClipRect(
-                          child: TableSection(
-                            rowHeight: widget.rowHeight,
-                            verticalOffset:
-                                TableSectionOffset.wrapValueNotifier(
-                                    verticalOffset),
-                            placeholderShade: widget.placeholderShade,
-                            child: OptionalWrap(
-                              builder: widget.rowReorder == null
-                                  ? null
-                                  : (context, child) =>
-                                      TableSectionOverlay(child: child),
-                              child: BoxToSliverPassthrough(
-                                sliver: SliverPadding(
-                                  padding: EdgeInsets.only(
-                                    top: scrollPadding.top,
-                                  ),
-                                  sliver: SliverTableBody(
-                                    rowCount: widget.rowCount,
-                                    rowHeight: widget.rowHeight,
-                                    rowHeightBuilder: widget.rowHeightBuilder,
-                                    rowPrototype: widget.rowPrototype,
-                                    rowBuilder: widget.rowBuilder,
-                                    rowReorder: widget.rowReorder,
-                                    placeholderBuilder:
-                                        widget.placeholderBuilder,
-                                    placeholderRowBuilder:
-                                        widget.placeholderRowBuilder,
-                                    useHigherScrollable: true,
-                                    addAutomaticKeepAlives:
-                                        widget.addAutomaticKeepAlives,
+                    child: TableContentLayout(
+                      verticalDividersStyle: style.dividers.vertical,
+                      width: width,
+                      fixedRowHeight: true,
+                      columns: columns,
+                      horizontalOffset: position,
+                      stickyHorizontalOffset: _horizontalStickyOffset,
+                      minScrollableWidthRatio: widget.minScrollableWidthRatio ??
+                          style.minScrollableWidthRatio,
+                      minScrollableWidth: widget.minScrollableWidth,
+                      textDirection: textDirection,
+                      scrollPadding: scrollPadding,
+                      child: TableScaffold(
+                        dividersStyle: style.dividers.horizontal,
+                        header: widget.headerBuilder == null
+                            ? null
+                            : TableSection(
+                                rowHeight: widget.headerHeight,
+                                placeholderShade: null,
+                                child: widget.headerBuilder!(
+                                    context, headerFooterContentBuilder),
+                              ),
+                        headerHeight: headerHeight,
+                        body: widget.bodyContainerBuilder(
+                          context,
+                          ClipRect(
+                            child: TableSection(
+                              rowHeight: widget.rowHeight,
+                              verticalOffset:
+                                  TableSectionOffset.wrapValueNotifier(
+                                      verticalOffset),
+                              placeholderShade: widget.placeholderShade,
+                              child: OptionalWrap(
+                                builder: widget.rowReorder == null
+                                    ? null
+                                    : (context, child) =>
+                                        TableSectionOverlay(child: child),
+                                child: BoxToSliverPassthrough(
+                                  sliver: SliverPadding(
+                                    padding: EdgeInsets.only(
+                                      top: scrollPadding.top,
+                                    ),
+                                    sliver: SliverTableBody(
+                                      rowCount: widget.rowCount,
+                                      rowHeight: widget.rowHeight,
+                                      rowHeightBuilder: widget.rowHeightBuilder,
+                                      rowPrototype: widget.rowPrototype,
+                                      rowBuilder: widget.rowBuilder,
+                                      rowReorder: widget.rowReorder,
+                                      placeholderBuilder:
+                                          widget.placeholderBuilder,
+                                      placeholderRowBuilder:
+                                          widget.placeholderRowBuilder,
+                                      useHigherScrollable: true,
+                                      addAutomaticKeepAlives:
+                                          widget.addAutomaticKeepAlives,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
                         ),
+                        footer: widget.footerBuilder == null
+                            ? null
+                            : TableSection(
+                                rowHeight: widget.footerHeight,
+                                placeholderShade: null,
+                                child: widget.footerBuilder!(
+                                    context, headerFooterContentBuilder),
+                              ),
+                        footerHeight: footerHeight,
                       ),
-                      footer: widget.footerBuilder == null
-                          ? null
-                          : TableSection(
-                              rowHeight: widget.footerHeight,
-                              placeholderShade: null,
-                              child: widget.footerBuilder!(
-                                  context, headerFooterContentBuilder),
-                            ),
-                      footerHeight: footerHeight,
                     ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      }),
+    );
   }
 }
