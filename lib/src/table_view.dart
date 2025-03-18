@@ -10,6 +10,7 @@ import 'package:material_table_view/src/table_content_layout.dart';
 import 'package:material_table_view/src/table_placeholder_shade.dart';
 import 'package:material_table_view/src/table_row.dart';
 import 'package:material_table_view/src/table_row_reorder.dart';
+import 'package:material_table_view/src/table_scaffold.dart';
 import 'package:material_table_view/src/table_scroll_configuration.dart';
 import 'package:material_table_view/src/table_scrollbar.dart';
 import 'package:material_table_view/src/table_section.dart';
@@ -17,7 +18,6 @@ import 'package:material_table_view/src/table_section_offset.dart';
 import 'package:material_table_view/src/table_section_overlay.dart';
 import 'package:material_table_view/src/table_typedefs.dart';
 import 'package:material_table_view/src/table_view_controller.dart';
-import 'package:material_table_view/src/table_scaffold.dart';
 import 'package:material_table_view/src/table_view_style.dart';
 import 'package:material_table_view/src/table_view_style_resolved.dart';
 import 'package:material_table_view/src/table_viewport.dart';
@@ -299,32 +299,36 @@ class _TableViewState extends State<TableView>
         Directionality.maybeOf(context) ??
         TextDirection.ltr;
 
-    return TableScrollConfiguration(
-      child: SizedBox(
-        width: double.infinity,
-        height: double.infinity,
-        child: widget.columns.isEmpty
-            ? const SizedBox()
-            : Transform.translate(
-                offset: -horizontalScrollbarOffset,
-                transformHitTests: false,
-                child: TableScrollbar(
-                  controller: _controller.horizontalScrollController,
-                  style: style.scrollbars.horizontal,
-                  child: Transform.translate(
-                    offset: horizontalScrollbarOffset,
-                    transformHitTests: false,
-                    child: Scrollable(
-                      controller: _controller.horizontalScrollController,
-                      clipBehavior: Clip.none,
-                      axisDirection:
-                          textDirectionToAxisDirection(textDirection),
-                      viewportBuilder: (context, position) =>
-                          _buildViewport(context, style, position),
+    return MediaQuery.removePadding(
+      context: context,
+      removeBottom: true,
+      child: TableScrollConfiguration(
+        child: SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+          child: widget.columns.isEmpty
+              ? const SizedBox()
+              : Transform.translate(
+                  offset: -horizontalScrollbarOffset,
+                  transformHitTests: false,
+                  child: TableScrollbar(
+                    controller: _controller.horizontalScrollController,
+                    style: style.scrollbars.horizontal,
+                    child: Transform.translate(
+                      offset: horizontalScrollbarOffset,
+                      transformHitTests: false,
+                      child: Scrollable(
+                        controller: _controller.horizontalScrollController,
+                        clipBehavior: Clip.none,
+                        axisDirection:
+                            textDirectionToAxisDirection(textDirection),
+                        viewportBuilder: (context, position) =>
+                            _buildViewport(context, style, position),
+                      ),
                     ),
                   ),
                 ),
-              ),
+        ),
       ),
     );
   }
