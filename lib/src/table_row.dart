@@ -1,9 +1,11 @@
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:material_table_view/src/iterator_extensions.dart';
 import 'package:material_table_view/src/render_table_section.dart';
 import 'package:material_table_view/src/table_content_layout.dart';
 import 'package:material_table_view/src/table_content_layout_data.dart';
@@ -77,7 +79,7 @@ class _TableCellSlot {
 class _TableViewRowElement extends RenderObjectElement {
   _TableViewRowElement(TableViewRow super.widget);
 
-  final children = <Key, _TableViewCellElement>{};
+  final children = LinkedList<_TableViewCellElement>();
 
   bool _debugDoingBuild = false;
 
@@ -92,9 +94,7 @@ class _TableViewRowElement extends RenderObjectElement {
       super.renderObject as _RenderTableViewRow;
 
   @override
-  void visitChildren(ElementVisitor visitor) {
-    children.values.forEach(visitor);
-  }
+  void visitChildren(ElementVisitor visitor) => children.forEach(visitor);
 
   @override
   void mount(Element? parent, Object? newSlot) {
@@ -124,7 +124,7 @@ class _TableViewRowElement extends RenderObjectElement {
   void forgetChild(Element child) {
     super.forgetChild(child);
 
-    children.removeWhere((key, value) => identical(value, child));
+    children.remove(child as _TableViewCellElement);
   }
 
   @override
@@ -178,18 +178,42 @@ class _TableViewRowElement extends RenderObjectElement {
   }
 
   void _updateChildren(TableContentLayoutData data) {
-    final leftoverChildren = Map.of(children);
+    _TableViewCellElement? child = children.maybeFirst;
+    while (child != null) {
+      child._updated = false;
+      child = child.next;
+    }
 
-    _updateCells(data.fixedColumns, leftoverChildren, false);
-    _updateCells(data.scrollableColumns, leftoverChildren, true);
+    _updateCells(data.fixedColumns, false);
+    _updateCells(data.scrollableColumns, true);
 
-    leftoverChildren.values.forEach(deactivateChild);
-    leftoverChildren.keys.forEach(children.remove);
+    child = children.maybeFirst;
+    while (child != null) {
+      final next = child.next;
+      if (!child._updated) {
+        deactivateChild(child);
+        child.unlink();
+      }
+
+      child = next;
+    }
+  }
+
+  _TableViewCellElement? _findChildByKey(Key key) {
+    _TableViewCellElement? element = children.maybeFirst;
+    while (element != null) {
+      if (element.widget.key == key) {
+        return element;
+      }
+
+      element = element.next;
+    }
+
+    return null;
   }
 
   void _updateCells(
     TableContentColumnData data,
-    Map<Key, Element> leftoverChildren,
     bool scrolled,
   ) {
     final length = data.indices.length;
@@ -204,17 +228,17 @@ class _TableViewRowElement extends RenderObjectElement {
         position: data.positions[index],
       );
 
-      final child = children[columnKey];
+      final child = _findChildByKey(columnKey);
 
       if (child == null) {
-        children[columnKey] = inflateWidget(
+        children.add(inflateWidget(
           _TableViewCell(
             key: columnKey,
             cellBuilder: widget.cellBuilder,
             index: columnIndex,
           ),
           newSlot,
-        ) as _TableViewCellElement;
+        ) as _TableViewCellElement);
       } else {
         // because we update children in [didChangeDependencies],
         // we might end up accidentally updating an inactive child before it is removed,
@@ -231,10 +255,10 @@ class _TableViewRowElement extends RenderObjectElement {
               index: columnIndex,
             ));
           }
+
+          child._updated = true;
         }
       }
-
-      leftoverChildren.remove(columnKey);
     }
   }
 }
@@ -557,8 +581,11 @@ class _TableViewCell extends Widget {
   Element createElement() => _TableViewCellElement(this);
 }
 
-class _TableViewCellElement extends ComponentElement {
+class _TableViewCellElement extends ComponentElement
+    with LinkedListEntry<_TableViewCellElement> {
   _TableViewCellElement(super.widget);
+
+  bool _updated = true;
 
   @override
   void update(covariant _TableViewCell newWidget) {
