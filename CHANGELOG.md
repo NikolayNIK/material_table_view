@@ -1,3 +1,18 @@
+## 5.2.0
+- New support for optional `rowHeight` along with `rowHeightBuilder` and `rowPrototype` for `SliverTableView`,
+  matching the functionality of the `TableView`.
+- `SliverTableView` no longer stops existing when leaving visible area. Although this behavior matches more closely
+  with other slivers, it can introduce more unnecessary overhead when many are used.
+- New `physics` `TableView` constructor argument.
+- New ability to completely disable horizontal (header and/or footer) dividers.
+- Fixed visual inconsistency when `TableView` or `SliverTableView` are used outside of `SafeArea` (scrollbar is no
+  longer appears detached on some devices that have "unsafe" bottom side).
+- Fixed visual inconsistency when the column being moved would get clipped when changing places with a frozen one
+  when the vertical divider is not visible.
+- Fixed visual inconsistency when the column being moved would get painted below others.
+- Enabled semantics on debug builds when row reordering is used (previously disabled in this case).
+- Greatly optimized performance.
+
 ## 5.1.0
 - New support for optional `rowHeight` along with `rowHeightBuilder` and `rowPrototype` for `TableView`.
 - `wigglesPerRow` of `TableViewStyle` is now deprecated. Use functionally the same `wiggleCount` instead.
