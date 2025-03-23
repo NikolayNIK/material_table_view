@@ -12,8 +12,8 @@ abstract class TableSectionOffset implements ValueListenable<double> {
   factory TableSectionOffset.wrapViewportOffset(ViewportOffset offset) =
       _ViewportTableSectionOffset._;
 
-  factory TableSectionOffset.wrapValueListenable(ValueListenable<double> offset) =
-      _ValueListenableSectionOffset._;
+  factory TableSectionOffset.wrapValueListenable(
+      ValueListenable<double> offset) = _ValueListenableSectionOffset._;
 
   @override
   operator ==(Object other);
