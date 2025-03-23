@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:material_table_view/src/optional_wrap.dart';
-import 'package:material_table_view/src/sliver_passthrough.dart';
 import 'package:material_table_view/src/sliver_table_body.dart';
 import 'package:material_table_view/src/sliver_width_builder.dart';
 import 'package:material_table_view/src/table_column.dart';
@@ -18,6 +17,7 @@ import 'package:material_table_view/src/table_section_offset.dart';
 import 'package:material_table_view/src/table_section_overlay.dart';
 import 'package:material_table_view/src/table_view.dart';
 import 'package:material_table_view/src/table_view_style_resolved.dart';
+import 'package:sliver_passthrough/sliver_passthrough.dart';
 
 /// This is a sliver variant of the [TableView] widget.
 /// This variant is scrolled vertically by an outside [Scrollable]
@@ -125,7 +125,7 @@ class _SliverTableViewState extends State<SliverTableView>
             widget.columns.resolveLayout(width - scrollPadding.horizontal);
 
         return SliverPassthrough(
-          minHeight: headerHeight +
+          minBoxExtent: headerHeight +
               max(scrollPadding.vertical, style.dividers.horizontal.space) +
               footerHeight,
           builder: (context, verticalOffset) => Transform.translate(
@@ -174,7 +174,7 @@ class _SliverTableViewState extends State<SliverTableView>
                             child: TableSection(
                               rowHeight: widget.rowHeight,
                               verticalOffset:
-                                  TableSectionOffset.wrapValueNotifier(
+                                  TableSectionOffset.wrapValueListenable(
                                       verticalOffset),
                               placeholderShade: widget.placeholderShade,
                               child: OptionalWrap(

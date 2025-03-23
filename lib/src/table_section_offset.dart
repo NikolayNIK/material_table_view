@@ -12,8 +12,8 @@ abstract class TableSectionOffset implements ValueListenable<double> {
   factory TableSectionOffset.wrapViewportOffset(ViewportOffset offset) =
       _ViewportTableSectionOffset._;
 
-  factory TableSectionOffset.wrapValueNotifier(ValueNotifier<double> offset) =
-      _ValueNotifierSectionOffset._;
+  factory TableSectionOffset.wrapValueListenable(ValueListenable<double> offset) =
+      _ValueListenableSectionOffset._;
 
   @override
   operator ==(Object other);
@@ -72,10 +72,10 @@ class _ViewportTableSectionOffset extends TableSectionOffset {
       _offset.removeListener(listener);
 }
 
-class _ValueNotifierSectionOffset extends TableSectionOffset {
-  _ValueNotifierSectionOffset._(this._offset) : super._();
+class _ValueListenableSectionOffset extends TableSectionOffset {
+  _ValueListenableSectionOffset._(this._offset) : super._();
 
-  final ValueNotifier<double> _offset;
+  final ValueListenable<double> _offset;
 
   @override
   double get value => _offset.value;
@@ -86,7 +86,7 @@ class _ValueNotifierSectionOffset extends TableSectionOffset {
   @override
   bool operator ==(Object other) =>
       other.runtimeType == runtimeType &&
-      identical((other as _ValueNotifierSectionOffset)._offset, _offset);
+      identical((other as _ValueListenableSectionOffset)._offset, _offset);
 
   @override
   void addListener(VoidCallback listener) => _offset.addListener(listener);
