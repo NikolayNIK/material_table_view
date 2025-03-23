@@ -148,6 +148,7 @@ class TableViewHorizontalDividersStyle {
 @immutable
 class TableViewHorizontalDividerStyle extends DividerThemeData {
   const TableViewHorizontalDividerStyle({
+    this.enabled = true,
     super.color,
     super.thickness,
     super.space,
@@ -158,6 +159,10 @@ class TableViewHorizontalDividerStyle extends DividerThemeData {
         assert(indent == null || indent >= 0),
         assert(endIndent == null || endIndent >= 0);
 
+  const TableViewHorizontalDividerStyle.disabled() : this(enabled: false);
+
+  final bool enabled;
+
   @override
   TableViewHorizontalDividerStyle copyWith({
     Color? color,
@@ -167,6 +172,7 @@ class TableViewHorizontalDividerStyle extends DividerThemeData {
     double? endIndent,
   }) =>
       TableViewHorizontalDividerStyle(
+        enabled: enabled,
         color: color ?? this.color,
         thickness: thickness ?? this.thickness,
         space: space ?? this.space,
@@ -177,6 +183,7 @@ class TableViewHorizontalDividerStyle extends DividerThemeData {
   TableViewHorizontalDividerStyle lerp(
           TableViewHorizontalDividerStyle other, double t) =>
       TableViewHorizontalDividerStyle(
+        enabled: enabled || other.enabled,
         color: Color.lerp(color, other.color, t),
         thickness: lerpDouble(thickness, other.thickness, t),
         space: lerpDouble(space, other.space, t),

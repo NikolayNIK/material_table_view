@@ -103,7 +103,7 @@ class _TableScaffoldElement extends RenderObjectElement {
 
     _headerDivider = updateChild(
       _headerDivider,
-      _header == null
+      _header == null || !widget.dividersStyle.header.enabled
           ? null
           : TableHorizontalDivider(style: widget.dividersStyle.header),
       TableScaffoldSlotType.headerDivider,
@@ -113,7 +113,7 @@ class _TableScaffoldElement extends RenderObjectElement {
 
     _footerDivider = updateChild(
       _footerDivider,
-      widget.footer == null
+      widget.footer == null || !widget.dividersStyle.footer.enabled
           ? null
           : TableHorizontalDivider(style: widget.dividersStyle.footer),
       TableScaffoldSlotType.footerDivider,

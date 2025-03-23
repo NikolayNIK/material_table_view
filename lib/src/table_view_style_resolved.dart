@@ -176,6 +176,7 @@ class ResolvedTableViewHorizontalDividerStyle
   double get endIndent => super.endIndent!;
 
   const ResolvedTableViewHorizontalDividerStyle({
+    required super.enabled,
     required Color color,
     required double thickness,
     required double space,
@@ -194,14 +195,20 @@ class ResolvedTableViewHorizontalDividerStyle
     required TableViewHorizontalDividerStyle? base,
     required TableViewHorizontalDividerStyle? style,
   }) {
+    final enabled = style?.enabled ?? base?.enabled ?? true;
+
     late final borderStyle = Divider.createBorderSide(context);
-    final thickness = style?.thickness ?? base?.thickness ?? borderStyle.width;
+    final thickness =
+        enabled ? style?.thickness ?? base?.thickness ?? borderStyle.width : .0;
     return ResolvedTableViewHorizontalDividerStyle(
-      color: style?.color ?? base?.color ?? borderStyle.color,
+      enabled: enabled,
+      color: enabled
+          ? style?.color ?? base?.color ?? borderStyle.color
+          : Colors.transparent,
       thickness: thickness,
-      space: style?.space ?? base?.space ?? thickness,
-      indent: style?.indent ?? base?.indent ?? .0,
-      endIndent: style?.endIndent ?? base?.endIndent ?? .0,
+      space: enabled ? style?.space ?? base?.space ?? thickness : .0,
+      indent: enabled ? style?.indent ?? base?.indent ?? .0 : .0,
+      endIndent: enabled ? style?.endIndent ?? base?.endIndent ?? .0 : .0,
     );
   }
 }
