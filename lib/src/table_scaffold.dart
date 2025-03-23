@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:material_table_view/src/table_horizontal_divider.dart';
 import 'package:material_table_view/src/table_view_style_resolved.dart';
 
-enum TableViewLayoutSlotType {
+enum TableScaffoldSlotType {
   header,
   headerDivider,
   body,
@@ -30,11 +30,11 @@ class TableScaffold extends RenderObjectWidget {
   final double headerHeight, footerHeight;
 
   @override
-  RenderObjectElement createElement() => _TableViewLayoutElement(this);
+  RenderObjectElement createElement() => _TableScaffoldElement(this);
 
   @override
-  RenderTableViewLayout createRenderObject(BuildContext context) =>
-      RenderTableViewLayout(
+  RenderTableScaffold createRenderObject(BuildContext context) =>
+      RenderTableScaffold(
         headerHeight: headerHeight,
         footerHeight: footerHeight,
         headerDividerHeight: dividersStyle.header.space,
@@ -44,7 +44,7 @@ class TableScaffold extends RenderObjectWidget {
   @override
   void updateRenderObject(
     BuildContext context,
-    RenderTableViewLayout renderObject,
+    RenderTableScaffold renderObject,
   ) {
     renderObject.headerHeight = headerHeight;
     renderObject.footerHeight = footerHeight;
@@ -53,14 +53,14 @@ class TableScaffold extends RenderObjectWidget {
   }
 }
 
-class _TableViewLayoutElement extends RenderObjectElement {
-  _TableViewLayoutElement(TableScaffold super.widget);
+class _TableScaffoldElement extends RenderObjectElement {
+  _TableScaffoldElement(TableScaffold super.widget);
 
   Element? _header, _headerDivider, _body, _footerDivider, _footer;
 
   @override
-  RenderTableViewLayout get renderObject =>
-      super.renderObject as RenderTableViewLayout;
+  RenderTableScaffold get renderObject =>
+      super.renderObject as RenderTableScaffold;
 
   @override
   void visitChildren(ElementVisitor visitor) {
@@ -99,48 +99,48 @@ class _TableViewLayoutElement extends RenderObjectElement {
   void _updateChildren() {
     final widget = this.widget as TableScaffold;
 
-    _header = updateChild(_header, widget.header, TableViewLayoutSlotType.header);
+    _header = updateChild(_header, widget.header, TableScaffoldSlotType.header);
 
     _headerDivider = updateChild(
       _headerDivider,
       _header == null
           ? null
           : TableHorizontalDivider(style: widget.dividersStyle.header),
-      TableViewLayoutSlotType.headerDivider,
+      TableScaffoldSlotType.headerDivider,
     );
 
-    _body = updateChild(_body, widget.body, TableViewLayoutSlotType.body);
+    _body = updateChild(_body, widget.body, TableScaffoldSlotType.body);
 
     _footerDivider = updateChild(
       _footerDivider,
       widget.footer == null
           ? null
           : TableHorizontalDivider(style: widget.dividersStyle.footer),
-      TableViewLayoutSlotType.footerDivider,
+      TableScaffoldSlotType.footerDivider,
     );
 
-    _footer = updateChild(_footer, widget.footer, TableViewLayoutSlotType.footer);
+    _footer = updateChild(_footer, widget.footer, TableScaffoldSlotType.footer);
   }
 
   @override
   void insertRenderObjectChild(
     RenderBox child,
-    TableViewLayoutSlotType slot,
+    TableScaffoldSlotType slot,
   ) {
     switch (slot) {
-      case TableViewLayoutSlotType.header:
+      case TableScaffoldSlotType.header:
         renderObject.header = child;
         break;
-      case TableViewLayoutSlotType.headerDivider:
+      case TableScaffoldSlotType.headerDivider:
         renderObject.headerDivider = child;
         break;
-      case TableViewLayoutSlotType.body:
+      case TableScaffoldSlotType.body:
         renderObject.body = child;
         break;
-      case TableViewLayoutSlotType.footer:
+      case TableScaffoldSlotType.footer:
         renderObject.footer = child;
         break;
-      case TableViewLayoutSlotType.footerDivider:
+      case TableScaffoldSlotType.footerDivider:
         renderObject.footerDivider = child;
         break;
     }
@@ -149,26 +149,26 @@ class _TableViewLayoutElement extends RenderObjectElement {
   @override
   void removeRenderObjectChild(
     RenderBox child,
-    TableViewLayoutSlotType slot,
+    TableScaffoldSlotType slot,
   ) {
     switch (slot) {
-      case TableViewLayoutSlotType.header:
+      case TableScaffoldSlotType.header:
         assert(identical(renderObject.header, child));
         renderObject.header = null;
         break;
-      case TableViewLayoutSlotType.headerDivider:
+      case TableScaffoldSlotType.headerDivider:
         assert(identical(renderObject.headerDivider, child));
         renderObject.headerDivider = null;
         break;
-      case TableViewLayoutSlotType.body:
+      case TableScaffoldSlotType.body:
         assert(identical(renderObject.body, child));
         renderObject.body = null;
         break;
-      case TableViewLayoutSlotType.footer:
+      case TableScaffoldSlotType.footer:
         assert(identical(renderObject.footer, child));
         renderObject.footer = null;
         break;
-      case TableViewLayoutSlotType.footerDivider:
+      case TableScaffoldSlotType.footerDivider:
         assert(identical(renderObject.footerDivider, child));
         renderObject.footerDivider = null;
         break;
@@ -178,15 +178,15 @@ class _TableViewLayoutElement extends RenderObjectElement {
   @override
   void moveRenderObjectChild(
     RenderBox child,
-    TableViewLayoutSlotType oldSlot,
-    TableViewLayoutSlotType newSlot,
+    TableScaffoldSlotType oldSlot,
+    TableScaffoldSlotType newSlot,
   ) =>
       throw UnsupportedError(
           'TableViewLayout does not support moving children between slots');
 }
 
-class RenderTableViewLayout extends RenderBox {
-  RenderTableViewLayout({
+class RenderTableScaffold extends RenderBox {
+  RenderTableScaffold({
     required double headerHeight,
     required double footerHeight,
     required double headerDividerHeight,
