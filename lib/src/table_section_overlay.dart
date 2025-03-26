@@ -16,6 +16,7 @@ class _TableSectionOverlayState extends State<TableSectionOverlay> {
   late final List<OverlayEntry> _initialEntries = [
     OverlayEntry(
       canSizeOverlay: true,
+      maintainState: true,
       builder: (context) => widget.child,
     )
   ];

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:material_table_view/src/optional_wrap.dart';
 import 'package:material_table_view/src/sliver_table_body.dart';
 import 'package:material_table_view/src/table_column.dart';
 import 'package:material_table_view/src/table_column_controls_controllable.dart';
@@ -52,6 +51,7 @@ class TableView extends StatefulWidget {
     this.footerBuilder,
     double? footerHeight,
     this.physics,
+    this.shrinkWrapVertical = false,
   })  : assert(rowCount >= 0),
         assert(rowHeight == null || rowHeight > 0),
         assert(headerHeight == null || headerHeight > 0),
@@ -247,6 +247,21 @@ class TableView extends StatefulWidget {
   /// [physics].
   final ScrollPhysics? physics;
 
+  /// Whether the height of the [TableView] in should be determined by
+  /// the contents being viewed.
+  ///
+  /// If the [TableView] does not shrink wrap, then the [TableView] will expand
+  /// to the maximum allowed height. If the [TableView] has unbounded height,
+  /// then [shrinkWrapVertical] must be true.
+  ///
+  /// Shrink wrapping the content of the [TableView] is significantly more
+  /// expensive than expanding to the maximum allowed size because the content
+  /// can expand and contract during scrolling, which means the size of the
+  /// [TableView] needs to be recomputed whenever the scroll position changes.
+  ///
+  /// Defaults to false.
+  final bool shrinkWrapVertical;
+
   @override
   State<TableView> createState() => _TableViewState();
 }
@@ -303,37 +318,30 @@ class _TableViewState extends State<TableView>
       context: context,
       removeBottom: true,
       child: TableScrollConfiguration(
-        child: SizedBox(
-          width: double.infinity,
-          height: double.infinity,
-          child: widget.columns.isEmpty
-              ? const SizedBox()
-              : Transform.translate(
-                  offset: -horizontalScrollbarOffset,
-                  transformHitTests: false,
-                  child: TableScrollbar(
-                    controller: _controller.horizontalScrollController,
-                    style: style.scrollbars.horizontal,
-                    child: Transform.translate(
-                      offset: horizontalScrollbarOffset,
-                      transformHitTests: false,
-                      child: Scrollable(
-                        controller: _controller.horizontalScrollController,
-                        clipBehavior: Clip.none,
-                        axisDirection:
-                            textDirectionToAxisDirection(textDirection),
-                        viewportBuilder: (context, position) =>
-                            _buildViewport(context, style, position),
-                      ),
-                    ),
-                  ),
-                ),
+        child: Transform.translate(
+          offset: -horizontalScrollbarOffset,
+          transformHitTests: false,
+          child: TableScrollbar(
+            controller: _controller.horizontalScrollController,
+            style: style.scrollbars.horizontal,
+            child: Transform.translate(
+              offset: horizontalScrollbarOffset,
+              transformHitTests: false,
+              child: Scrollable(
+                controller: _controller.horizontalScrollController,
+                clipBehavior: Clip.none,
+                axisDirection: textDirectionToAxisDirection(textDirection),
+                viewportBuilder: (context, position) =>
+                    _buildLayout(context, style, position),
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildViewport(
+  Widget _buildLayout(
     BuildContext context,
     ResolvedTableViewStyle style,
     ViewportOffset horizontalOffset,
@@ -349,113 +357,121 @@ class _TableViewState extends State<TableView>
           position: _controller.horizontalScrollController.position,
           columns: columns,
           scrollPadding: scrollPadding,
-          child: LayoutBuilder(
-            builder: (context, constraints) => TableContentLayout(
-              verticalDividersStyle: style.dividers.vertical,
-              scrollPadding: scrollPadding,
-              textDirection: textDirection,
-              width: constraints.maxWidth,
-              fixedRowHeight: widget.rowHeight != null,
-              minScrollableWidthRatio: widget.minScrollableWidthRatio ??
-                  style.minScrollableWidthRatio,
-              columns: columns,
-              horizontalOffset: horizontalOffset,
-              stickyHorizontalOffset: _stickyHorizontalOffset,
-              minScrollableWidth: widget.minScrollableWidth,
-              child: Builder(
-                builder: (context) => TableScaffold(
-                  dividersStyle: style.dividers.horizontal,
-                  header: widget.headerBuilder == null
-                      ? null
-                      : TableSection(
-                          rowHeight: widget.headerHeight,
-                          placeholderShade: null,
-                          child: widget.headerBuilder!(
-                              context, headerFooterContentBuilder),
-                        ),
-                  headerHeight: widget.headerHeight,
-                  body: NotificationListener<OverscrollNotification>(
-                    onNotification: (notification) {
-                      // Prevent horizontal scrollable from receiving
-                      // overscroll notification because it starts to freak out.
-                      // Dispatch it out from the TableView instead
-                      // so something like RefreshIndicator can act upon it.
-                      notification.dispatch(this.context);
-                      return true;
-                    },
-                    child: widget.bodyContainerBuilder(
-                      context,
-                      ClipRect(
-                        child: TableScrollbar(
+          child: TableContentLayout(
+            verticalDividersStyle: style.dividers.vertical,
+            scrollPadding: scrollPadding,
+            textDirection: textDirection,
+            width: constraints.maxWidth,
+            fixedRowHeight: widget.rowHeight != null,
+            minScrollableWidthRatio:
+                widget.minScrollableWidthRatio ?? style.minScrollableWidthRatio,
+            columns: columns,
+            horizontalOffset: horizontalOffset,
+            stickyHorizontalOffset: _stickyHorizontalOffset,
+            minScrollableWidth: widget.minScrollableWidth,
+            child: Builder(
+              builder: (context) => TableScaffold(
+                shrinkWrapVertical: widget.shrinkWrapVertical,
+                dividersStyle: style.dividers.horizontal,
+                header: widget.headerBuilder == null
+                    ? null
+                    : TableSection(
+                        rowHeight: widget.headerHeight,
+                        placeholderShade: null,
+                        child: widget.headerBuilder!(
+                            context, headerFooterContentBuilder),
+                      ),
+                headerHeight: widget.headerHeight,
+                body: NotificationListener<OverscrollNotification>(
+                  onNotification: (notification) {
+                    // Prevent horizontal scrollable from receiving
+                    // overscroll notification because it starts to freak out.
+                    // Dispatch it out from the TableView instead
+                    // so something like RefreshIndicator can act upon it.
+                    notification.dispatch(this.context);
+                    return true;
+                  },
+                  child: widget.bodyContainerBuilder(
+                    context,
+                    ClipRect(
+                      child: TableScrollbar(
+                        controller: _controller.verticalScrollController,
+                        style: style.scrollbars.vertical,
+                        child: Scrollable(
                           controller: _controller.verticalScrollController,
-                          style: style.scrollbars.vertical,
-                          child: Scrollable(
-                            controller: _controller.verticalScrollController,
-                            clipBehavior: Clip.none,
-                            axisDirection: AxisDirection.down,
-                            physics: widget.physics,
-                            viewportBuilder: (context, verticalOffset) =>
-                                TableSection(
-                              verticalOffset:
-                                  TableSectionOffset.wrapViewportOffset(
-                                      verticalOffset),
-                              rowHeight: widget.rowHeight,
-                              placeholderShade: widget.placeholderShade,
-                              child: OptionalWrap(
-                                builder: widget.rowReorder == null
-                                    ? null
-                                    : (context, child) =>
-                                        TableSectionOverlay(child: child),
-                                child: TableViewport(
-                                  clipBehavior: Clip.none,
-                                  offset: verticalOffset,
-                                  slivers: [
-                                    SliverPadding(
-                                      padding: EdgeInsets.only(
-                                        top: scrollPadding.top,
-                                        bottom: scrollPadding.bottom,
-                                      ),
-                                      sliver: SliverTableBody(
-                                        rowCount: widget.rowCount,
-                                        rowHeight: widget.rowHeight,
-                                        rowHeightBuilder:
-                                            widget.rowHeightBuilder,
-                                        rowPrototype: widget.rowPrototype,
-                                        rowBuilder: widget.rowBuilder,
-                                        placeholderBuilder:
-                                            widget.placeholderBuilder,
-                                        placeholderRowBuilder:
-                                            widget.placeholderRowBuilder,
-                                        useHigherScrollable: false,
-                                        addAutomaticKeepAlives:
-                                            widget.addAutomaticKeepAlives,
-                                        rowReorder: widget.rowReorder,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+                          clipBehavior: Clip.none,
+                          axisDirection: AxisDirection.down,
+                          physics: widget.physics,
+                          viewportBuilder: (context, position) =>
+                              _buildVerticalViewport(scrollPadding, position),
                         ),
                       ),
                     ),
                   ),
-                  footer: widget.footerBuilder == null
-                      ? null
-                      : TableSection(
-                          rowHeight: widget.footerHeight,
-                          placeholderShade: null,
-                          child: widget.footerBuilder!(
-                              context, headerFooterContentBuilder),
-                        ),
-                  footerHeight: widget.footerHeight,
                 ),
+                footer: widget.footerBuilder == null
+                    ? null
+                    : TableSection(
+                        rowHeight: widget.footerHeight,
+                        placeholderShade: null,
+                        child: widget.footerBuilder!(
+                            context, headerFooterContentBuilder),
+                      ),
+                footerHeight: widget.footerHeight,
               ),
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildVerticalViewport(
+    EdgeInsets scrollPadding,
+    ViewportOffset verticalOffset,
+  ) {
+    final slivers = <Widget>[
+      SliverPadding(
+        padding: EdgeInsets.only(
+          top: scrollPadding.top,
+          bottom: scrollPadding.bottom,
+        ),
+        sliver: SliverTableBody(
+          rowCount: widget.rowCount,
+          rowHeight: widget.rowHeight,
+          rowHeightBuilder: widget.rowHeightBuilder,
+          rowPrototype: widget.rowPrototype,
+          rowBuilder: widget.rowBuilder,
+          placeholderBuilder: widget.placeholderBuilder,
+          placeholderRowBuilder: widget.placeholderRowBuilder,
+          useHigherScrollable: false,
+          addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
+          rowReorder: widget.rowReorder,
+        ),
+      ),
+    ];
+
+    Widget result = widget.shrinkWrapVertical
+        ? TableShrinkWrappingViewport(
+            clipBehavior: Clip.none,
+            offset: verticalOffset,
+            slivers: slivers,
+          )
+        : TableViewport(
+            clipBehavior: Clip.none,
+            offset: verticalOffset,
+            slivers: slivers,
+          );
+
+    if (widget.rowReorder != null) {
+      result = TableSectionOverlay(child: result);
+    }
+
+    return TableSection(
+      verticalOffset: TableSectionOffset.wrapViewportOffset(verticalOffset),
+      rowHeight: widget.rowHeight,
+      placeholderShade: widget.placeholderShade,
+      child: result,
     );
   }
 }

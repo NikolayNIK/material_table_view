@@ -48,3 +48,43 @@ class _RenderTableViewport extends RenderViewport {
   @override
   bool get isRepaintBoundary => false;
 }
+
+/// This is a highly sophisticated widget used as a [ShrinkWrappingViewport]
+/// for the table.
+///
+/// The only difference from a regular [ShrinkWrappingViewport] is that
+/// it doesn't serve as a [RepaintBoundary] and
+/// thus doesn't mess up custom compositing.
+class TableShrinkWrappingViewport extends ShrinkWrappingViewport {
+  const TableShrinkWrappingViewport({
+    super.key,
+    super.axisDirection,
+    super.crossAxisDirection,
+    required super.offset,
+    super.clipBehavior,
+    super.slivers,
+  });
+
+  @override
+  RenderShrinkWrappingViewport createRenderObject(BuildContext context) =>
+      _RenderTableShrinkWrappingViewport(
+        axisDirection: axisDirection,
+        crossAxisDirection: crossAxisDirection ??
+            Viewport.getDefaultCrossAxisDirection(context, axisDirection),
+        offset: offset,
+        clipBehavior: clipBehavior,
+      );
+}
+
+class _RenderTableShrinkWrappingViewport extends RenderShrinkWrappingViewport {
+  _RenderTableShrinkWrappingViewport({
+    super.axisDirection,
+    required super.crossAxisDirection,
+    required super.offset,
+    super.clipBehavior,
+  });
+
+  // All that crap is just for this.
+  @override
+  bool get isRepaintBoundary => false;
+}

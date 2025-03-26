@@ -22,12 +22,14 @@ class TableScaffold extends RenderObjectWidget {
     required this.body,
     required this.footer,
     required this.footerHeight,
+    required this.shrinkWrapVertical,
   });
 
   final ResolvedTableViewHorizontalDividersStyle dividersStyle;
   final Widget body;
   final Widget? header, footer;
   final double headerHeight, footerHeight;
+  final bool shrinkWrapVertical;
 
   @override
   RenderObjectElement createElement() => _TableScaffoldElement(this);
@@ -39,6 +41,7 @@ class TableScaffold extends RenderObjectWidget {
         footerHeight: footerHeight,
         headerDividerHeight: dividersStyle.header.space,
         footerDividerHeight: dividersStyle.footer.space,
+        shrinkWrapVertical: shrinkWrapVertical,
       );
 
   @override
@@ -50,6 +53,7 @@ class TableScaffold extends RenderObjectWidget {
     renderObject.footerHeight = footerHeight;
     renderObject.headerDividerHeight = dividersStyle.header.space;
     renderObject.footerDividerHeight = dividersStyle.footer.space;
+    renderObject.shrinkWrapVertical = shrinkWrapVertical;
   }
 }
 
@@ -191,12 +195,16 @@ class RenderTableScaffold extends RenderBox {
     required double footerHeight,
     required double headerDividerHeight,
     required double footerDividerHeight,
+    required bool shrinkWrapVertical,
   })  : _headerHeight = headerHeight,
         _footerHeight = footerHeight,
         _headerDividerHeight = headerDividerHeight,
-        _footerDividerHeight = footerDividerHeight;
+        _footerDividerHeight = footerDividerHeight,
+        _shrinkWrapVertical = shrinkWrapVertical;
 
   RenderBox? _header, _headerDivider, _body, _footerDivider, _footer;
+
+  bool _shrinkWrapVertical;
 
   RenderBox? get header => _header;
 
@@ -207,6 +215,8 @@ class RenderTableScaffold extends RenderBox {
   RenderBox? get footerDivider => _footerDivider;
 
   RenderBox? get footer => _footer;
+
+  bool get shrinkWrapVertical => _shrinkWrapVertical;
 
   set header(RenderBox? newRO) {
     final old = _header;
@@ -282,8 +292,15 @@ class RenderTableScaffold extends RenderBox {
     }
   }
 
+  set shrinkWrapVertical(bool value) {
+    if (_shrinkWrapVertical != value) {
+      _shrinkWrapVertical = value;
+      markNeedsLayoutForSizedByParentChange();
+    }
+  }
+
   @override
-  bool get sizedByParent => true;
+  bool get sizedByParent => !_shrinkWrapVertical;
 
   @override
   Size computeDryLayout(covariant BoxConstraints constraints) =>
@@ -323,7 +340,7 @@ class RenderTableScaffold extends RenderBox {
   @override
   void performLayout() {
     final width = constraints.maxWidth;
-    final height = constraints.maxHeight;
+    var height = constraints.maxHeight;
 
     final header = this.header;
     final headerDivider = this.headerDivider;
@@ -351,6 +368,58 @@ class RenderTableScaffold extends RenderBox {
           Offset(0, headerHeight);
     }
 
+    if (shrinkWrapVertical) {
+      if (body == null) {
+        height = headerHeight +
+            headerDividerHeight +
+            footerDividerHeight +
+            footerHeight;
+      } else {
+        body.layout(
+          parentUsesSize: true,
+          BoxConstraints(
+            minWidth: width,
+            maxWidth: width,
+            minHeight: 0,
+            maxHeight: height.isInfinite
+                ? double.infinity
+                : height -
+                    headerHeight -
+                    headerDividerHeight -
+                    footerHeight -
+                    footerDividerHeight,
+          ),
+        );
+
+        (body.parentData as BoxParentData).offset =
+            Offset(0, headerHeight + headerDividerHeight);
+
+        height = headerHeight +
+            headerDividerHeight +
+            body.size.height +
+            footerDividerHeight +
+            footerHeight;
+      }
+
+      size = Size(width, height);
+    } else {
+      if (body != null) {
+        body.layout(
+          BoxConstraints.tightFor(
+            width: width,
+            height: height -
+                headerHeight -
+                headerDividerHeight -
+                footerHeight -
+                footerDividerHeight,
+          ),
+        );
+
+        (body.parentData as BoxParentData).offset =
+            Offset(0, headerHeight + headerDividerHeight);
+      }
+    }
+
     if (footer != null) {
       footer.layout(
         BoxConstraints.tightFor(
@@ -373,22 +442,6 @@ class RenderTableScaffold extends RenderBox {
 
       (footerDivider.parentData as BoxParentData).offset =
           Offset(0, height - footerHeight - footerDividerHeight);
-    }
-
-    if (body != null) {
-      body.layout(
-        BoxConstraints.tightFor(
-          width: width,
-          height: height -
-              headerHeight -
-              headerDividerHeight -
-              footerHeight -
-              footerDividerHeight,
-        ),
-      );
-
-      (body.parentData as BoxParentData).offset =
-          Offset(0, headerHeight + headerDividerHeight);
     }
   }
 
