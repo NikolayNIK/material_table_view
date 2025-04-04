@@ -348,6 +348,13 @@ class RenderTableScaffold extends RenderBox {
     final footerDivider = this.footerDivider;
     final footer = this.footer;
 
+    final headerHeight = header == null ? .0 : this.headerHeight;
+    final headerDividerHeight =
+        headerDivider == null ? .0 : this.headerDividerHeight;
+    final footerHeight = footer == null ? .0 : this.footerHeight;
+    final footerDividerHeight =
+        footerDivider == null ? .0 : this.footerDividerHeight;
+
     if (header != null) {
       header.layout(
         BoxConstraints.tightFor(
