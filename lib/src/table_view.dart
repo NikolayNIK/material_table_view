@@ -375,11 +375,13 @@ class _TableViewState extends State<TableView>
                 dividersStyle: style.dividers.horizontal,
                 header: widget.headerBuilder == null
                     ? null
-                    : TableSection(
-                        rowHeight: widget.headerHeight,
-                        placeholderShade: null,
-                        child: widget.headerBuilder!(
-                            context, headerFooterContentBuilder),
+                    : ClipRect(
+                        child: TableSection(
+                          rowHeight: widget.headerHeight,
+                          placeholderShade: null,
+                          child: widget.headerBuilder!(
+                              context, headerFooterContentBuilder),
+                        ),
                       ),
                 headerHeight: widget.headerHeight,
                 body: NotificationListener<OverscrollNotification>(
@@ -411,11 +413,13 @@ class _TableViewState extends State<TableView>
                 ),
                 footer: widget.footerBuilder == null
                     ? null
-                    : TableSection(
-                        rowHeight: widget.footerHeight,
-                        placeholderShade: null,
-                        child: widget.footerBuilder!(
-                            context, headerFooterContentBuilder),
+                    : ClipRect(
+                        child: TableSection(
+                          rowHeight: widget.footerHeight,
+                          placeholderShade: null,
+                          child: widget.footerBuilder!(
+                              context, headerFooterContentBuilder),
+                        ),
                       ),
                 footerHeight: widget.footerHeight,
               ),
