@@ -1,3 +1,9 @@
+## 5.3.0
+- New `shrinkWrapVertical` argument of the `TableView.builder` constructor.
+- Fixed a bug introduced in `5.2.0` which caused extra space being left for header or footer even when
+  none are specified.
+- Fixed a bug with header and footer painting outside the area of the `TableView`.
+
 ## 5.2.0
 - New support for optional `rowHeight` along with `rowHeightBuilder` and `rowPrototype` for `SliverTableView`,
   matching the functionality of the `TableView`.
