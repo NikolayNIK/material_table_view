@@ -24,8 +24,10 @@ import 'package:material_table_view/src/table_viewport.dart';
 /// Material-style widget that displays its content in a both vertically and
 /// horizontally scrollable table with fixed-width freezable columns.
 ///
-/// This widget will try to expand to the highest constraints given.
-/// Make sure to put it inside a box with a finite size.
+/// This widget will try to expand to the highest constraints given, unless
+/// `shrinkWrapVertical` is used. Make sure to either put it inside a box with
+/// a finite size or to set `shrinkWrapVertical` to true to let this widget
+/// calculate its height (width is still required to be finite).
 class TableView extends StatefulWidget {
   const TableView.builder({
     super.key,
