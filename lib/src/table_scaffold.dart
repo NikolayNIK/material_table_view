@@ -338,6 +338,21 @@ class RenderTableScaffold extends RenderBox {
   }
 
   @override
+  set size(Size size) {
+    // More helpful message for a subset of Flutters assertion that would have
+    // triggered shortly after anyways
+    assert(
+      size.height.isFinite || _shrinkWrapVertical || size.width.isInfinite,
+      'TableView object was given an infinite height during layout.'
+      ' Consider setting `shrinkWrapVertical` to `true` to make the table calculate its own height.'
+      ' Also consider using `SliverTableView` instead.'
+      ' Please refer to the documentation for more details.',
+    );
+
+    super.size = size;
+  }
+
+  @override
   void performLayout() {
     final width = constraints.maxWidth;
     var height = constraints.maxHeight;
