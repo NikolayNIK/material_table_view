@@ -256,13 +256,15 @@ class RenderTableScaffold extends RenderBox {
   double _headerHeight, _footerHeight;
   double _headerDividerHeight, _footerDividerHeight;
 
-  double get headerHeight => _headerHeight;
+  double get headerHeight => header == null ? .0 : _headerHeight;
 
-  double get footerHeight => _footerHeight;
+  double get footerHeight => footer == null ? .0 : _footerHeight;
 
-  double get headerDividerHeight => _headerDividerHeight;
+  double get headerDividerHeight =>
+      headerDivider == null ? .0 : _headerDividerHeight;
 
-  double get footerDividerHeight => _footerDividerHeight;
+  double get footerDividerHeight =>
+      footerDivider == null ? .0 : _footerDividerHeight;
 
   set headerHeight(double value) {
     if (_headerHeight != value) {
@@ -338,15 +340,46 @@ class RenderTableScaffold extends RenderBox {
   }
 
   @override
+  double computeMaxIntrinsicHeight(double width) =>
+      headerHeight +
+      headerDividerHeight +
+      (body?.computeMaxIntrinsicHeight(width) ?? .0) +
+      footerDividerHeight +
+      footerHeight;
+
+  @override
+  double computeMinIntrinsicHeight(double width) =>
+      headerHeight +
+      headerDividerHeight +
+      (body?.computeMinIntrinsicHeight(width) ?? .0) +
+      footerDividerHeight +
+      footerHeight;
+
+  @override
   set size(Size size) {
     // More helpful message for a subset of Flutters assertion that would have
     // triggered shortly after anyways
     assert(
-      size.height.isFinite || _shrinkWrapVertical || size.width.isInfinite,
-      'TableView object was given an infinite height during layout.'
-      ' Consider setting `shrinkWrapVertical` to `true` to make the table calculate its own height.'
-      ' Also consider using `SliverTableView` instead.'
-      ' Please refer to the documentation for more details.',
+      size.height.isFinite && size.width.isFinite,
+      () {
+        final width = size.width.isInfinite;
+        final height = size.height.isInfinite;
+        final both = width && height;
+
+        final dimension = both
+            ? 'width and height'
+            : width
+                ? 'width'
+                : 'height';
+
+        const swHorizontal = '`shrinkWrapHorizontal` to `true`';
+        const swVertical = '`shrinkWrapVertical` to `true`';
+
+        return 'TableView object was given an infinite $dimension during layout.'
+            ' Consider setting ${both ? '$swHorizontal and $swVertical' : width ? swHorizontal : swVertical} to make the table calculate its own $dimension.'
+            '${height ? ' Also consider using `SliverTableView` instead.' : ''}'
+            ' Please refer to the documentation for more details.';
+      }(),
     );
 
     super.size = size;
@@ -363,12 +396,10 @@ class RenderTableScaffold extends RenderBox {
     final footerDivider = this.footerDivider;
     final footer = this.footer;
 
-    final headerHeight = header == null ? .0 : this.headerHeight;
-    final headerDividerHeight =
-        headerDivider == null ? .0 : this.headerDividerHeight;
-    final footerHeight = footer == null ? .0 : this.footerHeight;
-    final footerDividerHeight =
-        footerDivider == null ? .0 : this.footerDividerHeight;
+    final headerHeight = this.headerHeight;
+    final headerDividerHeight = this.headerDividerHeight;
+    final footerHeight = this.footerHeight;
+    final footerDividerHeight = this.footerDividerHeight;
 
     if (header != null) {
       header.layout(

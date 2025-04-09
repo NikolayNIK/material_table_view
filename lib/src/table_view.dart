@@ -3,9 +3,9 @@ import 'package:flutter/rendering.dart';
 import 'package:material_table_view/src/sliver_table_body.dart';
 import 'package:material_table_view/src/table_column.dart';
 import 'package:material_table_view/src/table_column_controls_controllable.dart';
-import 'package:material_table_view/src/table_column_resolve_layout_extension.dart';
 import 'package:material_table_view/src/table_column_scroll_dimensions_applicator.dart';
 import 'package:material_table_view/src/table_content_layout.dart';
+import 'package:material_table_view/src/table_layout_box.dart';
 import 'package:material_table_view/src/table_placeholder_shade.dart';
 import 'package:material_table_view/src/table_row.dart';
 import 'package:material_table_view/src/table_row_reorder.dart';
@@ -54,6 +54,7 @@ class TableView extends StatefulWidget {
     double? footerHeight,
     this.physics,
     this.shrinkWrapVertical = false,
+    this.shrinkWrapHorizontal = false,
   })  : assert(rowCount >= 0),
         assert(rowHeight == null || rowHeight > 0),
         assert(headerHeight == null || headerHeight > 0),
@@ -264,6 +265,16 @@ class TableView extends StatefulWidget {
   /// Defaults to false.
   final bool shrinkWrapVertical;
 
+  /// Whether the width of the [TableView] in should be determined by
+  /// the contents being viewed.
+  ///
+  /// If the [TableView] does not shrink wrap, then the [TableView] will expand
+  /// to the maximum allowed width. If the [TableView] has unbounded width,
+  /// then [shrinkWrapHorizontal] must be true.
+  ///
+  /// Defaults to false.
+  final bool shrinkWrapHorizontal;
+
   @override
   State<TableView> createState() => _TableViewState();
 }
@@ -350,11 +361,11 @@ class _TableViewState extends State<TableView>
   ) {
     final scrollPadding = style.scrollPadding;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final columns = _columns = widget.columns
-            .resolveLayout(constraints.maxWidth - scrollPadding.horizontal);
-
+    return TableLayoutBox(
+      columns: widget.columns,
+      scrollPadding: scrollPadding,
+      shrinkWrapHorizontal: widget.shrinkWrapHorizontal,
+      builder: (context, columns, width) {
         return TableColumnScrollDimensionsApplicator(
           position: _controller.horizontalScrollController.position,
           columns: columns,
@@ -363,7 +374,7 @@ class _TableViewState extends State<TableView>
             verticalDividersStyle: style.dividers.vertical,
             scrollPadding: scrollPadding,
             textDirection: textDirection,
-            width: constraints.maxWidth,
+            width: width,
             fixedRowHeight: widget.rowHeight != null,
             minScrollableWidthRatio:
                 widget.minScrollableWidthRatio ?? style.minScrollableWidthRatio,
