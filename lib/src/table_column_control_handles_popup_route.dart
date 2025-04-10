@@ -120,6 +120,12 @@ typedef PopupBuilder = PreferredSizeWidget Function(
   double columnWidth,
 );
 
+typedef PopupPositionedWrapperBuilder = Positioned Function(
+  BuildContext context,
+  Offset cellOffset,
+  PreferredSizeWidget child,
+);
+
 typedef ColumnTranslationDurationFunctor = Duration Function(
   double distance,
 );
@@ -209,6 +215,14 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
   /// Can be changed at any time (except [SchedulerPhase.persistentCallbacks]).
   final ValueNotifier<PopupBuilder?> popupBuilder;
 
+  /// Contains a builder function that allows customizing how the popup is positioned relative to the target cell.
+  /// The builder receives the context, cell offset and popup widget, and must return a [Positioned] widget.
+  /// If not provided, default positioning logic will be used.
+  ///
+  /// Can be changed at any time (except [SchedulerPhase.persistentCallbacks]).
+  final ValueNotifier<PopupPositionedWrapperBuilder?>
+      popupPositionedWrapperBuilder;
+
   /// Contains a window margin for the popup. The popup widget will never get closer to the edge of the enclosing
   /// [Navigator] (edge of the screen for the application level [Navigator]).
   ///
@@ -263,6 +277,7 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
     ResizeHandleBuilder resizeHandleBuilder = _defaultResizeHandleBuilder,
     DragHandleBuilder dragHandleBuilder = _defaultDragHandleBuilder,
     PopupBuilder? popupBuilder,
+    PopupPositionedWrapperBuilder? popupPositionedWrapperBuilder,
     EdgeInsets popupPadding = const EdgeInsets.all(16.0),
     Duration transitionDuration = const Duration(milliseconds: 200),
     ColumnTranslationDurationFunctor columnTranslationDuration =
@@ -310,6 +325,7 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
       onColumnTranslate: onColumnTranslate,
       popupBuilder: popupBuilder,
       popupPadding: popupPadding,
+      popupPositionedWrapperBuilder: popupPositionedWrapperBuilder,
       resizeHandleBuilder: resizeHandleBuilder,
       trailingImmovableColumnCount: trailingImmovableColumnCount,
       tableViewChanged: tableViewChanged,
@@ -343,6 +359,7 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
     required ResizeHandleBuilder resizeHandleBuilder,
     required DragHandleBuilder dragHandleBuilder,
     required PopupBuilder? popupBuilder,
+    required PopupPositionedWrapperBuilder? popupPositionedWrapperBuilder,
     required EdgeInsets popupPadding,
     required ColumnTranslationDurationFunctor columnTranslationDuration,
     required Curve columnTranslationCurve,
@@ -358,6 +375,8 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
         resizeHandleBuilder = ValueNotifier(resizeHandleBuilder),
         dragHandleBuilder = ValueNotifier(dragHandleBuilder),
         popupBuilder = ValueNotifier(popupBuilder),
+        popupPositionedWrapperBuilder =
+            ValueNotifier(popupPositionedWrapperBuilder),
         popupPadding = ValueNotifier(popupPadding),
         columnTranslationDuration = ValueNotifier(columnTranslationDuration),
         columnTranslationCurve = ValueNotifier(columnTranslationCurve);
@@ -467,6 +486,7 @@ class _WidgetState extends State<_Widget>
         route.resizeHandleBuilder,
         route.dragHandleBuilder,
         route.popupBuilder,
+        route.popupPositionedWrapperBuilder,
         route.popupPadding,
       ];
 
@@ -737,6 +757,14 @@ class _WidgetState extends State<_Widget>
                   route._targetCellRenderObject.size.width),
               builder: (context, clearBarrierCounter, child) {
                 child = child as PreferredSizeWidget;
+
+                if (route.popupPositionedWrapperBuilder.value != null) {
+                  return route.popupPositionedWrapperBuilder.value!.call(
+                    context,
+                    offset,
+                    child,
+                  );
+                }
 
                 final margin = route.popupPadding.value;
 
