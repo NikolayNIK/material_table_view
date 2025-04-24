@@ -1,3 +1,9 @@
+## 5.4.0
+- New `shrinkWrapHorizontal` argument of the `TableView.builder` constructor. 
+- New `tableOverlayBuilder` and `columnOverlayBuilder` of the `TableColumnControlHandlesPopupRoute.realtime`
+  constructor.
+- `TableView` now supports intrinsic width.
+
 ## 5.3.0
 - New `shrinkWrapVertical` argument of the `TableView.builder` constructor.
 - Fixed a bug introduced in `5.2.0` which caused extra space being left for header or footer even when
