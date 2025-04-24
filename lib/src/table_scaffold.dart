@@ -372,11 +372,13 @@ class RenderTableScaffold extends RenderBox {
                 ? 'width'
                 : 'height';
 
-        const swHorizontal = '`shrinkWrapHorizontal` to `true`';
-        const swVertical = '`shrinkWrapVertical` to `true`';
+        const swHorizontal = '`shrinkWrapHorizontal`';
+        const swVertical = '`shrinkWrapVertical`';
 
-        return 'TableView object was given an infinite $dimension during layout.'
-            ' Consider setting ${both ? '$swHorizontal and $swVertical' : width ? swHorizontal : swVertical} to make the table calculate its own $dimension.'
+        return 'TableView object was given an infinite $dimension during layout.\n'
+            '\n'
+            'Make sure to put the TableView in a finitely sized box.'
+            ' Alternatively, consider setting ${both ? 'both $swHorizontal and $swVertical' : width ? swHorizontal : swVertical} to `true` to make the table calculate its own $dimension.'
             '${height ? ' Also consider using `SliverTableView` instead.' : ''}'
             ' Please refer to the documentation for more details.';
       }(),
