@@ -120,6 +120,19 @@ typedef PopupBuilder = PreferredSizeWidget Function(
   double columnWidth,
 );
 
+typedef TableOverlayBuilder = Widget Function(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+  Rect targetColumnBounds,
+);
+
+typedef ColumnOverlayBuilder = Widget Function(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+);
+
 typedef ColumnTranslationDurationFunctor = Duration Function(
   double distance,
 );
@@ -215,6 +228,17 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
   /// Can be changed at any time (except [SchedulerPhase.persistentCallbacks]).
   final ValueNotifier<EdgeInsets> popupPadding;
 
+  /// Contains a builder function returning a [Widget] that will be displayed overlaying the target table.
+  /// [Positioned] widget can be returned to position the overlay.
+  ///
+  /// Can be changed at any time (except [SchedulerPhase.persistentCallbacks]).
+  final ValueNotifier<TableOverlayBuilder?> tableOverlayBuilder;
+
+  /// Contains a builder function returning a [Widget] that will be displayed overlaying the target column.
+  ///
+  /// Can be changed at any time (except [SchedulerPhase.persistentCallbacks]).
+  final ValueNotifier<ColumnOverlayBuilder?> columnOverlayBuilder;
+
   /// Controls the duration of the following:
   /// - control handles enter/exit animations;
   /// - color barrier fade in/out animations;
@@ -264,6 +288,8 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
     DragHandleBuilder dragHandleBuilder = _defaultDragHandleBuilder,
     PopupBuilder? popupBuilder,
     EdgeInsets popupPadding = const EdgeInsets.all(16.0),
+    TableOverlayBuilder? tableOverlayBuilder,
+    ColumnOverlayBuilder? columnOverlayBuilder,
     Duration transitionDuration = const Duration(milliseconds: 200),
     ColumnTranslationDurationFunctor columnTranslationDuration =
         _defaultColumnTranslationDuration,
@@ -310,6 +336,8 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
       onColumnTranslate: onColumnTranslate,
       popupBuilder: popupBuilder,
       popupPadding: popupPadding,
+      tableOverlayBuilder: tableOverlayBuilder,
+      columnOverlayBuilder: columnOverlayBuilder,
       resizeHandleBuilder: resizeHandleBuilder,
       trailingImmovableColumnCount: trailingImmovableColumnCount,
       tableViewChanged: tableViewChanged,
@@ -344,6 +372,8 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
     required DragHandleBuilder dragHandleBuilder,
     required PopupBuilder? popupBuilder,
     required EdgeInsets popupPadding,
+    required TableOverlayBuilder? tableOverlayBuilder,
+    required ColumnOverlayBuilder? columnOverlayBuilder,
     required ColumnTranslationDurationFunctor columnTranslationDuration,
     required Curve columnTranslationCurve,
   })  : tableViewChanged = ValueNotifier(tableViewChanged),
@@ -359,6 +389,8 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
         dragHandleBuilder = ValueNotifier(dragHandleBuilder),
         popupBuilder = ValueNotifier(popupBuilder),
         popupPadding = ValueNotifier(popupPadding),
+        tableOverlayBuilder = ValueNotifier(tableOverlayBuilder),
+        columnOverlayBuilder = ValueNotifier(columnOverlayBuilder),
         columnTranslationDuration = ValueNotifier(columnTranslationDuration),
         columnTranslationCurve = ValueNotifier(columnTranslationCurve);
 
@@ -468,6 +500,8 @@ class _WidgetState extends State<_Widget>
         route.dragHandleBuilder,
         route.popupBuilder,
         route.popupPadding,
+        route.tableOverlayBuilder,
+        route.columnOverlayBuilder,
       ];
 
   late ScrollController horizontalScrollController;
@@ -726,6 +760,70 @@ class _WidgetState extends State<_Widget>
       builder: (context, constraints) => Stack(
         fit: StackFit.expand,
         children: [
+          if (route.columnOverlayBuilder.value != null ||
+              route.tableOverlayBuilder.value != null)
+            Builder(
+              key: const ValueKey('tableOverlay'),
+              builder: (context) {
+                final layout = route._tableContentLayoutState.context
+                    .findRenderObject() as RenderBox;
+
+                if (!originRenderObject.attached) {
+                  SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+                    if (mounted) setState(() {});
+                  });
+
+                  return const SizedBox();
+                }
+
+                final tablePosition = originRenderObject
+                    .globalToLocal(layout.localToGlobal(Offset.zero));
+
+                final columnBounds = Rect.fromLTWH(
+                  offset.dx - tablePosition.dx + leadingResizeHandleCorrection,
+                  offset.dy - tablePosition.dy,
+                  route._targetCellRenderObject.size.width +
+                      (trailingResizeHandleCorrection -
+                          leadingResizeHandleCorrection),
+                  layout.size.height,
+                );
+
+                return Positioned(
+                  left: tablePosition.dx,
+                  top: tablePosition.dy,
+                  width: layout.size.width,
+                  height: layout.size.height,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      if (route.tableOverlayBuilder.value != null)
+                        Builder(
+                          key: const ValueKey('tableOverlay'),
+                          builder: (context) =>
+                              route.tableOverlayBuilder.value!.call(
+                            context,
+                            widget.animation,
+                            widget.secondaryAnimation,
+                            columnBounds,
+                          ),
+                        ),
+                      if (route.columnOverlayBuilder.value != null)
+                        Builder(
+                          key: const ValueKey('columnOverlay'),
+                          builder: (context) => Positioned.fromRect(
+                            rect: columnBounds,
+                            child: route.columnOverlayBuilder.value!.call(
+                              context,
+                              widget.animation,
+                              widget.secondaryAnimation,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              },
+            ),
           if (route.popupBuilder.value != null)
             ValueListenableBuilder(
               key: const ValueKey('popup'),
