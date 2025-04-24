@@ -124,7 +124,7 @@ class _SliverTableViewState extends State<SliverTableView>
         final columns =
             widget.columns.resolveLayout(width - scrollPadding.horizontal);
 
-        return SliverPassthrough(
+        return SliverPassthrough.builder(
           minBoxExtent: headerHeight +
               max(scrollPadding.vertical, style.dividers.horizontal.space) +
               footerHeight,
