@@ -53,6 +53,7 @@ class TableView extends StatefulWidget {
     this.footerBuilder,
     double? footerHeight,
     this.physics,
+    this.physicsHorizontal,
     this.shrinkWrapVertical = false,
     this.shrinkWrapHorizontal = false,
   })  : assert(rowCount >= 0),
@@ -244,11 +245,43 @@ class TableView extends StatefulWidget {
   /// dynamically, which can be relatively expensive, and it would be
   /// inefficient to speculatively create this object each frame to see if the
   /// physics should be updated.)
-  ///
-  /// If an explicit [ScrollBehavior] is provided to [scrollBehavior], the
-  /// [ScrollPhysics] provided by that behavior will take precedence after
-  /// [physics].
   final ScrollPhysics? physics;
+
+  /// How the horizontal scroll view should respond to user input.
+  ///
+  /// For example, determines how the scroll view continues to animate after the
+  /// user stops dragging the scroll view.
+  ///
+  /// Defaults to matching platform conventions. Furthermore, if [primary] is
+  /// false, then the user cannot scroll if there is insufficient content to
+  /// scroll, while if [primary] is true, they can always attempt to scroll.
+  ///
+  /// To force the scroll view to always be scrollable even if there is
+  /// insufficient content, as if [primary] was true but without necessarily
+  /// setting it to true, provide an [AlwaysScrollableScrollPhysics] physics
+  /// object, as in:
+  ///
+  /// ```dart
+  ///   physicsHorizontal: const AlwaysScrollableScrollPhysics(),
+  /// ```
+  ///
+  /// To force the scroll view to use the default platform conventions and not
+  /// be scrollable if there is insufficient content, regardless of the value of
+  /// [primary], provide an explicit [ScrollPhysics] object, as in:
+  ///
+  /// ```dart
+  ///   physicsHorizontal: const ScrollPhysics(),
+  /// ```
+  ///
+  /// The physics can be changed dynamically (by providing a new object in a
+  /// subsequent build), but new physics will only take effect if the _class_ of
+  /// the provided object changes. Merely constructing a new instance with a
+  /// different configuration is insufficient to cause the physics to be
+  /// reapplied. (This is because the final object used is generated
+  /// dynamically, which can be relatively expensive, and it would be
+  /// inefficient to speculatively create this object each frame to see if the
+  /// physics should be updated.)
+  final ScrollPhysics? physicsHorizontal;
 
   /// Whether the height of the [TableView] in should be determined by
   /// the contents being viewed.
@@ -344,6 +377,7 @@ class _TableViewState extends State<TableView>
                 controller: _controller.horizontalScrollController,
                 clipBehavior: Clip.none,
                 axisDirection: textDirectionToAxisDirection(textDirection),
+                physics: widget.physicsHorizontal,
                 viewportBuilder: (context, position) =>
                     _buildLayout(context, style, position),
               ),
