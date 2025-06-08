@@ -228,6 +228,17 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
   /// Can be changed at any time (except [SchedulerPhase.persistentCallbacks]).
   final ValueNotifier<EdgeInsets> popupPadding;
 
+  /// Contains a cell margin for the popup. The popup widget will never get
+  /// closer to the target header cell on the vertical axis. Horizontal axis
+  /// values offsets the popup widget relative to the horizontal boundaries of
+  /// the target cell.
+  ///
+  /// Defaults to the height of the target cell for the top and 0
+  /// for the rest.
+  ///
+  /// Can be changed at any time (except [SchedulerPhase.persistentCallbacks]).
+  final ValueNotifier<EdgeInsets?> popupCellPadding;
+
   /// Contains a builder function returning a [Widget] that will be displayed overlaying the target table.
   /// [Positioned] widget can be returned to position the overlay.
   ///
@@ -288,6 +299,7 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
     DragHandleBuilder dragHandleBuilder = _defaultDragHandleBuilder,
     PopupBuilder? popupBuilder,
     EdgeInsets popupPadding = const EdgeInsets.all(16.0),
+    EdgeInsets? popupCellPadding,
     TableOverlayBuilder? tableOverlayBuilder,
     ColumnOverlayBuilder? columnOverlayBuilder,
     Duration transitionDuration = const Duration(milliseconds: 200),
@@ -336,6 +348,7 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
       onColumnTranslate: onColumnTranslate,
       popupBuilder: popupBuilder,
       popupPadding: popupPadding,
+      popupCellPadding: popupCellPadding,
       tableOverlayBuilder: tableOverlayBuilder,
       columnOverlayBuilder: columnOverlayBuilder,
       resizeHandleBuilder: resizeHandleBuilder,
@@ -372,6 +385,7 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
     required DragHandleBuilder dragHandleBuilder,
     required PopupBuilder? popupBuilder,
     required EdgeInsets popupPadding,
+    required EdgeInsets? popupCellPadding,
     required TableOverlayBuilder? tableOverlayBuilder,
     required ColumnOverlayBuilder? columnOverlayBuilder,
     required ColumnTranslationDurationFunctor columnTranslationDuration,
@@ -389,6 +403,7 @@ class TableColumnControlHandlesPopupRoute extends ModalRoute<void> {
         dragHandleBuilder = ValueNotifier(dragHandleBuilder),
         popupBuilder = ValueNotifier(popupBuilder),
         popupPadding = ValueNotifier(popupPadding),
+        popupCellPadding = ValueNotifier(popupCellPadding),
         tableOverlayBuilder = ValueNotifier(tableOverlayBuilder),
         columnOverlayBuilder = ValueNotifier(columnOverlayBuilder),
         columnTranslationDuration = ValueNotifier(columnTranslationDuration),
@@ -836,6 +851,8 @@ class _WidgetState extends State<_Widget>
               builder: (context, clearBarrierCounter, child) {
                 child = child as PreferredSizeWidget;
 
+                final popupCellPadding = route.popupCellPadding.value;
+
                 final margin = route.popupPadding.value;
 
                 final maxWidth = constraints.maxWidth - margin.horizontal;
@@ -850,8 +867,10 @@ class _WidgetState extends State<_Widget>
                   width = constraints.maxWidth - margin.horizontal;
                 } else {
                   x = offset.dx +
-                      route._targetCellRenderObject.size.width / 2 -
-                      width / 2 +
+                      route._targetCellRenderObject.size.width / 2 +
+                      -width / 2 +
+                      (popupCellPadding?.left ?? .0) +
+                      -(popupCellPadding?.right ?? .0) +
                       moveHandleCorrection;
 
                   if (x < margin.left) {
@@ -870,14 +889,17 @@ class _WidgetState extends State<_Widget>
                   }
                 }
 
-                double y =
-                    offset.dy + 2 * route._targetCellRenderObject.size.height;
+                double y = offset.dy +
+                    route._targetCellRenderObject.size.height +
+                    (popupCellPadding?.top ??
+                        route._targetCellRenderObject.size.height);
                 if (height.isInfinite) {
                   height = maxHeight;
                 }
 
                 if (y + height > maxHeight) {
-                  final invertedBottom = offset.dy;
+                  final invertedBottom =
+                      offset.dy - (popupCellPadding?.bottom ?? .0);
                   final clampedHeight =
                       constraints.maxHeight - y - margin.bottom;
                   if (invertedBottom > clampedHeight) {
