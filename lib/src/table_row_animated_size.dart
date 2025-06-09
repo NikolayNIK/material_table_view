@@ -10,6 +10,10 @@ import 'package:material_table_view/material_table_view.dart';
 import 'package:material_table_view/src/table_painting_context.dart';
 
 /// [AnimatedSize] alternative that works in the [TableView.rowBuilder].
+///
+/// As oppose to the [AnimatedSize], this widget does not create its own
+/// [TickerProvider] for performance reasons. That way a single provider
+/// can be used to animate all rows of a table.
 class TableRowAnimatedSize extends SingleChildRenderObjectWidget {
   const TableRowAnimatedSize({
     super.key,
@@ -23,15 +27,26 @@ class TableRowAnimatedSize extends SingleChildRenderObjectWidget {
     this.onEnd,
   });
 
+  /// See [AnimatedSize.alignment].
   final AlignmentGeometry alignment;
+
+  /// See [AnimatedSize.curve].
   final Curve curve;
+
+  /// See [AnimatedSize.duration].
   final Duration duration;
+
+  /// See [AnimatedSize.reverseDuration].
   final Duration? reverseDuration;
 
+  /// A ticker provider for the animation.
+  /// Typically, [TickerProviderStateMixin].
   final TickerProvider vsync;
 
+  /// See [AnimatedSize.clipBehavior].
   final Clip clipBehavior;
 
+  /// See [AnimatedSize.onEnd].
   final VoidCallback? onEnd;
 
   @override
