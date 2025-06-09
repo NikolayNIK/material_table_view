@@ -44,6 +44,7 @@ Demo app compiled as a web app is hosted [here](https://master--material-table-v
 - Lazily built fixed-height rows allowing for billions of rows
   to be in one table. Practice commonly known as virtualization.
 - Optional dynamic height for each row allowing for more use cases.
+- `ExpandableTableRow` widget that animates row expansion and shrinking.
 - Fixed-width columns that can be frozen (fixed) at the edge of a screen
   instead of getting scrolled off-screen.
   This helps the user not to lose a row-identifying information

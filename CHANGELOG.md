@@ -1,3 +1,9 @@
+## 5.5.0
+- New `ExpandableTableRow` widget.
+- New `TableRowAnimatedSize` widget.
+- New `popupCellPadding` functionality for the `TableColumnControlHandlesPopupRoute`.
+- New `physicsHorizontal` argument for the `TableView` and `SliverTableView`.
+
 ## 5.4.0
 - New `shrinkWrapHorizontal` argument of the `TableView.builder` constructor. 
 - New `tableOverlayBuilder` and `columnOverlayBuilder` of the `TableColumnControlHandlesPopupRoute.realtime`
