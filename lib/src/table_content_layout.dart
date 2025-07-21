@@ -225,7 +225,7 @@ class TableContentLayoutState extends State<TableContentLayout>
                   ? column.width + widget.scrollPadding.right
                   : 0) <=
           widget.width) {
-        if (widget.shouldRenderColumnsLazy && centerOffset >= -column.width) {
+        if (!widget.shouldRenderColumnsLazy || centerOffset >= -column.width) {
           columnsCenter.add(i);
           columnOffsetsCenter.add(centerOffset);
         }
