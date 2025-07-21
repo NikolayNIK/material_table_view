@@ -24,6 +24,7 @@ class TableContentLayout extends StatefulWidget {
   final double minScrollableWidthRatio;
   final TextDirection textDirection;
   final EdgeInsets scrollPadding;
+  final bool shouldRenderColumnsLazy;
   final Widget child;
 
   const TableContentLayout({
@@ -39,6 +40,7 @@ class TableContentLayout extends StatefulWidget {
     required this.textDirection,
     required this.scrollPadding,
     required this.child,
+    required this.shouldRenderColumnsLazy,
   });
 
   static TableContentLayoutData of(BuildContext context) {
@@ -223,7 +225,7 @@ class TableContentLayoutState extends State<TableContentLayout>
                   ? column.width + widget.scrollPadding.right
                   : 0) <=
           widget.width) {
-        if (centerOffset >= -column.width) {
+        if (widget.shouldRenderColumnsLazy && centerOffset >= -column.width) {
           columnsCenter.add(i);
           columnOffsetsCenter.add(centerOffset);
         }
