@@ -388,7 +388,7 @@ class _RenderTableViewRow extends RenderBox {
 
     for (final child in children.values) {
       height = max(
-        0,
+        height,
         child.getMaxIntrinsicHeight(
             (child.parentData as _TableViewCellParentData).width),
       );
