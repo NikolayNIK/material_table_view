@@ -51,6 +51,7 @@ class SliverTableView extends TableView {
     super.footerBuilder,
     super.footerHeight,
     super.physicsHorizontal,
+    super.shouldRenderColumnsLazy,
   }) : super.builder(physics: null);
 
   /// A scroll controller used for the horizontal scrolling of the table.
@@ -149,6 +150,7 @@ class _SliverTableViewState extends State<SliverTableView>
                     columns: columns,
                     scrollPadding: scrollPadding,
                     child: TableContentLayout(
+                      shouldRenderColumnsLazy: widget.shouldRenderColumnsLazy,
                       verticalDividersStyle: style.dividers.vertical,
                       width: width,
                       fixedRowHeight: true,

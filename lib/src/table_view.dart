@@ -56,6 +56,7 @@ class TableView extends StatefulWidget {
     this.physicsHorizontal,
     this.shrinkWrapVertical = false,
     this.shrinkWrapHorizontal = false,
+    this.shouldRenderColumnsLazy = true,
   })  : assert(rowCount >= 0),
         assert(rowHeight == null || rowHeight > 0),
         assert(headerHeight == null || headerHeight > 0),
@@ -308,6 +309,13 @@ class TableView extends StatefulWidget {
   /// Defaults to false.
   final bool shrinkWrapHorizontal;
 
+  /// Whether to render columns lazily.
+  ///
+  /// If true, columns will be rendered only when they are visible.
+  ///
+  /// Defaults to true.
+  final bool shouldRenderColumnsLazy;
+
   @override
   State<TableView> createState() => _TableViewState();
 }
@@ -416,6 +424,7 @@ class _TableViewState extends State<TableView>
             horizontalOffset: horizontalOffset,
             stickyHorizontalOffset: _stickyHorizontalOffset,
             minScrollableWidth: widget.minScrollableWidth,
+            shouldRenderColumnsLazy: widget.shouldRenderColumnsLazy,
             child: Builder(
               builder: (context) => TableScaffold(
                 shrinkWrapVertical: widget.shrinkWrapVertical,
