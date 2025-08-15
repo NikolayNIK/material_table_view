@@ -154,6 +154,7 @@ class TableViewHorizontalDividerStyle extends DividerThemeData {
     super.space,
     super.indent,
     super.endIndent,
+    super.radius,
   })  : assert(thickness == null || thickness >= 0),
         assert(space == null || space >= 0),
         assert(indent == null || indent >= 0),
@@ -170,6 +171,7 @@ class TableViewHorizontalDividerStyle extends DividerThemeData {
     double? space,
     double? indent,
     double? endIndent,
+    BorderRadiusGeometry? radius,
   }) =>
       TableViewHorizontalDividerStyle(
         enabled: enabled,
@@ -178,6 +180,7 @@ class TableViewHorizontalDividerStyle extends DividerThemeData {
         space: space ?? this.space,
         indent: indent ?? this.indent,
         endIndent: endIndent ?? this.endIndent,
+        radius: radius ?? this.radius,
       );
 
   TableViewHorizontalDividerStyle lerp(
