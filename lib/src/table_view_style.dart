@@ -170,6 +170,7 @@ class TableViewHorizontalDividerStyle extends DividerThemeData {
     double? space,
     double? indent,
     double? endIndent,
+    BorderRadiusGeometry? radius,
   }) =>
       TableViewHorizontalDividerStyle(
         enabled: enabled,
