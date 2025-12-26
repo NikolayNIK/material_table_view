@@ -374,6 +374,7 @@ class _TableViewState extends State<TableView>
               offset: horizontalScrollbarOffset,
               transformHitTests: false,
               child: Scrollable(
+                key: _controller.horizontalScrollKey,
                 controller: _controller.horizontalScrollController,
                 clipBehavior: Clip.none,
                 axisDirection: textDirectionToAxisDirection(textDirection),
@@ -447,6 +448,7 @@ class _TableViewState extends State<TableView>
                         controller: _controller.verticalScrollController,
                         style: style.scrollbars.vertical,
                         child: Scrollable(
+                          key: _controller.verticalScrollKey,
                           controller: _controller.verticalScrollController,
                           clipBehavior: Clip.none,
                           axisDirection: AxisDirection.down,
