@@ -24,6 +24,7 @@ class TableContentLayout extends StatefulWidget {
   final double minScrollableWidthRatio;
   final TextDirection textDirection;
   final EdgeInsets scrollPadding;
+  final bool shouldRenderColumnsLazy;
   final Widget child;
 
   const TableContentLayout({
@@ -39,6 +40,7 @@ class TableContentLayout extends StatefulWidget {
     required this.textDirection,
     required this.scrollPadding,
     required this.child,
+    required this.shouldRenderColumnsLazy,
   });
 
   static TableContentLayoutData of(BuildContext context) {
@@ -217,44 +219,53 @@ class TableContentLayoutState extends State<TableContentLayout>
         columnsLeft.add(i);
         columnOffsetsLeft.add(leftOffset);
         leftOffset += column.width;
-      } else if (leftOffset +
-              centerOffset +
-              (column.frozenAt(freezePriority)
-                  ? column.width + widget.scrollPadding.right
-                  : 0) <=
-          widget.width) {
-        if (centerOffset >= -column.width) {
-          columnsCenter.add(i);
-          columnOffsetsCenter.add(centerOffset);
-        }
-        centerOffset += column.width;
       } else {
-        sticky = true;
-        i = max(0, i - 2);
-        for (int j = columns.length - 1; j > i && j >= 0; j--) {
-          final column = columns[j];
-          if (column.frozenAt(freezePriority)) {
-            if (column.sticky && sticky) {
-              _maxStickyHorizontalOffset += column.width;
-            } else {
-              sticky = false;
-            }
+        final columnFitsInVisibleArea = (leftOffset +
+                centerOffset +
+                (column.frozenAt(freezePriority)
+                    ? column.width + widget.scrollPadding.right
+                    : 0)) <=
+            widget.width;
 
-            columnsRight.add(j);
-            rightOffset -= column.width;
-            columnOffsetsRight.add(rightOffset);
+        // when lazy rendering is disabled, we still want to include
+        // columns that don’t fit *provided* they are not frozen – frozen
+        // columns on the right must be handled by the dedicated branch
+        final shouldDisplayColumn =
+            (!widget.shouldRenderColumnsLazy && !column.frozenAt(freezePriority));
 
-            final maxVisibleOffset = widget.width - leftOffset + rightOffset;
-            while (columnsCenter.isNotEmpty &&
-                columnOffsetsCenter.last > maxVisibleOffset) {
-              columnsCenter.removeLast();
-              columnOffsetsCenter.removeLast();
-              i--;
+        if (columnFitsInVisibleArea || shouldDisplayColumn) {
+          if (!widget.shouldRenderColumnsLazy || centerOffset >= -column.width) {
+            columnsCenter.add(i);
+            columnOffsetsCenter.add(centerOffset);
+          }
+          centerOffset += column.width;
+        } else {
+          sticky = true;
+          i = max(0, i - 2);
+          for (int j = columns.length - 1; j > i && j >= 0; j--) {
+            final column = columns[j];
+            if (column.frozenAt(freezePriority)) {
+              if (column.sticky && sticky) {
+                _maxStickyHorizontalOffset += column.width;
+              } else {
+                sticky = false;
+              }
+
+              columnsRight.add(j);
+              rightOffset -= column.width;
+              columnOffsetsRight.add(rightOffset);
+
+              final maxVisibleOffset = widget.width - leftOffset + rightOffset;
+              while (columnsCenter.isNotEmpty && columnOffsetsCenter.last > maxVisibleOffset) {
+                columnsCenter.removeLast();
+                columnOffsetsCenter.removeLast();
+                i--;
+              }
             }
           }
-        }
 
-        break;
+          break;
+        }
       }
     }
 
