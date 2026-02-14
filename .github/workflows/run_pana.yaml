@@ -1,0 +1,19 @@
+name: Run PANA
+on: [push, pull_request]
+
+jobs:
+  package-analysis:
+    name: 'Run package analysis'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - id: pana
+        uses: NikolayNIK/dart-package-analyzer@68258e9415cef73fe2ffe927b53fb958ab17ed96
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: 'Check total package score'
+        if: ${{ steps.pana.total }} != ${{ steps.pana.total_max }}
+        run: exit 1
